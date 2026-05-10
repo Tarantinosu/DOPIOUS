@@ -26,7 +26,6 @@
 <script>
 /* ─────────────────────────────────────────────────────────────────
    🔥 FIREBASE CONFIG — วางค่า config จาก Firebase Console ตรงนี้
-   Firebase Console → Project Settings → Your apps → Web app → SDK setup
    ──────────────────────────────────────────────────────────────── */
 const FIREBASE_CONFIG = {
   apiKey:            "AIzaSyC3JxU94Zb4G1DmDAA7TeiLAkJ4uxrVh5g",
@@ -37,17 +36,33 @@ const FIREBASE_CONFIG = {
   appId:             "1:424557490629:web:ae5181dc91bbac2b8f1bac"
 };
 
-// Init Firebase (idempotent — safe to call multiple times)
-if (!firebase.apps.length) {
-  firebase.initializeApp(FIREBASE_CONFIG);
+/* Safe Firebase init — wait until SDK is ready */
+var db = null;
+function initFirebase(){
+  try{
+    if(typeof firebase === 'undefined') return false;
+    if(!firebase.apps.length) firebase.initializeApp(FIREBASE_CONFIG);
+    db = firebase.firestore();
+    return true;
+  }catch(e){
+    console.warn('[Firebase] init error:', e.message);
+    return false;
+  }
 }
-const db = firebase.firestore();
 
-/* Firestore collection: all CMS keys live here */
+/* Try init immediately, retry if SDK not ready yet */
+if(!initFirebase()){
+  var _fbRetry = setInterval(function(){
+    if(initFirebase()){ clearInterval(_fbRetry); }
+  }, 100);
+}
+
+/* Firestore collection */
 const FS_COL = 'dopious_cms';
 
 /* ── Low-level Firestore helpers ── */
 async function firestoreGet(key) {
+  if(!db && !initFirebase()) return null;
   try {
     const snap = await db.collection(FS_COL).doc(key).get();
     return snap.exists ? snap.data().value : null;
@@ -58,6 +73,7 @@ async function firestoreGet(key) {
 }
 
 async function firestoreSet(key, value) {
+  if(!db && !initFirebase()) return;
   try {
     await db.collection(FS_COL).doc(key).set({
       value,
@@ -70,6 +86,7 @@ async function firestoreSet(key, value) {
 
 /* ── Public "published" document ── */
 async function firestoreGetPublished() {
+  if(!db && !initFirebase()) return null;
   try {
     const snap = await db.collection(FS_COL).doc('published').get();
     return snap.exists ? snap.data() : null;
@@ -80,6 +97,7 @@ async function firestoreGetPublished() {
 }
 
 async function firestoreSetPublished(payload) {
+  if(!db && !initFirebase()) throw new Error('Firebase not initialized');
   try {
     await db.collection(FS_COL).doc('published').set({
       ...payload,
@@ -287,6 +305,41 @@ section{padding:76px 40px}
   letter-spacing:.02em;
 }
 .svc-dx em{font-style:normal;color:var(--red)}
+
+/* Project description — bottom right of service card */
+.svc-desc{
+  position:absolute;
+  right:18px;
+  bottom:18px;
+  z-index:3;
+  max-width:52%;
+  text-align:right;
+}
+.svc-desc p{
+  font-size:11px;
+  line-height:1.45;
+  color:rgba(255,255,255,.72);
+  font-weight:400;
+  letter-spacing:.03em;
+  text-shadow:0 1px 8px rgba(0,0,0,.9);
+  display:-webkit-box;
+  -webkit-line-clamp:3;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  word-break:break-word;
+}
+.svc-desc small{
+  display:block;
+  font-size:10px;
+  color:rgba(255,255,255,.42);
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  margin-top:4px;
+}
+@media(max-width:768px){
+  .svc-desc{right:12px;bottom:12px;max-width:58%;}
+  .svc-desc p{font-size:10px;-webkit-line-clamp:2;}
+}
 .q{
   display:none;
 }
@@ -5855,7 +5908,7 @@ function renderSvcGrid(){
       cover:imgs.cover || '',
       bg:(cat && cat.bg) || 'linear-gradient(135deg,#1a0505,#ff2a14 70%,#111)'
     }];
-    html += buildSvcCard('svcAdmin_'+String(ap.id||ai).replace(/[^a-zA-Z0-9_-]/g,''), slides, svc, sub, '', cat, -1);
+    html += buildSvcCard('svcAdmin_'+String(ap.id||ai).replace(/[^a-zA-Z0-9_-]/g,''), slides, svc, sub, '', cat, -1, ap.desc||'');
   });
 
   /* Default service categories remain below the admin-published works. */
@@ -5898,7 +5951,7 @@ function renderSvcGrid(){
   });
 }
 
-function buildSvcCard(cardId, slides, l1, l2, badge, cat, catIdx){
+function buildSvcCard(cardId, slides, l1, l2, badge, cat, catIdx, desc){
   console.log('[buildSvcCard]', cardId, 'slides:', slides.length, 'l1:', l1);
   var first = slides[0]||{};
   var bgStyle = '';
@@ -5933,6 +5986,12 @@ function buildSvcCard(cardId, slides, l1, l2, badge, cat, catIdx){
   var badgeHtml = (badge && badge !== 'LIVE') ? '<div class="admin-proj-badge">'+badge+' ✓</div>' : '';
   var dx = l2 ? '<span class="svc-l2">'+escHtml(l2)+'</span>' : '';
 
+  /* Description block — bottom right */
+  var descHtml = '';
+  if(desc && desc.trim()){
+    descHtml = '<div class="svc-desc"><p>'+escHtml(desc.trim())+'</p></div>';
+  }
+
   var safeSlides = slides.map(function(s){
     return {type:s.type, ai:s.ai, ci:s.ci, pi:s.pi, title:s.title};
   });
@@ -5947,6 +6006,7 @@ function buildSvcCard(cardId, slides, l1, l2, badge, cat, catIdx){
     + dx
     + '<span class="svc-dx">DESIGN<em>+</em></span>'
     + '</div></div>'
+    + descHtml
     + '</article>';
 }
 
