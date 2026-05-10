@@ -5837,12 +5837,20 @@ function buildImageGallery(images, fallbackBg, ratio, layout){
   const arStyle = 'aspect-ratio:'+ar+'!important;';
   layout = layout || 'stack';
 
+  /* Do not print raw media URLs as captions/text under images */
+  function cleanCaption(val){
+    const t = String(val || '').trim();
+    if(!t) return '';
+    if(/^(https?:\/\/|www\.)/i.test(t)) return '';
+    return t;
+  }
+
   if(!images || images.length === 0){
     return '<div class="detail-wide-img" style="'+arStyle+'"><div class="mock-bg" style="background:'+fallbackBg+'"></div></div>';
   }
 
   function imgEl(img){
-    const caption = (img.caption||'').trim();
+    const caption = cleanCaption(img.caption);
     return '<div class="detail-img-block">'+
       '<div class="detail-wide-img" style="'+arStyle+'">'+
         '<img src="'+(img.data||img)+'" alt="'+(caption||img.name||'')+'" loading="lazy">'+
@@ -5927,14 +5935,15 @@ function buildImageGallery(images, fallbackBg, ratio, layout){
 
   /* 9. PANORAMA — wide crop (use detail-wide-img naturally + spacer) */
   if(layout === 'panorama'){
-    return images.map((img,i)=>
-      '<div class="detail-img-block" style="'+(i>0?'margin-top:4px':'')+'">'+
+    return images.map((img,i)=>{
+      const caption = cleanCaption(img.caption);
+      return '<div class="detail-img-block" style="'+(i>0?'margin-top:4px':'')+'">'+
         '<div class="detail-wide-img" style="aspect-ratio:21/9!important;">'+
           '<img src="'+(img.data||img)+'" alt="'+(img.name||'')+'" loading="lazy">'+
         '</div>'+
-        (img.caption?'<div class="detail-img-caption">'+img.caption+'</div>':'')+
-      '</div>'
-    ).join('');
+        (caption?'<div class="detail-img-caption">'+caption+'</div>':'')+
+      '</div>';
+    }).join('');
   }
 
   /* 10. FILM STRIP — 4 columns compact */
@@ -5945,6 +5954,21 @@ function buildImageGallery(images, fallbackBg, ratio, layout){
   }
 
   return images.map(imgEl).join('');
+}
+
+
+/* Remove any accidental bare URL text from project detail display */
+function removeRawUrlTextNodes(root){
+  if(!root) return;
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+  const nodes = [];
+  while(walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(node => {
+    const parentTag = node.parentElement ? node.parentElement.tagName : '';
+    if(['A','TEXTAREA','INPUT','SCRIPT','STYLE'].includes(parentTag)) return;
+    const cleaned = node.nodeValue.replace(/https?:\/\/\S+/gi, '').trim();
+    node.nodeValue = cleaned ? cleaned : '';
+  });
 }
 
 /* ══════════════════════════════════════════════════════
@@ -6043,7 +6067,10 @@ function _showProjectDetail(opts){
   html += '<div class="detail-text-block"><h3>Scope of Work</h3><p>'+cat+' — Concept, art direction, design, production.</p></div>';
 
   const g = document.getElementById('detailGallery');
-  if(g) g.innerHTML = html;
+  if(g){
+    g.innerHTML = html;
+    removeRawUrlTextNodes(g);
+  }
 
   const panel = document.getElementById('projectDetail');
   if(panel){
