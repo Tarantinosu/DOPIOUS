@@ -7415,7 +7415,7 @@ function downloadCredential(type){
           <span style="font-size:10px;color:rgba(255,255,255,.35);display:block;margin-top:8px;font-weight:400;text-transform:none;letter-spacing:0;">The selected layout will appear on the Project Detail page</span>
         </label>
         <label class="wide">Gallery Image URLs
-          <textarea id="admProjectGalleryUrls" rows="4" placeholder="วางลิงก์รูป ทีละบรรทัด เช่น:&#10;https://i.imgbb.com/photo1.jpg&#10;https://drive.google.com/uc?id=FILE_ID&#10;https://res.cloudinary.com/..." onblur="autoDetectRatio(this.value)"></textarea>
+          <textarea id="admProjectGalleryUrls" rows="4" placeholder="วางลิงก์รูป ทีละบรรทัด เช่น:&#10;https://i.imgbb.com/photo1.jpg&#10;https://drive.google.com/uc?id=FILE_ID&#10;https://res.cloudinary.com/..." onblur="autoDetectRatio(this.value);livePreviewGalleryUrls(this.value)" oninput="livePreviewGalleryUrls(this.value)"></textarea>
           <span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:4px;">📌 วางลิงก์รูปแล้วระบบจะ <b style="color:rgba(255,160,60,.8);">ปรับ Ratio อัตโนมัติ</b> — 1 บรรทัด = 1 รูป</span>
         </label>
         <label class="wide">Video URL
@@ -8926,6 +8926,28 @@ function editAdminProject(index){
   renderCategoryCount();
   adminStatus('Project loaded into form. Edit then click Save & Publish.');
   document.getElementById('admProjectName')?.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* ── Live preview gallery URLs as user types/pastes ── */
+function livePreviewGalleryUrls(raw){
+  const urls = (raw||'').split('\n').map(s=>s.trim()).filter(s=>s.startsWith('http'));
+  const box = document.getElementById('admGalleryPreview');
+  if(!box) return;
+  if(!urls.length){
+    box.innerHTML='<span style="color:rgba(255,255,255,.28);font-size:12px;margin:auto;">Gallery preview</span>';
+    return;
+  }
+  box.innerHTML = urls.map((url,i)=>`
+    <div style="position:relative;flex:0 0 auto;">
+      <img src="${driveImgUrl(url)}" alt="img ${i+1}"
+        style="height:80px;width:auto;border-radius:8px;object-fit:cover;display:block;background:#111;"
+        onerror="this.style.opacity='.2';this.title='ไม่สามารถโหลดรูปได้'">
+    </div>
+  `).join('');
+  box.style.display='flex';
+  box.style.flexWrap='wrap';
+  box.style.gap='6px';
+  box.style.padding='8px';
 }
 
 /* ── Auto-detect image ratio from first URL ── */
