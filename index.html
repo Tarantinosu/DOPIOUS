@@ -265,6 +265,7 @@ async function firestoreSetPublished(payload) {
     if (typeof renderClientGrid    === 'function') renderClientGrid();
     if (typeof applyThemeFromStorage === 'function') applyThemeFromStorage();
     if (typeof applySEOFromStorage   === 'function') applySEOFromStorage();
+    if (typeof applyCompanyContactInfo === 'function') applyCompanyContactInfo();
 
   } catch(e) {
     console.warn('[Dopious+] publicBoot error, using localStorage fallback:', e.message);
@@ -6816,6 +6817,7 @@ setTimeout(applyCustomServiceCategories, 300);
 
 <script>
 function openStartPopup(){
+  if(typeof applyCompanyContactInfo === 'function') applyCompanyContactInfo();
   const popup = document.getElementById('startPopup');
   if(popup){
     popup.classList.add('on');
@@ -6833,6 +6835,146 @@ function closeStartPopup(event){
 document.addEventListener('keydown', function(e){
   if(e.key === 'Escape') closeStartPopup();
 });
+
+/* Company / Contact Settings → Start a Project + Contact Page sync */
+const DEFAULT_COMPANY_CONTACT = {
+  name:'Dopious Partnership Limited',
+  office:'Bangkok Office / Thailand',
+  phone:'+66 93-691-6592',
+  email:'info.dopiousth@gmail.com',
+  line:'https://line.me/R/ti/p/@dopious',
+  whatsapp:'https://wa.me/66936916592',
+  linkedin:'https://www.linkedin.com/',
+  behance:'https://www.behance.net/',
+  facebook:'https://www.facebook.com/'
+};
+
+function _contactRaw(){
+  try{
+    if(typeof adminGet === 'function') return adminGet('dopiousAdminCompany', null);
+    const raw = localStorage.getItem('dopiousAdminCompany');
+    return raw ? JSON.parse(raw) : null;
+  }catch(e){ return null; }
+}
+function _contactPick(raw, keys, fallback){
+  if(!raw || typeof raw !== 'object') return fallback;
+  for(const k of keys){
+    if(Object.prototype.hasOwnProperty.call(raw, k)) return String(raw[k] ?? '').trim();
+  }
+  return fallback;
+}
+function _phoneDigits(phone){
+  let d = String(phone || '').replace(/\D/g,'');
+  if(!d) return '';
+  if(d.startsWith('00')) d = d.slice(2);
+  if(d.startsWith('0')) d = '66' + d.slice(1);
+  return d;
+}
+function _telHref(phone){
+  const cleaned = String(phone || '').replace(/[\s()\-]/g,'');
+  return cleaned ? 'tel:' + cleaned : '';
+}
+function _waHref(value, phone){
+  const v = String(value || '').trim();
+  if(/^https?:\/\//i.test(v)) return v;
+  const fromValue = _phoneDigits(v);
+  if(fromValue) return 'https://wa.me/' + fromValue;
+  const fromPhone = _phoneDigits(phone);
+  return fromPhone ? 'https://wa.me/' + fromPhone : '';
+}
+function _mailtoHref(email){
+  const e = String(email || '').trim();
+  return e ? 'mailto:' + e + '?subject=' + encodeURIComponent('Start a Project with Dopious+') : '';
+}
+function getCompanyContactInfo(){
+  const raw = _contactRaw();
+  return {
+    name:_contactPick(raw, ['name','company'], DEFAULT_COMPANY_CONTACT.name),
+    office:_contactPick(raw, ['office','location'], DEFAULT_COMPANY_CONTACT.office),
+    phone:_contactPick(raw, ['phone','tel'], DEFAULT_COMPANY_CONTACT.phone),
+    email:_contactPick(raw, ['email','mail'], DEFAULT_COMPANY_CONTACT.email),
+    line:_contactPick(raw, ['line','lineUrl','lineURL'], DEFAULT_COMPANY_CONTACT.line),
+    whatsapp:_contactPick(raw, ['whatsapp','whatsappUrl','whatsappURL'], DEFAULT_COMPANY_CONTACT.whatsapp),
+    linkedin:_contactPick(raw, ['linkedin','linkedIn'], DEFAULT_COMPANY_CONTACT.linkedin),
+    behance:_contactPick(raw, ['behance'], DEFAULT_COMPANY_CONTACT.behance),
+    facebook:_contactPick(raw, ['facebook'], DEFAULT_COMPANY_CONTACT.facebook)
+  };
+}
+function _setTxt(root, selector, value){
+  const el = root ? root.querySelector(selector) : null;
+  if(el) el.textContent = value || '';
+}
+function _setContactButton(btn, url, title, subtitle, newTab){
+  if(!btn) return;
+  _setTxt(btn, '.contact-copy b', title);
+  _setTxt(btn, '.contact-copy span', subtitle);
+  btn.classList.toggle('is-disabled', !url);
+  btn.onclick = function(e){
+    e.preventDefault();
+    if(!url) return false;
+    if(newTab) window.open(url, '_blank');
+    else window.location.href = url;
+    return false;
+  };
+}
+function _setContactAnchor(a, url, subtitle){
+  if(!a) return;
+  const em = a.querySelector('em');
+  if(em) em.textContent = subtitle || '';
+  a.classList.toggle('is-disabled', !url);
+  if(url) a.setAttribute('href', url);
+  else a.setAttribute('href', 'javascript:void(0)');
+  if(url && /^https?:\/\//i.test(url)) a.setAttribute('target','_blank');
+  else a.removeAttribute('target');
+  a.onclick = function(e){ if(!url){ e.preventDefault(); return false; } };
+}
+function applyCompanyContactInfo(){
+  const c = getCompanyContactInfo();
+  const phoneHref = _telHref(c.phone);
+  const waHref = _waHref(c.whatsapp, c.phone);
+  const mailHref = _mailtoHref(c.email);
+  const displayName = c.name || 'Dopious+';
+
+  const popup = document.getElementById('startPopup');
+  if(popup){
+    const cards = popup.querySelectorAll('.contact-choice-grid-v2 .contact-choice');
+    _setContactButton(cards[0], c.line, 'Add Line', c.line ? 'Chat with ' + displayName + ' on Line' : 'Line URL not set', true);
+    _setContactButton(cards[1], waHref, 'WhatsApp', c.phone || 'WhatsApp URL not set', true);
+    _setContactButton(cards[2], phoneHref, 'Phone', c.phone || 'Phone not set', false);
+    _setContactButton(cards[3], mailHref, 'Email Brief', c.email || 'Email not set', false);
+    _setContactButton(cards[4], c.linkedin, 'LinkedIn', c.linkedin ? 'Professional connection' : 'LinkedIn URL not set', true);
+    _setContactButton(cards[5], c.behance, 'Behance', c.behance ? 'Portfolio updates' : 'Behance URL not set', true);
+    _setContactButton(cards[6], c.facebook, 'Facebook', c.facebook ? 'Follow ' + displayName : 'Facebook URL not set', true);
+
+    const office = popup.querySelectorAll('.popup-office-info > div');
+    if(office[0]){ _setTxt(office[0], 'small', c.office || 'Office'); _setTxt(office[0], 'b', displayName); }
+    if(office[1]){ _setTxt(office[1], 'small', 'Phone'); _setTxt(office[1], 'b', c.phone || '-'); }
+    if(office[2]){ _setTxt(office[2], 'small', 'Email'); _setTxt(office[2], 'b', c.email || '-'); }
+  }
+
+  const contactPage = document.getElementById('contactPage');
+  if(contactPage){
+    const methods = contactPage.querySelectorAll('.method-card');
+    _setContactAnchor(methods[0], c.line, c.line ? 'Add ' + displayName + ' on Line' : 'Line URL not set');
+    _setContactAnchor(methods[1], waHref, c.phone || 'WhatsApp URL not set');
+    _setContactAnchor(methods[2], mailHref, c.email || 'Email not set');
+    _setContactAnchor(methods[3], c.linkedin, c.linkedin ? 'Connect professionally' : 'LinkedIn URL not set');
+    _setContactAnchor(methods[4], c.behance, c.behance ? 'View portfolio updates' : 'Behance URL not set');
+    _setContactAnchor(methods[5], c.facebook, c.facebook ? 'Follow ' + displayName : 'Facebook URL not set');
+
+    const info = contactPage.querySelectorAll('.office-clean > div');
+    if(info[0]){ _setTxt(info[0], 'small', 'Office'); _setTxt(info[0], 'strong', c.office || '-'); }
+    if(info[1]){ _setTxt(info[1], 'small', 'Company'); _setTxt(info[1], 'strong', displayName); }
+    if(info[2]){ _setTxt(info[2], 'small', 'Phone'); _setTxt(info[2], 'strong', c.phone || '-'); }
+    if(info[3]){ _setTxt(info[3], 'small', 'Email'); _setTxt(info[3], 'strong', c.email || '-'); }
+  }
+}
+
+if(document.readyState === 'loading'){
+  document.addEventListener('DOMContentLoaded', applyCompanyContactInfo);
+}else{
+  applyCompanyContactInfo();
+}
 </script>
 
 
@@ -7992,6 +8134,7 @@ async function syncFromFirestore(){
     if(typeof initAdminDashboard==='function') initAdminDashboard();
     if(typeof renderSvcGrid==='function') renderSvcGrid();
     if(typeof renderClientGrid==='function') renderClientGrid();
+    if(typeof applyCompanyContactInfo==='function') applyCompanyContactInfo();
   } else {
     adminStatus('Ready — เชื่อมต่อ Firebase แล้ว ☁️');
   }
@@ -8242,12 +8385,28 @@ function deleteAdminHome(type,i){
   const key=type==='slide'?adminStoreKeys.home:adminStoreKeys.logos; const data=adminGet(key,[]); data.splice(i,1); adminSet(key,data); renderAdminHome();
 }
 function saveCompanyInfo(){
-  const obj={company:admCompanyName.value,office:admCompanyOffice.value,phone:admCompanyPhone.value,email:admCompanyEmail.value,line:admCompanyLine.value,whatsapp:admCompanyWhatsapp.value,linkedin:admCompanyLinkedin.value,behance:admCompanyBehance.value,facebook:admCompanyFacebook.value};
-  adminSet(adminStoreKeys.company,obj); adminStatus('Company info saved to Firebase ☁️','ok');
+  const companyName=(admCompanyName.value||'').trim();
+  const obj={
+    name:companyName,
+    company:companyName,
+    office:(admCompanyOffice.value||'').trim(),
+    phone:(admCompanyPhone.value||'').trim(),
+    email:(admCompanyEmail.value||'').trim(),
+    line:(admCompanyLine.value||'').trim(),
+    whatsapp:(admCompanyWhatsapp.value||'').trim(),
+    linkedin:(admCompanyLinkedin.value||'').trim(),
+    behance:(admCompanyBehance.value||'').trim(),
+    facebook:(admCompanyFacebook.value||'').trim()
+  };
+  adminSet(adminStoreKeys.company,obj);
+  if(typeof applyCompanyContactInfo==='function') applyCompanyContactInfo();
+  adminStatus('Company info saved to Firebase ☁️ — Start a Project updated','ok');
 }
 function loadCompanyInfo(){
-  const o=adminGet(adminStoreKeys.company,null); if(!o){adminStatus('No saved company info yet.');return;}
-  admCompanyName.value=o.company||''; admCompanyOffice.value=o.office||''; admCompanyPhone.value=o.phone||''; admCompanyEmail.value=o.email||''; admCompanyLine.value=o.line||''; admCompanyWhatsapp.value=o.whatsapp||''; admCompanyLinkedin.value=o.linkedin||''; admCompanyBehance.value=o.behance||''; admCompanyFacebook.value=o.facebook||''; adminStatus('Saved company info loaded.');
+  const o=adminGet(adminStoreKeys.company,null); if(!o){adminStatus('No saved company info yet.'); if(typeof applyCompanyContactInfo==='function') applyCompanyContactInfo(); return;}
+  admCompanyName.value=o.name||o.company||''; admCompanyOffice.value=o.office||''; admCompanyPhone.value=o.phone||''; admCompanyEmail.value=o.email||''; admCompanyLine.value=o.line||''; admCompanyWhatsapp.value=o.whatsapp||''; admCompanyLinkedin.value=o.linkedin||''; admCompanyBehance.value=o.behance||''; admCompanyFacebook.value=o.facebook||'';
+  if(typeof applyCompanyContactInfo==='function') applyCompanyContactInfo();
+  adminStatus('Saved company info loaded.');
 }
 function saveTeamMember(){
   const photo=document.getElementById('admTeamPreview')?.dataset.image || '';
@@ -8332,6 +8491,7 @@ function initAdminDashboard(){
   renderMediaLibrary();
   updateDashboardStats();
   if(typeof renderSvcGrid==='function') renderSvcGrid();
+  if(typeof applyCompanyContactInfo==='function') applyCompanyContactInfo();
 }
 </script>
 
@@ -10336,7 +10496,7 @@ function buildPreviewContact(){
       <h2 style="font-size:clamp(36px,5vw,64px);font-weight:900;letter-spacing:-.04em;margin:0 0 40px;">Contact<br>Dopious+</h2>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:600px;">
         ${[
-          ['Company', company.name || 'Dopious Partnership Limited'],
+          ['Company', company.name || company.company || 'Dopious Partnership Limited'],
           ['Location', company.office || 'Bangkok Office / Thailand'],
           ['Phone', company.phone || '+66 93-691-6592'],
           ['Email', company.email || 'info.dopiousth@gmail.com'],
