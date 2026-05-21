@@ -13795,5 +13795,325 @@ async function uploadImageToSupabase(file){
 })();
 </script>
 
+
+<!-- PROJECT DETAIL CREDIT FIX — keep admin editable Credit synced to detail page -->
+<script id="dopious-project-detail-credit-fix">
+(function(){
+  'use strict';
+
+  function $(id){ return document.getElementById(id); }
+
+  function escText(v){
+    return String(v == null ? '' : v).trim();
+  }
+
+  function projectCredit(p){
+    p = p || {};
+    var keys = ['credit','projectCredit','creditText','creditBy','credits','teamCredit'];
+    for(var i = 0; i < keys.length; i++){
+      var val = escText(p[keys[i]]);
+      if(val) return val;
+    }
+    return 'Dopious+';
+  }
+
+  function readProjects(){
+    try{
+      if(typeof adminGet === 'function' && window.adminStoreKeys){
+        return adminGet(adminStoreKeys.projects, []) || [];
+      }
+    }catch(e){}
+    try{
+      return JSON.parse(localStorage.getItem('dopiousAdminProjects') || '[]') || [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  function writeProjects(data){
+    try{
+      if(typeof adminSet === 'function' && window.adminStoreKeys){
+        adminSet(adminStoreKeys.projects, data);
+        return;
+      }
+    }catch(e){}
+    try{
+      localStorage.setItem('dopiousAdminProjects', JSON.stringify(data || []));
+    }catch(e){}
+  }
+
+  function setDetailCredit(value){
+    var el = $('detailCredit');
+    if(el) el.textContent = escText(value) || 'Dopious+';
+  }
+
+  /* Make the shared project detail renderer always respect the admin Credit field. */
+  var baseShowProjectDetail = window._showProjectDetail;
+  if(typeof baseShowProjectDetail === 'function' && !baseShowProjectDetail.__creditFix){
+    var fixedShowProjectDetail = function(opts){
+      opts = opts || {};
+      opts.credit = escText(opts.credit) || projectCredit(opts.project);
+      var result = baseShowProjectDetail.call(this, opts);
+      setDetailCredit(opts.credit);
+      return result;
+    };
+    fixedShowProjectDetail.__creditFix = true;
+    window._showProjectDetail = fixedShowProjectDetail;
+  }
+
+  /* Re-open saved admin projects with the saved Credit value. */
+  var baseOpenSavedAdminProject = window.openSavedAdminProject;
+  window.openSavedAdminProject = function(index){
+    var projects = readProjects();
+    var ap = projects[index];
+    if(!ap){
+      if(typeof baseOpenSavedAdminProject === 'function') return baseOpenSavedAdminProject.apply(this, arguments);
+      return;
+    }
+
+    var apImgs = {cover:'', images:[], videos:[]};
+    try{
+      if(typeof loadProjectImages === 'function') apImgs = loadProjectImages(ap) || apImgs;
+    }catch(e){}
+
+    var cover = ap.coverImage || ap.cover || apImgs.cover || ap.coverThumb || ap.cardThumb || '';
+    var galleryImages = (ap.galleryImages && ap.galleryImages.length)
+      ? ap.galleryImages
+      : (apImgs.images || []).map(function(i){ return i && (i.data || i); }).filter(Boolean);
+
+    if(typeof window._showProjectDetail === 'function'){
+      return window._showProjectDetail({
+        project: ap,
+        cat: (ap.service || '') + (ap.sub ? ' / ' + ap.sub : ''),
+        name: ap.name || 'Project',
+        client: ap.client || 'Client',
+        credit: projectCredit(ap),
+        year: ap.year || '2026',
+        desc: ap.desc || '',
+        layout: ap.layout || 'stack',
+        cover: cover,
+        images: apImgs.images || [],
+        galleryImages: galleryImages,
+        galleryCaptions: ap.galleryCaptions || [],
+        videoUrl: ap.videoUrl || '',
+        driveFolderUrl: ap.driveFolderUrl || '',
+        bg: 'linear-gradient(135deg,#1a0505,#ff2a14 80%,#111)'
+      });
+    }
+
+    if(typeof baseOpenSavedAdminProject === 'function') return baseOpenSavedAdminProject.apply(this, arguments);
+  };
+
+  /* When loading a project to edit, put its saved Credit back into the Credit input. */
+  var baseEditAdminProject = window.editAdminProject;
+  if(typeof baseEditAdminProject === 'function' && !baseEditAdminProject.__creditFix){
+    var fixedEditAdminProject = function(index){
+      var projects = readProjects();
+      var p = projects[index];
+      var result = baseEditAdminProject.apply(this, arguments);
+      setTimeout(function(){
+        var creditInput = $('admProjectCredit');
+        if(creditInput && p) creditInput.value = projectCredit(p);
+      }, 0);
+      return result;
+    };
+    fixedEditAdminProject.__creditFix = true;
+    window.editAdminProject = fixedEditAdminProject;
+  }
+
+  /* Normalize the Credit key before publishing so Firestore/localStorage use the same field name. */
+  var basePublishAll = window.publishAll;
+  if(typeof basePublishAll === 'function' && !basePublishAll.__creditFix){
+    var fixedPublishAll = function(){
+      var projects = readProjects().map(function(p){
+        p = Object.assign({}, p);
+        p.credit = projectCredit(p);
+        return p;
+      });
+      writeProjects(projects);
+      return basePublishAll.apply(this, arguments);
+    };
+    fixedPublishAll.__creditFix = true;
+    window.publishAll = fixedPublishAll;
+  }
+
+  /* Clear Credit together with the rest of the project form. */
+  var baseClearAdminProjectForm = window.clearAdminProjectForm;
+  if(typeof baseClearAdminProjectForm === 'function' && !baseClearAdminProjectForm.__creditFix){
+    var fixedClearAdminProjectForm = function(){
+      var result = baseClearAdminProjectForm.apply(this, arguments);
+      var creditInput = $('admProjectCredit');
+      if(creditInput) creditInput.value = '';
+      return result;
+    };
+    fixedClearAdminProjectForm.__creditFix = true;
+    window.clearAdminProjectForm = fixedClearAdminProjectForm;
+  }
+})();
+</script>
+
+
+
+<!-- PATCH: Admin Video URL as autoplay muted service-cover background -->
+<style id="dopious-video-cover-autoplay-css">
+  .cat-slide-layer{position:absolute;inset:0;overflow:hidden;}
+  .cat-slide-layer img{position:absolute;inset:0;z-index:1;}
+  .cat-slide-layer.has-video-cover{background:#080808;}
+  .dop-cover-video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    z-index:2;
+    pointer-events:none;
+    overflow:hidden;
+    background:#080808;
+  }
+  .dop-cover-video iframe,
+  .dop-cover-video video{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
+    pointer-events:none;
+    background:#080808;
+  }
+  .dop-cover-video video{object-fit:cover;}
+  .dop-cover-video iframe.dop-cover-youtube{width:120%;height:120%;left:-10%;top:-10%;}
+  .dop-cover-video iframe.dop-cover-vimeo{width:100%;height:100%;}
+  .cat-slide-card .cat-slide-layer:after{
+    content:'';
+    position:absolute;
+    inset:0;
+    z-index:3;
+    pointer-events:none;
+    background:linear-gradient(to top,rgba(0,0,0,.45),rgba(0,0,0,.08) 48%,rgba(0,0,0,.12));
+  }
+</style>
+<script id="dopious-video-cover-autoplay-js">
+(function(){
+  'use strict';
+
+  var PROJECT_KEY = 'dopiousAdminProjects';
+  var SVC_TO_CAT = {
+    'Brand Strategy Corporate Identity Design+':0,
+    'Industrial Design+':1,
+    'Space Design+':2,
+    'Keyvisual Creative Ads Design+':3,
+    'Packaging Design+':4,
+    'Website UX-UI Design+':5,
+    'Sculpture Design+':6,
+    'Fashion Design+':7,
+    '2D-3D Motion Graphic Design+':8,
+    'Photo / Video / Ads Design+':9,
+    'Build & Installation+':10
+  };
+
+  function escAttr(s){
+    return String(s || '').replace(/[&<>"]/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
+  }
+  function clean(raw){ return String(raw || '').trim().replace(/&amp;/g,'&'); }
+  function readProjects(){
+    try{ return JSON.parse(localStorage.getItem(PROJECT_KEY) || '[]') || []; }
+    catch(e){ return []; }
+  }
+  function youtubeId(raw){
+    var url = clean(raw);
+    if(/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
+    var m = url.match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+    if(m && m[1]) return m[1];
+    try{
+      var u = new URL(url);
+      var v = u.searchParams.get('v');
+      if(v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v;
+    }catch(e){}
+    return '';
+  }
+  function vimeoId(raw){
+    var m = clean(raw).match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+    return m ? m[1] : '';
+  }
+  function directVideo(raw){
+    var url = clean(raw);
+    return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url) ? url : '';
+  }
+  function videoMarkup(raw){
+    var url = clean(raw);
+    if(!url) return '';
+    var yt = youtubeId(url);
+    if(yt){
+      var qs = [
+        'autoplay=1','mute=1','muted=1','controls=0','playsinline=1',
+        'loop=1','playlist='+encodeURIComponent(yt),'rel=0','modestbranding=1',
+        'disablekb=1','fs=0','iv_load_policy=3'
+      ];
+      try{
+        if(window.location && /^https?:\/\//i.test(window.location.origin)) qs.push('origin='+encodeURIComponent(window.location.origin));
+      }catch(e){}
+      return '<div class="dop-cover-video"><iframe class="dop-cover-youtube" src="https://www.youtube.com/embed/'+yt+'?'+qs.join('&')+'" title="Project cover video" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" aria-hidden="true" tabindex="-1"></iframe></div>';
+    }
+    var vi = vimeoId(url);
+    if(vi){
+      return '<div class="dop-cover-video"><iframe class="dop-cover-vimeo" src="https://player.vimeo.com/video/'+vi+'?autoplay=1&muted=1&loop=1&background=1&playsinline=1" title="Project cover video" allow="autoplay; fullscreen; picture-in-picture" aria-hidden="true" tabindex="-1"></iframe></div>';
+    }
+    var direct = directVideo(url);
+    if(direct){
+      return '<div class="dop-cover-video"><video autoplay muted loop playsinline preload="metadata" src="'+escAttr(direct)+'" aria-hidden="true" tabindex="-1"></video></div>';
+    }
+    return '';
+  }
+  function groupedProjects(){
+    var grouped = {};
+    readProjects().forEach(function(p){
+      var idx = SVC_TO_CAT[String(p.service || '').trim()];
+      if(idx === undefined) return;
+      if(!grouped[idx]) grouped[idx] = [];
+      grouped[idx].push(p);
+    });
+    return grouped;
+  }
+  function applyVideoCovers(){
+    var grouped = groupedProjects();
+    Object.keys(grouped).forEach(function(idx){
+      var card = document.getElementById('csFx_' + idx);
+      if(!card) return;
+      var layers = card.querySelectorAll('.cat-slide-layer');
+      grouped[idx].forEach(function(project, slideIndex){
+        var layer = layers[slideIndex];
+        if(!layer || layer.dataset.videoCoverApplied === '1') return;
+        var html = videoMarkup(project.videoUrl || project.coverVideoUrl || project.video || '');
+        if(!html) return;
+        layer.classList.add('has-video-cover');
+        layer.insertAdjacentHTML('beforeend', html);
+        layer.dataset.videoCoverApplied = '1';
+      });
+    });
+  }
+
+  var baseRender = window.renderSvcGrid;
+  if(typeof baseRender === 'function' && !baseRender.__videoCoverAutoplay){
+    var wrappedRender = function(){
+      var result = baseRender.apply(this, arguments);
+      setTimeout(applyVideoCovers, 0);
+      setTimeout(applyVideoCovers, 250);
+      return result;
+    };
+    wrappedRender.__videoCoverAutoplay = true;
+    window.renderSvcGrid = wrappedRender;
+  }
+
+  function boot(){
+    applyVideoCovers();
+    if(typeof window.renderSvcGrid === 'function') setTimeout(function(){ try{ window.renderSvcGrid(); }catch(e){} }, 120);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else setTimeout(boot, 80);
+})();
+</script>
+
 </body>
 </html>
