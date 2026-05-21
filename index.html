@@ -7612,6 +7612,13 @@ function downloadCredential(type){
           <input id="admProjectVideoUrl" type="url" placeholder="https://www.youtube.com/watch?v=... หรือ https://vimeo.com/... หรือ .mp4 URL">
           <span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:4px;">รองรับ YouTube, Vimeo, Google Drive (share link), และ .mp4 URL โดยตรง</span>
         </label>
+        <label class="wide">Services Card Preview Type
+          <select id="admProjectPreviewType" onchange="if(typeof previewProjectMediaUrls==='function')previewProjectMediaUrls(); if(typeof renderSvcGrid==='function')renderSvcGrid();">
+            <option value="image">Image preview — use Cover Image</option>
+            <option value="video">Video preview — autoplay muted cover</option>
+          </select>
+          <span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:4px;">เลือกว่าการ์ดหน้า Services / Works จะพรีวิวเป็นภาพนิ่ง หรือวิดีโออัตโนมัติแบบไม่มีเสียง</span>
+        </label>
         <label class="wide">Google Drive Folder URL <em style="color:rgba(255,255,255,.3);font-size:9px;font-weight:400;text-transform:none;letter-spacing:0;">(สำหรับ Admin เท่านั้น)</em>
           <input id="admProjectDriveFolder" type="url" placeholder="https://drive.google.com/drive/folders/...">
         </label>
@@ -14109,6 +14116,328 @@ async function uploadImageToSupabase(file){
   function boot(){
     applyVideoCovers();
     if(typeof window.renderSvcGrid === 'function') setTimeout(function(){ try{ window.renderSvcGrid(); }catch(e){} }, 120);
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else setTimeout(boot, 80);
+})();
+</script>
+
+
+<!-- PATCH: Admin chooses Services card preview as image or video -->
+<style id="dopious-preview-type-choice-css">
+  #admProjectPreviewType{
+    width:100%;
+    margin-top:8px;
+    padding:14px 16px;
+    border:1px solid rgba(255,255,255,.13);
+    border-radius:14px;
+    background:#0f0f0f;
+    color:#fff;
+    font-size:13px;
+    font-weight:800;
+    outline:none;
+  }
+  #admProjectPreviewType:focus{border-color:#ff6a20;box-shadow:0 0 0 3px rgba(255,106,32,.12);}
+  .preview-type-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-left:6px;
+    color:#ff6a20;
+    font-size:9px;
+    font-weight:900;
+    letter-spacing:.08em;
+    text-transform:uppercase;
+  }
+</style>
+<script id="dopious-preview-type-choice-js">
+(function(){
+  'use strict';
+
+  var PROJECT_KEY = 'dopiousAdminProjects';
+  var SELECT_ID = 'admProjectPreviewType';
+  var SVC_TO_CAT = {
+    'Brand Strategy Corporate Identity Design+':0,
+    'Industrial Design+':1,
+    'Space Design+':2,
+    'Keyvisual Creative Ads Design+':3,
+    'Packaging Design+':4,
+    'Website UX-UI Design+':5,
+    'Sculpture Design+':6,
+    'Fashion Design+':7,
+    '2D-3D Motion Graphic Design+':8,
+    'Photo / Video / Ads Design+':9,
+    'Build & Installation+':10
+  };
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s || '').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
+  function clean(raw){ return String(raw || '').trim().replace(/&amp;/g,'&'); }
+  function selectedPreviewType(){
+    var el = $(SELECT_ID);
+    var v = (el && el.value === 'video') ? 'video' : 'image';
+    return v;
+  }
+  function projectPreviewType(p){
+    var v = String((p && (p.previewType || p.cardPreviewType || p.previewMode || p.coverPreviewType)) || 'image').toLowerCase();
+    return v === 'video' ? 'video' : 'image';
+  }
+  function readProjects(){
+    try{
+      if(typeof adminGet === 'function' && window.adminStoreKeys){
+        return adminGet(adminStoreKeys.projects, []) || [];
+      }
+    }catch(e){}
+    try{ return JSON.parse(localStorage.getItem(PROJECT_KEY) || '[]') || []; }catch(e){ return []; }
+  }
+  function writeProjects(data){
+    try{
+      if(typeof adminSet === 'function' && window.adminStoreKeys){
+        adminSet(adminStoreKeys.projects, data || []);
+        return;
+      }
+    }catch(e){}
+    try{ localStorage.setItem(PROJECT_KEY, JSON.stringify(data || [])); }catch(e){}
+    try{
+      if(typeof firestoreSet === 'function') firestoreSet(PROJECT_KEY, data || []).catch(function(err){ console.warn('[Firebase] preview type sync failed:', err.message); });
+    }catch(e){}
+  }
+
+  function ensurePreviewTypeField(){
+    var existing = $(SELECT_ID);
+    if(existing) return existing;
+    var videoInput = $('admProjectVideoUrl');
+    var videoLabel = videoInput && videoInput.closest ? videoInput.closest('label') : null;
+    if(!videoLabel || !videoLabel.parentNode) return null;
+    var label = document.createElement('label');
+    label.className = 'wide';
+    label.innerHTML = 'Services Card Preview Type' +
+      '<select id="'+SELECT_ID+'" onchange="if(typeof previewProjectMediaUrls===\'function\')previewProjectMediaUrls(); if(typeof renderSvcGrid===\'function\')renderSvcGrid();">' +
+      '<option value="image">Image preview — use Cover Image</option>' +
+      '<option value="video">Video preview — autoplay muted cover</option>' +
+      '</select>' +
+      '<span style="font-size:10px;color:rgba(255,255,255,.35);font-weight:400;letter-spacing:0;text-transform:none;display:block;margin-top:4px;">เลือกว่าการ์ดหน้า Services / Works จะพรีวิวเป็นภาพนิ่ง หรือวิดีโออัตโนมัติแบบไม่มีเสียง</span>';
+    videoLabel.parentNode.insertBefore(label, videoLabel.nextSibling);
+    return $(SELECT_ID);
+  }
+
+  function youtubeId(raw){
+    var url = clean(raw);
+    if(/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
+    var m = url.match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+    if(m && m[1]) return m[1];
+    try{
+      var u = new URL(url);
+      var v = u.searchParams.get('v');
+      if(v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v;
+    }catch(e){}
+    return '';
+  }
+  function vimeoId(raw){ var m = clean(raw).match(/vimeo\.com\/(?:video\/)?(\d+)/i); return m ? m[1] : ''; }
+  function directVideo(raw){ var url = clean(raw); return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url) ? url : ''; }
+  function videoMarkup(raw){
+    var url = clean(raw);
+    if(!url) return '';
+    var yt = youtubeId(url);
+    if(yt){
+      var qs = ['autoplay=1','mute=1','muted=1','controls=0','playsinline=1','loop=1','playlist='+encodeURIComponent(yt),'rel=0','modestbranding=1','disablekb=1','fs=0','iv_load_policy=3'];
+      try{ if(window.location && /^https?:\/\//i.test(window.location.origin)) qs.push('origin='+encodeURIComponent(window.location.origin)); }catch(e){}
+      return '<div class="dop-cover-video"><iframe class="dop-cover-youtube" src="https://www.youtube.com/embed/'+yt+'?'+qs.join('&')+'" title="Project cover video" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" aria-hidden="true" tabindex="-1"></iframe></div>';
+    }
+    var vi = vimeoId(url);
+    if(vi){
+      return '<div class="dop-cover-video"><iframe class="dop-cover-vimeo" src="https://player.vimeo.com/video/'+vi+'?autoplay=1&muted=1&loop=1&background=1&playsinline=1" title="Project cover video" allow="autoplay; fullscreen; picture-in-picture" aria-hidden="true" tabindex="-1"></iframe></div>';
+    }
+    var direct = directVideo(url);
+    if(direct){
+      return '<div class="dop-cover-video"><video autoplay muted loop playsinline preload="metadata" src="'+esc(direct)+'" aria-hidden="true" tabindex="-1"></video></div>';
+    }
+    return '';
+  }
+
+  function groupedProjects(){
+    var grouped = {};
+    readProjects().forEach(function(p){
+      var idx = SVC_TO_CAT[String(p.service || '').trim()];
+      if(idx === undefined) return;
+      if(!grouped[idx]) grouped[idx] = [];
+      grouped[idx].push(p);
+    });
+    return grouped;
+  }
+
+  function enforcePreviewChoice(){
+    var grouped = groupedProjects();
+    Object.keys(grouped).forEach(function(idx){
+      var card = document.getElementById('csFx_' + idx) || document.getElementById('catSlide_' + idx);
+      if(!card) return;
+      var layers = card.querySelectorAll('.cat-slide-layer');
+      grouped[idx].forEach(function(project, slideIndex){
+        var layer = layers[slideIndex];
+        if(!layer) return;
+        var wantsVideo = projectPreviewType(project) === 'video';
+        var existing = layer.querySelector('.dop-cover-video');
+        if(!wantsVideo){
+          if(existing) existing.remove();
+          layer.classList.remove('has-video-cover');
+          layer.dataset.videoCoverApplied = '';
+          return;
+        }
+        var html = videoMarkup(project.videoUrl || project.coverVideoUrl || project.video || '');
+        if(!html){
+          if(existing) existing.remove();
+          layer.classList.remove('has-video-cover');
+          return;
+        }
+        if(!existing){
+          layer.classList.add('has-video-cover');
+          layer.insertAdjacentHTML('beforeend', html);
+        }
+        layer.dataset.videoCoverApplied = '1';
+      });
+    });
+  }
+
+  function setLastSavedPreviewType(pref, videoUrlAtSave){
+    var data = readProjects();
+    if(!data.length) return;
+    var p = data[0];
+    p.previewType = pref;
+    p.cardPreviewType = pref;
+    p.coverPreviewType = pref;
+    if(pref === 'video' && videoUrlAtSave && !p.videoUrl) p.videoUrl = videoUrlAtSave;
+    data[0] = p;
+    writeProjects(data);
+  }
+
+  var baseSave = window.saveAdminProject;
+  if(typeof baseSave === 'function' && !baseSave.__previewTypeChoice){
+    var saveWithPreviewType = function(){
+      ensurePreviewTypeField();
+      var pref = selectedPreviewType();
+      var name = ($('admProjectName') && $('admProjectName').value.trim()) || '';
+      var videoUrl = ($('admProjectVideoUrl') && $('admProjectVideoUrl').value.trim()) || '';
+      var result = baseSave.apply(this, arguments);
+      if(name){
+        setTimeout(function(){
+          setLastSavedPreviewType(pref, videoUrl);
+          if(pref === 'video' && !videoUrl && typeof adminStatus === 'function'){
+            adminStatus('Saved as Video preview, but Video URL is empty. The card will use image until a video link is added.', 'err');
+          }
+          try{ if(typeof renderAdminProjects === 'function') renderAdminProjects(); }catch(e){}
+          try{ if(typeof renderSvcGrid === 'function') renderSvcGrid(); }catch(e){}
+          setTimeout(enforcePreviewChoice, 320);
+        }, 20);
+      }
+      return result;
+    };
+    saveWithPreviewType.__previewTypeChoice = true;
+    window.saveAdminProject = saveWithPreviewType;
+  }
+
+  var baseEdit = window.editAdminProject;
+  if(typeof baseEdit === 'function' && !baseEdit.__previewTypeChoice){
+    var editWithPreviewType = function(index){
+      var before = readProjects();
+      var p = before[index];
+      var result = baseEdit.apply(this, arguments);
+      setTimeout(function(){
+        var field = ensurePreviewTypeField();
+        if(field && p) field.value = projectPreviewType(p);
+      }, 30);
+      return result;
+    };
+    editWithPreviewType.__previewTypeChoice = true;
+    window.editAdminProject = editWithPreviewType;
+  }
+
+  var baseEditById = window.editAdminProjectById;
+  if(typeof baseEditById === 'function' && !baseEditById.__previewTypeChoice){
+    var editByIdWithPreviewType = function(pid){
+      var p = readProjects().find(function(x){ return String(x.id) === String(pid); });
+      var result = baseEditById.apply(this, arguments);
+      setTimeout(function(){
+        var field = ensurePreviewTypeField();
+        if(field && p) field.value = projectPreviewType(p);
+      }, 40);
+      return result;
+    };
+    editByIdWithPreviewType.__previewTypeChoice = true;
+    window.editAdminProjectById = editByIdWithPreviewType;
+  }
+
+  var baseClear = window.clearAdminProjectForm;
+  if(typeof baseClear === 'function' && !baseClear.__previewTypeChoice){
+    var clearWithPreviewType = function(){
+      var result = baseClear.apply(this, arguments);
+      var field = ensurePreviewTypeField();
+      if(field) field.value = 'image';
+      return result;
+    };
+    clearWithPreviewType.__previewTypeChoice = true;
+    window.clearAdminProjectForm = clearWithPreviewType;
+  }
+
+  var baseRenderAdmin = window.renderAdminProjects;
+  if(typeof baseRenderAdmin === 'function' && !baseRenderAdmin.__previewTypeChoice){
+    var renderAdminWithPreviewType = function(){
+      var result = baseRenderAdmin.apply(this, arguments);
+      var data = readProjects();
+      var rows = document.querySelectorAll('#adminProjectList .adm-proj-row');
+      rows.forEach(function(row, i){
+        var p = data[i];
+        var tag = row.querySelector('.adm-proj-tag');
+        if(p && tag && !tag.querySelector('.preview-type-pill')){
+          tag.insertAdjacentHTML('beforeend', '<span class="preview-type-pill">· Preview: '+(projectPreviewType(p)==='video'?'Video':'Image')+'</span>');
+        }
+      });
+      return result;
+    };
+    renderAdminWithPreviewType.__previewTypeChoice = true;
+    window.renderAdminProjects = renderAdminWithPreviewType;
+  }
+
+  var baseRenderSvc = window.renderSvcGrid;
+  if(typeof baseRenderSvc === 'function' && !baseRenderSvc.__previewTypeChoice){
+    var renderSvcWithPreviewType = function(){
+      var result = baseRenderSvc.apply(this, arguments);
+      setTimeout(enforcePreviewChoice, 20);
+      setTimeout(enforcePreviewChoice, 320);
+      setTimeout(enforcePreviewChoice, 760);
+      return result;
+    };
+    renderSvcWithPreviewType.__previewTypeChoice = true;
+    window.renderSvcGrid = renderSvcWithPreviewType;
+  }
+
+  var baseMediaPreview = window.previewProjectMediaUrls;
+  if(typeof baseMediaPreview === 'function' && !baseMediaPreview.__previewTypeChoice){
+    var previewWithPreviewType = function(){
+      var result = baseMediaPreview.apply(this, arguments);
+      setTimeout(function(){
+        var box = $('admUrlMediaPreview');
+        if(!box || box.style.display === 'none') return;
+        var pref = selectedPreviewType();
+        var txt = pref === 'video'
+          ? 'Services card preview: Video autoplay muted cover'
+          : 'Services card preview: Static cover image';
+        if(!box.querySelector('.preview-mode-note')){
+          box.insertAdjacentHTML('afterbegin','<div class="preview-mode-note" style="margin-bottom:12px;padding:10px 12px;border-radius:10px;background:rgba(255,106,32,.10);border:1px solid rgba(255,106,32,.26);color:rgba(255,255,255,.72);font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;">'+esc(txt)+'</div>');
+        }else{
+          box.querySelector('.preview-mode-note').textContent = txt;
+        }
+      }, 0);
+      return result;
+    };
+    previewWithPreviewType.__previewTypeChoice = true;
+    window.previewProjectMediaUrls = previewWithPreviewType;
+  }
+
+  function boot(){
+    ensurePreviewTypeField();
+    try{ if(typeof renderAdminProjects === 'function') renderAdminProjects(); }catch(e){}
+    try{ if(typeof renderSvcGrid === 'function') renderSvcGrid(); }catch(e){}
+    setTimeout(enforcePreviewChoice, 500);
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else setTimeout(boot, 80);
