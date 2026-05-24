@@ -14890,57 +14890,47 @@ async function uploadImageToSupabase(file){
 
 
 
-<!-- PATCH v6: Fix Service card video autoplay for sub-service cards (Art Sculpture / all services) -->
-<style id="dopious-service-video-subcard-fix-css">
+<!-- PATCH v7: Desktop Service Video Autoplay Fix / Direct Drive Video Fallback -->
+<style id="dopious-service-video-desktop-fix-css">
+  /* Service card video must be above cover image on desktop and mobile */
+  #svcGrid .cat-slide-layer,
+  #serviceGrid .cat-slide-layer{position:absolute!important;inset:0!important;overflow:hidden!important;}
   #svcGrid .cat-slide-layer.has-video-cover,
-  #serviceGrid .cat-slide-layer.has-video-cover{background:#080808!important;}
+  #serviceGrid .cat-slide-layer.has-video-cover{background:#050505!important;}
   #svcGrid .cat-slide-layer.has-video-cover > img,
   #serviceGrid .cat-slide-layer.has-video-cover > img{opacity:0!important;visibility:hidden!important;}
+
   #svcGrid .cat-slide-layer .dop-cover-video,
   #serviceGrid .cat-slide-layer .dop-cover-video{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    z-index:2!important;
-    overflow:hidden!important;
-    pointer-events:none!important;
-    background:#080808!important;
+    position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+    z-index:8!important;overflow:hidden!important;pointer-events:none!important;background:#050505!important;
   }
   #svcGrid .cat-slide-layer .dop-cover-video iframe,
   #svcGrid .cat-slide-layer .dop-cover-video video,
   #serviceGrid .cat-slide-layer .dop-cover-video iframe,
   #serviceGrid .cat-slide-layer .dop-cover-video video{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    border:0!important;
-    display:block!important;
-    pointer-events:none!important;
-    background:#080808!important;
+    position:absolute!important;inset:0!important;width:100%!important;height:100%!important;
+    border:0!important;display:block!important;background:#050505!important;pointer-events:none!important;
   }
   #svcGrid .cat-slide-layer .dop-cover-video video,
-  #serviceGrid .cat-slide-layer .dop-cover-video video{object-fit:cover!important;}
+  #serviceGrid .cat-slide-layer .dop-cover-video video{object-fit:cover!important;z-index:2!important;}
+  #svcGrid .cat-slide-layer .dop-cover-video iframe,
+  #serviceGrid .cat-slide-layer .dop-cover-video iframe{z-index:1!important;}
   #svcGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-youtube,
-  #serviceGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-youtube{width:122%!important;height:122%!important;left:-11%!important;top:-11%!important;}
-  #svcGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-vimeo,
-  #serviceGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-vimeo{width:100%!important;height:100%!important;}
+  #serviceGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-youtube{width:124%!important;height:124%!important;left:-12%!important;top:-12%!important;}
   #svcGrid .cat-slide-layer:after,
-  #serviceGrid .cat-slide-layer:after{z-index:3!important;}
+  #serviceGrid .cat-slide-layer:after{z-index:12!important;pointer-events:none!important;}
+  #svcGrid .cat-slide-layer.has-video-cover.is-on .dop-cover-video,
+  #serviceGrid .cat-slide-layer.has-video-cover.is-on .dop-cover-video{opacity:1!important;visibility:visible!important;}
 </style>
-<script id="dopious-service-video-subcard-fix-js">
+<script id="dopious-service-video-desktop-fix-js">
 (function(){
   'use strict';
 
   var PROJECT_KEY = 'dopiousAdminProjects';
 
   function clean(raw){ return String(raw || '').trim().replace(/&amp;/g,'&'); }
-  function escAttr(s){
-    return String(s || '').replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
-  }
+  function esc(s){ return String(s || '').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function readProjects(){
     try{
       if(typeof adminGet === 'function' && window.adminStoreKeys){
@@ -14948,38 +14938,26 @@ async function uploadImageToSupabase(file){
         if(Array.isArray(a)) return a;
       }
     }catch(e){}
-    try{ return JSON.parse(localStorage.getItem(PROJECT_KEY) || '[]') || []; }
-    catch(e){ return []; }
-  }
-  function hasExplicitPreviewChoice(p){
-    return !!(p && (p.previewType || p.cardPreviewType || p.previewMode || p.coverPreviewType));
+    try{ return JSON.parse(localStorage.getItem(PROJECT_KEY) || '[]') || []; }catch(e){ return []; }
   }
   function wantsVideo(p){
     if(!p) return false;
     var url = clean(p.videoUrl || p.coverVideoUrl || p.video || '');
     if(!url) return false;
-    var v = String(p.previewType || p.cardPreviewType || p.previewMode || p.coverPreviewType || '').toLowerCase();
-    if(v === 'image') return false;
-    if(v === 'video') return true;
-    /* Backward compatible: older uploaded projects had Video URL but no previewType field. */
-    return !hasExplicitPreviewChoice(p);
+    /* IMPORTANT: show video on Service cards only when Admin explicitly selects Preview = Video.
+       This prevents Shop / Retail cards that only have a project video URL from being forced into video preview. */
+    var v = String(p.previewType || p.cardPreviewType || p.previewMode || p.coverPreviewType || '').trim().toLowerCase();
+    return v === 'video';
   }
   function youtubeId(raw){
     var url = clean(raw);
     if(/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
     var m = url.match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
     if(m && m[1]) return m[1];
-    try{
-      var u = new URL(url);
-      var v = u.searchParams.get('v');
-      if(v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v;
-    }catch(e){}
+    try{ var u = new URL(url); var v = u.searchParams.get('v'); if(v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v; }catch(e){}
     return '';
   }
-  function vimeoId(raw){
-    var m = clean(raw).match(/vimeo\.com\/(?:video\/)?(\d+)/i);
-    return m ? m[1] : '';
-  }
+  function vimeoId(raw){ var m = clean(raw).match(/vimeo\.com\/(?:video\/)?(\d+)/i); return m ? m[1] : ''; }
   function googleDriveId(raw){
     var url = clean(raw);
     var m = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
@@ -14988,35 +14966,34 @@ async function uploadImageToSupabase(file){
     if(/drive\.google\.com/i.test(url) && m && m[1]) return m[1];
     return '';
   }
-  function directVideo(raw){
-    var url = clean(raw);
-    return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url) ? url : '';
-  }
+  function directVideo(raw){ var url = clean(raw); return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url) || /\/video\/upload\//i.test(url) ? url : ''; }
+
   function videoMarkup(raw){
     var url = clean(raw);
     if(!url) return '';
-
     var yt = youtubeId(url);
     if(yt){
       var qs = ['autoplay=1','mute=1','muted=1','controls=0','playsinline=1','loop=1','playlist='+encodeURIComponent(yt),'rel=0','modestbranding=1','disablekb=1','fs=0','iv_load_policy=3'];
       try{ if(window.location && /^https?:\/\//i.test(window.location.origin)) qs.push('origin='+encodeURIComponent(window.location.origin)); }catch(e){}
-      return '<div class="dop-cover-video"><iframe class="dop-cover-youtube" src="https://www.youtube.com/embed/'+yt+'?'+qs.join('&')+'" title="Project cover video" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" aria-hidden="true" tabindex="-1"></iframe></div>';
+      return '<div class="dop-cover-video" data-kind="youtube"><iframe class="dop-cover-youtube" src="https://www.youtube.com/embed/'+yt+'?'+qs.join('&')+'" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" title="Project cover video" tabindex="-1"></iframe></div>';
     }
-
     var vi = vimeoId(url);
     if(vi){
-      return '<div class="dop-cover-video"><iframe class="dop-cover-vimeo" src="https://player.vimeo.com/video/'+vi+'?autoplay=1&muted=1&loop=1&background=1&playsinline=1" title="Project cover video" allow="autoplay; fullscreen; picture-in-picture" aria-hidden="true" tabindex="-1"></iframe></div>';
+      return '<div class="dop-cover-video" data-kind="vimeo"><iframe class="dop-cover-vimeo" src="https://player.vimeo.com/video/'+vi+'?autoplay=1&muted=1&loop=1&background=1&playsinline=1" allow="autoplay; fullscreen; picture-in-picture" title="Project cover video" tabindex="-1"></iframe></div>';
     }
-
     var gd = googleDriveId(url);
     if(gd){
-      /* Google Drive is less reliable for true autoplay than direct .mp4/CDN, but this embeds the preview when Drive is used. */
-      return '<div class="dop-cover-video"><iframe class="dop-cover-gdrive" src="https://drive.google.com/file/d/'+escAttr(gd)+'/preview" title="Project cover video" allow="autoplay" aria-hidden="true" tabindex="-1"></iframe></div>';
+      /* Desktop Chrome often refuses Drive /preview autoplay. Use direct video first, iframe only as fallback. */
+      var direct = 'https://drive.google.com/uc?export=download&id='+encodeURIComponent(gd);
+      var preview = 'https://drive.google.com/file/d/'+encodeURIComponent(gd)+'/preview';
+      return '<div class="dop-cover-video" data-kind="gdrive">'+
+        '<iframe class="dop-cover-gdrive" src="'+preview+'" allow="autoplay; encrypted-media" title="Project cover video" tabindex="-1"></iframe>'+
+        '<video class="dop-direct-drive-video" autoplay muted defaultMuted loop playsinline webkit-playsinline preload="auto" src="'+direct+'" tabindex="-1"></video>'+
+        '</div>';
     }
-
-    var direct = directVideo(url);
-    if(direct){
-      return '<div class="dop-cover-video"><video autoplay muted loop playsinline preload="auto" src="'+escAttr(direct)+'" aria-hidden="true" tabindex="-1"></video></div>';
+    var directUrl = directVideo(url);
+    if(directUrl){
+      return '<div class="dop-cover-video" data-kind="direct"><video autoplay muted defaultMuted loop playsinline webkit-playsinline preload="auto" src="'+esc(directUrl)+'" tabindex="-1"></video></div>';
     }
     return '';
   }
@@ -15025,16 +15002,37 @@ async function uploadImageToSupabase(file){
     if(!slide) return null;
     if(slide.ai !== undefined && projects[slide.ai]) return projects[slide.ai];
     if(slide.id){
-      var byId = projects.find(function(p){ return String(p.id) === String(slide.id); });
+      var id = String(slide.id);
+      var byId = projects.find(function(p){ return String(p.id) === id; });
       if(byId) return byId;
     }
     if(slide.title){
-      return projects.find(function(p){ return String(p.name || '') === String(slide.title || ''); }) || null;
+      var title = String(slide.title || '');
+      return projects.find(function(p){ return String(p.name || '') === title; }) || null;
     }
     return null;
   }
 
-  function fixServiceCardVideos(){
+  function ensureVideoPlays(root){
+    (root || document).querySelectorAll('.dop-cover-video video').forEach(function(v){
+      try{
+        v.muted = true;
+        v.defaultMuted = true;
+        v.loop = true;
+        v.autoplay = true;
+        v.playsInline = true;
+        v.setAttribute('muted','');
+        v.setAttribute('autoplay','');
+        v.setAttribute('loop','');
+        v.setAttribute('playsinline','');
+        v.setAttribute('webkit-playsinline','');
+        var p = v.play();
+        if(p && p.catch) p.catch(function(){});
+      }catch(e){}
+    });
+  }
+
+  function applyServiceVideos(){
     var projects = readProjects();
     var cards = document.querySelectorAll('#svcGrid .cat-slide-card, #serviceGrid .cat-slide-card');
     cards.forEach(function(card){
@@ -15043,31 +15041,31 @@ async function uploadImageToSupabase(file){
       var layers = card.querySelectorAll('.cat-slide-layer');
       layers.forEach(function(layer, i){
         var p = projectBySlide(slides[i], projects);
-        var old = layer.querySelector('.dop-cover-video');
+        var existing = layer.querySelector('.dop-cover-video');
         if(!p || !wantsVideo(p)){
-          if(old) old.remove();
+          if(existing) existing.remove();
           layer.classList.remove('has-video-cover');
           layer.dataset.videoCoverApplied = '';
           return;
         }
         var html = videoMarkup(p.videoUrl || p.coverVideoUrl || p.video || '');
         if(!html){
-          if(old) old.remove();
+          if(existing) existing.remove();
           layer.classList.remove('has-video-cover');
           return;
         }
-        if(!old){
+        if(!existing){
           layer.insertAdjacentHTML('beforeend', html);
         }
         layer.classList.add('has-video-cover');
         layer.dataset.videoCoverApplied = '1';
       });
     });
+    ensureVideoPlays(document);
   }
 
-  /* Add previewType into newly saved project immediately instead of relying only on delayed patches. */
   function patchSavePreviewType(){
-    if(typeof window.saveAdminProject !== 'function' || window.saveAdminProject.__serviceVideoFixV6) return;
+    if(typeof window.saveAdminProject !== 'function' || window.saveAdminProject.__serviceVideoDesktopFixV7) return;
     var base = window.saveAdminProject;
     window.saveAdminProject = function(){
       var prefEl = document.getElementById('admProjectPreviewType');
@@ -15085,35 +15083,149 @@ async function uploadImageToSupabase(file){
           try{ localStorage.setItem(PROJECT_KEY, JSON.stringify(data)); }catch(e){}
           try{ if(typeof firestoreSet === 'function') firestoreSet(PROJECT_KEY, data); }catch(e){}
         }
-        fixServiceCardVideos();
-      }, 60);
+        applyServiceVideos();
+      }, 80);
       return result;
     };
-    window.saveAdminProject.__serviceVideoFixV6 = true;
+    window.saveAdminProject.__serviceVideoDesktopFixV7 = true;
   }
 
   function wrapRender(){
-    if(typeof window.renderSvcGrid !== 'function' || window.renderSvcGrid.__serviceVideoFixV6) return;
+    if(typeof window.renderSvcGrid !== 'function' || window.renderSvcGrid.__serviceVideoDesktopFixV7) return;
     var base = window.renderSvcGrid;
     window.renderSvcGrid = function(){
       var result = base.apply(this, arguments);
-      setTimeout(fixServiceCardVideos, 0);
-      setTimeout(fixServiceCardVideos, 250);
-      setTimeout(fixServiceCardVideos, 800);
+      setTimeout(applyServiceVideos, 0);
+      setTimeout(applyServiceVideos, 300);
+      setTimeout(applyServiceVideos, 900);
       return result;
     };
-    window.renderSvcGrid.__serviceVideoFixV6 = true;
+    window.renderSvcGrid.__serviceVideoDesktopFixV7 = true;
   }
 
   function boot(){
     patchSavePreviewType();
     wrapRender();
-    fixServiceCardVideos();
+    applyServiceVideos();
     try{ if(typeof window.renderSvcGrid === 'function') window.renderSvcGrid(); }catch(e){}
+    ['DOMContentLoaded','load','visibilitychange','click','mousemove','touchstart'].forEach(function(evt){
+      document.addEventListener(evt, function(){ setTimeout(ensureVideoPlays, 0); }, {passive:true});
+    });
     var grid = document.getElementById('svcGrid') || document.getElementById('serviceGrid');
     if(grid && window.MutationObserver){
-      var mo = new MutationObserver(function(){ setTimeout(fixServiceCardVideos, 0); });
-      mo.observe(grid, {childList:true, subtree:true});
+      new MutationObserver(function(){ setTimeout(applyServiceVideos, 0); }).observe(grid,{childList:true,subtree:true});
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else setTimeout(boot, 80);
+})();
+</script>
+
+
+
+<!-- PATCH v9: Chrome autoplay stabilizer for Service video covers -->
+<style id="dopious-chrome-video-autoplay-stabilizer-css">
+  #svcGrid .dop-cover-video video,
+  #serviceGrid .dop-cover-video video{
+    background:#080808!important;
+  }
+  #svcGrid .dop-cover-video[data-kind="gdrive"] iframe,
+  #serviceGrid .dop-cover-video[data-kind="gdrive"] iframe{
+    z-index:1!important;
+  }
+  #svcGrid .dop-cover-video[data-kind="gdrive"] video,
+  #serviceGrid .dop-cover-video[data-kind="gdrive"] video{
+    z-index:2!important;
+    opacity:0!important;
+    transition:opacity .18s ease!important;
+  }
+  #svcGrid .dop-cover-video[data-kind="gdrive"] video.is-playing,
+  #serviceGrid .dop-cover-video[data-kind="gdrive"] video.is-playing{
+    opacity:1!important;
+  }
+</style>
+<script id="dopious-chrome-video-autoplay-stabilizer-js">
+(function(){
+  'use strict';
+
+  function isChrome(){
+    return /Chrome\//.test(navigator.userAgent || '') && !/Edg\//.test(navigator.userAgent || '') && !/OPR\//.test(navigator.userAgent || '');
+  }
+  function driveIdFromUrl(url){
+    url = String(url || '');
+    var m = url.match(/drive\.google\.com\/(?:file\/d\/|uc\?[^#]*id=)([^/&?#]+)/i);
+    if(m && m[1]) return m[1];
+    m = url.match(/[?&]id=([^&]+)/i);
+    return m && m[1] ? m[1] : '';
+  }
+  function chromeDriveSources(id){
+    id = encodeURIComponent(id || '');
+    if(!id) return [];
+    return [
+      'https://drive.google.com/uc?export=download&id=' + id,
+      'https://drive.usercontent.google.com/download?id=' + id + '&export=download&confirm=t',
+      'https://drive.google.com/uc?export=preview&id=' + id
+    ];
+  }
+  function markPlaying(v){
+    try{ v.classList.add('is-playing'); v.closest('.cat-slide-layer')?.classList.add('is-on'); }catch(e){}
+  }
+  function prepareVideo(v){
+    if(!v || v.__dopChromeStabilized) return;
+    v.__dopChromeStabilized = true;
+    try{
+      v.muted = true;
+      v.defaultMuted = true;
+      v.autoplay = true;
+      v.loop = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      ['muted','autoplay','loop','playsinline','webkit-playsinline'].forEach(function(a){ v.setAttribute(a,''); });
+      v.setAttribute('disablepictureinpicture','');
+      v.setAttribute('controlslist','nodownload noplaybackrate noremoteplayback');
+    }catch(e){}
+
+    v.addEventListener('playing', function(){ markPlaying(v); }, {passive:true});
+    v.addEventListener('canplay', function(){
+      var p = v.play();
+      if(p && p.catch) p.catch(function(){});
+    }, {passive:true});
+
+    var wrap = v.closest('.dop-cover-video');
+    if(wrap && wrap.getAttribute('data-kind') === 'gdrive'){
+      var id = driveIdFromUrl(v.currentSrc || v.src || '');
+      var sources = chromeDriveSources(id);
+      var idx = Math.max(0, sources.indexOf(v.getAttribute('src') || v.src || ''));
+      v.addEventListener('error', function(){
+        if(!isChrome()) return;
+        idx += 1;
+        if(idx < sources.length){
+          try{ v.classList.remove('is-playing'); v.src = sources[idx]; v.load(); setTimeout(function(){ var p = v.play(); if(p && p.catch) p.catch(function(){}); }, 120); }catch(e){}
+        }else{
+          try{ v.classList.remove('is-playing'); }catch(e){}
+        }
+      }, {passive:true});
+    }
+  }
+  function kick(){
+    document.querySelectorAll('#svcGrid .dop-cover-video video, #serviceGrid .dop-cover-video video').forEach(function(v){
+      prepareVideo(v);
+      try{
+        if(v.readyState >= 2) markPlaying(v);
+        var p = v.play();
+        if(p && p.catch) p.catch(function(){});
+      }catch(e){}
+    });
+  }
+  function boot(){
+    kick();
+    [120,350,800,1600,2800].forEach(function(t){ setTimeout(kick,t); });
+    ['click','touchstart','mousemove','scroll','visibilitychange'].forEach(function(evt){
+      document.addEventListener(evt, function(){ setTimeout(kick,0); }, {passive:true});
+    });
+    var grid = document.getElementById('svcGrid') || document.getElementById('serviceGrid');
+    if(grid && window.MutationObserver){
+      new MutationObserver(function(){ setTimeout(kick,0); setTimeout(kick,350); }).observe(grid,{childList:true,subtree:true,attributes:true});
     }
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
