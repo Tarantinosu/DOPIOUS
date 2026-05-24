@@ -344,17 +344,43 @@ section{padding:76px 40px}
 /* SERVICE CARDS */
 .svc-grid{
   display:grid;
-  grid-template-columns:1fr;
-  gap:6px;
+  grid-template-columns:repeat(2,1fr);
+  gap:4px;
   padding-bottom:14px;
 }
 .svc-card{
   position:relative;
-  height:270px;
+  height:220px;
   overflow:hidden;
   border-radius:4px;
   background:#111;
   cursor:pointer;
+}
+.svc-card.span-full{
+  grid-column:1/-1;
+  height:280px;
+}
+/* Category divider */
+.svc-cat-divider{
+  grid-column:1/-1;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:18px 0 6px;
+  font-size:9px;
+  font-weight:900;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.28);
+}
+.svc-cat-divider:before{
+  content:'';
+  flex:1;
+  height:1px;
+  background:rgba(255,255,255,.1);
+}
+.svc-cat-divider:first-child{
+  padding-top:4px;
 }
 .svc-bg{
   position:absolute;
@@ -450,19 +476,23 @@ section{padding:76px 40px}
 @media(max-width:768px){
   .svc-grid{
     display:grid;
-    grid-template-columns:1fr;
+    grid-template-columns:repeat(2,1fr);
     overflow-x:visible;
-    gap:10px;
+    gap:4px;
     scrollbar-width:none;
     scroll-snap-type:none;
   }
   .svc-card{
     width:100%;
     min-width:0;
-    height:auto;
-    aspect-ratio:16/9;
+    height:180px;
+    aspect-ratio:unset;
     flex-shrink:unset;
     scroll-snap-align:none;
+  }
+  .svc-card.span-full{
+    grid-column:1/-1;
+    height:220px;
   }
   .svc-l1,.svc-l2{font-size:14px}
   .svc-dx{font-size:16px}
@@ -5592,7 +5622,15 @@ button,a,input,select,textarea{touch-action:manipulation}
 @media(max-width:600px){.detail-url-gallery{grid-template-columns:1fr;gap:8px;}}
 
 /* ── Video Section (Public) ── */
-.detail-video-section{padding:0 0 28px;}
+.detail-sub-headline{
+  display:block;
+  font-size:clamp(16px,2.2vw,26px);
+  font-weight:400;
+  letter-spacing:-.01em;
+  color:rgba(255,255,255,.6);
+  margin-top:10px;
+  line-height:1.3;
+}
 .detail-video-section h3{font-size:13px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px;}
 .detail-video-wrap{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0a0a0a;}
 .detail-video-wrap iframe,.detail-video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;}
@@ -5991,47 +6029,81 @@ function renderSvcGrid(){
     }
   });
 
-  var parts, l1, l2, slides, badge, html = '';
-
-  /* FIX: admin-uploaded projects must be visible on Home/Services as their own cards.
-     Previously they were only inserted inside category slides, so saved works looked missing. */
+  /* ── Group admin projects: service → sub → projects ── */
+  var svcGroups = {}; /* key = service string */
   adminProjects.forEach(function(ap, ai){
-    var imgs = typeof loadProjectImages === 'function' ? loadProjectImages(ap) : {};
-    var cover = ap.coverImage || imgs.cover || '';
+    var svcKey = (ap.service || 'Other').trim();
+    if(!svcGroups[svcKey]) svcGroups[svcKey] = {};
+    var subKey = (ap.sub && ap.sub !== '— Select sub-service —') ? ap.sub.trim() : '__none__';
+    if(!svcGroups[svcKey][subKey]) svcGroups[svcKey][subKey] = [];
+    svcGroups[svcKey][subKey].push({ap:ap, ai:ai});
+  });
 
-    /* Label: ตัดให้สั้น */
-    var rawSvc   = (ap.service || '').replace(/Design\+?$/i,'').replace(/\+$/,'').trim();
-    var rawSub   = (ap.sub && ap.sub !== '— Select sub-service —') ? ap.sub.trim() : '';
-    /* ตัดเอาแค่คำแรกของ service ถ้ายาวเกิน 12 ตัวอักษร */
+  /* ── Render: one section per service, one card per sub-service ── */
+  Object.keys(svcGroups).forEach(function(svcKey){
+    var subs = svcGroups[svcKey];
+    var idx  = SVC_TO_CAT[svcKey];
+    var cat  = (idx !== undefined && categories[idx]) ? categories[idx] : null;
+    var rawSvc = svcKey.replace(/Design\+?$/i,'').replace(/\+$/,'').trim();
     var shortSvc = rawSvc.split('/')[0].trim();
     if(shortSvc.length > 14) shortSvc = shortSvc.split(' ').slice(0,2).join(' ');
-    var labelTop = rawSub || shortSvc || 'Project';
-    var labelBot = rawSub ? shortSvc : '';
 
-    var idx = SVC_TO_CAT[(ap.service||'').trim()];
-    var cat = (idx !== undefined && categories[idx]) ? categories[idx] : null;
-    var bg  = (cat && cat.bg) || 'linear-gradient(135deg,#1a0505,#ff2a14 70%,#111)';
+    /* Section header divider */
+    html += '<div class="svc-cat-divider">'+escHtml(shortSvc)+'</div>';
 
-    var bgLayer = cover
-      ? '<div class="slide-bg" style="background-image:url('+JSON.stringify(cover)+');background-size:cover;background-position:center;opacity:1;z-index:2;"></div>'
-      : '<div class="slide-bg" style="background:'+bg+';opacity:1;z-index:2;"></div>';
+    var subKeys = Object.keys(subs);
+    subKeys.forEach(function(subKey, si){
+      var items  = subs[subKey];
+      var rawSub = subKey === '__none__' ? '' : subKey;
+      var labelTop = rawSub || shortSvc;
+      var labelBot = rawSub ? shortSvc : '';
 
-    var safeSlides = JSON.stringify([{type:'admin',ai:ai,title:ap.name||''}]).replace(/'/g,'&#39;');
-    var cardId = 'svcAdmin_'+String(ap.id||ai).replace(/[^a-zA-Z0-9_-]/g,'');
+      /* Multiple projects in same sub → slideshow card */
+      var slideData = items.map(function(item){
+        var imgs = typeof loadProjectImages === 'function' ? loadProjectImages(item.ap) : {};
+        var cover = item.ap.coverImage || imgs.cover || '';
+        return {type:'admin', ai:item.ai, title:item.ap.name||'', cover:cover};
+      });
 
-    html += '<article class="svc-card" id="'+cardId+'" data-slides=\''+safeSlides+'\' data-ci="-1">'
-      + '<div class="slide-bg-wrap">'+bgLayer+'</div>'
-      + '<div class="svc-proj-bar svc-proj-bar--single"><div class="svc-proj-name">'+escHtml(ap.name||'')+'</div></div>'
-      + '<div class="svc-label"><div>'
-      +   '<span class="svc-l1">'+escHtml(labelTop)+'</span>'
-      +   (labelBot ? '<span class="svc-l2">'+escHtml(labelBot)+'</span>' : '')
-      +   '<span class="svc-dx">Design<em>+</em></span>'
-      + '</div></div>'
-      + (ap.desc ? '<div class="svc-desc"><p>'+escHtml(ap.desc.trim())+'</p></div>' : '')
-      + '</article>';
+      var firstCover = slideData[0] && slideData[0].cover;
+      var bg = (cat && cat.bg) || 'linear-gradient(135deg,#1a0505,#ff2a14 70%,#111)';
+
+      /* BG layers for slideshow */
+      var bgLayers = slideData.map(function(s, si2){
+        return s.cover
+          ? '<div class="slide-bg" data-idx="'+si2+'" style="background-image:url('+JSON.stringify(s.cover)+');background-size:cover;background-position:center;opacity:'+(si2===0?1:0)+';z-index:'+(si2===0?2:1)+';"></div>'
+          : '<div class="slide-bg" data-idx="'+si2+'" style="background:'+bg+';opacity:'+(si2===0?1:0)+';z-index:'+(si2===0?2:1)+';"></div>';
+      }).join('');
+
+      var safeSlides = JSON.stringify(slideData.map(function(s){ return {type:'admin',ai:s.ai,title:s.title}; })).replace(/'/g,'&#39;');
+      var cardId = 'svcSub_'+String(svcKey+subKey).replace(/[^a-zA-Z0-9_-]/g,'_').slice(0,40);
+
+      /* Bar: show count if multiple */
+      var barHtml = items.length > 1
+        ? '<div class="svc-proj-bar"><div class="svc-proj-name" id="pn_'+cardId+'">'+escHtml(items[0].ap.name||'')+'</div>'
+          + '<div class="svc-proj-nav"><button class="svc-nav-btn" data-dir="-1">‹</button>'
+          + '<span class="svc-proj-count" id="pc_'+cardId+'">1 / '+items.length+'</span>'
+          + '<button class="svc-nav-btn" data-dir="1">›</button></div></div>'
+        : '<div class="svc-proj-bar svc-proj-bar--single"><div class="svc-proj-name">'+escHtml(items[0].ap.name||'')+'</div></div>';
+
+      /* First sub per service = full width, rest = half */
+      var spanClass = si === 0 ? 'svc-card span-full' : 'svc-card';
+
+      html += '<article class="'+spanClass+'" id="'+cardId+'" data-slides=\''+safeSlides+'\' data-ci="'+(idx !== undefined ? idx : -1)+'">'
+        + '<div class="slide-bg-wrap">'+bgLayers+'</div>'
+        + barHtml
+        + '<div class="svc-label"><div>'
+        +   '<span class="svc-l1">'+escHtml(labelTop)+'</span>'
+        +   (labelBot ? '<span class="svc-l2">'+escHtml(labelBot)+'</span>' : '')
+        +   '<span class="svc-dx">Design<em>+</em></span>'
+        + '</div></div>'
+        + (items[0].ap.desc ? '<div class="svc-desc"><p>'+escHtml(items[0].ap.desc.trim())+'</p></div>' : '')
+        + '</article>';
+    });
   });
 
   /* Default service categories remain below the admin-published works. */
+  var catCount = 0;
   for(var i=0; i<categories.length; i++){
     if(hidden.indexOf(i) >= 0) continue;
     var c = categories[i];
@@ -6045,7 +6117,12 @@ function renderSvcGrid(){
     });
 
     badge = (adminByCat[i]||[]).length;
+    /* Add divider every 3 cards for visual grouping */
+    if(catCount > 0 && catCount % 3 === 0){
+      html += '<div class="svc-cat-divider">'+escHtml(l1)+'</div>';
+    }
     html += buildSvcCard('svcCat_'+i, slides, l1, l2, badge, c, i);
+    catCount++;
   }
 
   grid.innerHTML = html;
@@ -6339,7 +6416,13 @@ function _showProjectDetail(opts){
 
   /* Fill header */
   document.getElementById('detailCat').textContent    = cat;
-  document.getElementById('detailTitle').textContent  = name;
+  /* Headline — use custom headline if set, fallback to name */
+  const headlineEl = document.getElementById('detailTitle');
+  if(headlineEl){
+    headlineEl.innerHTML = opts.headline
+      ? escHtml(opts.headline) + (opts.subHeadline ? '<span class="detail-sub-headline">'+escHtml(opts.subHeadline)+'</span>' : '')
+      : escHtml(name);
+  }
   document.getElementById('detailClient').textContent = client;
   document.getElementById('detailYear').textContent   = year;
   document.getElementById('detailStory').textContent  = desc;
@@ -7617,21 +7700,28 @@ function downloadCredential(type){
           <input id="admProjectCredit" type="text" placeholder="Photo: John, Art Dir: Jane, 3D: Mark">
         </label>
         <label>Service Category<select id="admProjectService" onchange="updateSubServices()">
-  <option>Brand Strategy Corporate Identity Design+</option>
-  <option>Industrial Design+</option>
-  <option>Space Design+</option>
-  <option>Keyvisual Creative Ads Design+</option>
-  <option>Graphic Design+</option>
-  <option>Packaging Design+</option>
-  <option>Website UX-UI Design+</option>
-  <option>Sculpture Design+</option>
-  <option>Fashion Design+</option>
-  <option>2D-3D Motion Graphic Design+</option>
-  <option>Photo / Video / Ads Design+</option>
-  <option>Prototype 3D Print Service</option>
-  <option>Production Follow Up</option>
-  <option>Build & Installation+</option>
-  <option>Marketing Follow Up</option>
+  <option value="">— Select service —</option>
+  <optgroup label="Design">
+    <option>Graphic Design+</option>
+    <option>Industrial Design+</option>
+    <option>Space Design+</option>
+    <option>2D-3D Motion Graphic Design+</option>
+    <option>Brand Strategy Corporate Identity Design+</option>
+    <option>Keyvisual Creative Ads Design+</option>
+    <option>Packaging Design+</option>
+    <option>Website UX-UI Design+</option>
+    <option>Fashion Design+</option>
+    <option>Sculpture Design+</option>
+  </optgroup>
+  <optgroup label="Production & Build">
+    <option>Photo / Video / Ads Design+</option>
+    <option>Build &amp; Installation+</option>
+    <option>Prototype 3D Print Service</option>
+    <option>Production Follow Up</option>
+  </optgroup>
+  <optgroup label="Strategy">
+    <option>Marketing</option>
+  </optgroup>
 </select></label>
         <label>Sub Service<select id="admProjectSub"><option>— Select sub-service —</option></select></label>
         <label>Year<input id="admProjectYear" type="text" value="2026"></label>
@@ -9018,11 +9108,13 @@ function openSavedAdminProject(index){
     ? ap.galleryImages
     : (apImgs.images || []).map(i => i.data || i);
   _showProjectDetail({
-    cat    : (ap.service||'') + (ap.sub ? ' / '+ap.sub : ''),
-    name   : ap.name   || 'Project',
-    client : ap.client || 'Client',
-    credit : ap.credit || 'Dopious+',
-    year   : ap.year   || '2026',
+    cat         : (ap.service||'') + (ap.sub ? ' / '+ap.sub : ''),
+    name        : ap.name   || 'Project',
+    headline    : ap.headline    || '',
+    subHeadline : ap.subHeadline || '',
+    client      : ap.client || 'Client',
+    credit      : ap.credit || 'Dopious+',
+    year        : ap.year   || '2026',
     desc   : ap.desc   || '',
     layout : ap.layout || 'stack',
     cover,
@@ -9081,6 +9173,8 @@ function saveAdminProject(){
     const project = {
       id           : pid,
       name         : nameVal,
+      headline     : document.getElementById('admProjectHeadline')?.value.trim()    || '',
+      subHeadline  : document.getElementById('admProjectSubHeadline')?.value.trim() || '',
       client       : document.getElementById('admProjectClient')?.value.trim() || 'Dopious+ Client',
       credit       : document.getElementById('admProjectCredit')?.value.trim() || '',
       service      : document.getElementById('admProjectService')?.value       || '',
@@ -9251,6 +9345,10 @@ function editAdminProject(index){
   if(!p) return;
 
   document.getElementById('admProjectName').value  = p.name  || '';
+  const hlEl = document.getElementById('admProjectHeadline');
+  if(hlEl) hlEl.value = p.headline || '';
+  const shlEl = document.getElementById('admProjectSubHeadline');
+  if(shlEl) shlEl.value = p.subHeadline || '';
   if(p.ratio)  setProjectRatio(p.ratio, document.querySelector('.ratio-btn[data-ratio="'+p.ratio+'"]'));
   if(p.layout) setProjectLayout(p.layout, document.querySelector('.layout-btn[data-layout="'+p.layout+'"]'));
   document.getElementById('admProjectClient').value = p.client || '';
@@ -10835,114 +10933,186 @@ function setProjectLayout(layout, btn){
 const SUB_SERVICE_MAP = {
 
   'Brand Strategy Corporate Identity Design+': [
-    'Brand Strategy', 'Corporate Identity', 'Logo Design',
-    'Brand Guidelines', 'Brand Architecture', 'Rebranding',
-    'Brand Naming', 'Tone of Voice', 'Brand Activation',
+    'Corporate Identity','Brand Strategy','Logo Design','Logo System',
+    'Logo & CI','CI Branding','Brand Identity Package',
+    'Brand Guidelines','Brand Architecture','Brand Naming','Brand Voice',
+    'Tone of Voice','Brand Activation','Rebranding','Brand Refresh',
+    'Brand Story','Annual Report','Stationery Design','Brand Collateral',
+    'Brand Book','Visual Identity System','Brand Audit','Brand Positioning',
+    'Business Card','Letterhead','Brand Signage','Brand Merch',
   ],
 
   'Industrial Design+': [
-    'CMF Design', 'Research & Design', 'Product Design',
-    'Furniture Design', 'Packaging Structural', 'Prototype',
-    'Design for Manufacturing', 'Material Exploration',
-    'User Research', 'Concept Development',
+    'Product Design','CMF Design','Furniture Design','Lighting Design',
+    'Consumer Electronics','Medical Device','Automotive Accessory',
+    'Toy Design','Wearable Design','Packaging Structural',
+    'Design for Manufacturing','Material Exploration',
+    'Concept Development','User Research','Ergonomic Study',
+    'Prototype','Scale Model','Design Strategy',
   ],
 
   'Space Design+': [
-    'Event Space', 'Residence', 'Shop / Retail',
-    'Booth', 'Kiosk', 'POS Display',
-    'Art Installation', 'Office Interior',
-    'Exhibition Design', 'Pop-up Space',
-    'Restaurant / Café', 'Hotel / Hospitality',
+    /* Event */
+    'Event Space','Event Stage','Event Booth','Event Set Design',
+    /* Retail */
+    'Retail / Shop','Flagship Store','Pop-up Store','Showroom',
+    'Kiosk','POS Display','Vending Structure',
+    /* Interior - Commercial */
+    'Interior — Retail Shop','Interior — Restaurant','Interior — Café',
+    'Interior — Office','Interior — Co-working','Interior — Hotel',
+    'Interior — Spa / Wellness','Interior — Clinic / Medical',
+    'Interior — Gym / Fitness','Interior — School / Academy',
+    /* Interior - Residential */
+    'Interior — Condominium','Interior — House / Home',
+    'Interior — Villa','Interior — Penthouse','Interior — Studio',
+    /* Art & Exhibition */
+    'Art Installation','Immersive Installation','Public Installation',
+    'Exhibition Design','Museum Design','Gallery Design',
+    /* Other Space */
+    'Booth Design','Trade Show Booth','Brand Activation Space',
+    'Exterior Design','Facade Design','Landscape','Rooftop Design',
   ],
 
   'Graphic Design+': [
-    'Logo / Logotype', 'Poster Design',
-    'Brochure / Catalogue', 'Presentation Deck',
-    'Social Media Template', 'Signage Graphic',
-    'Infographic', 'Print-ready Artwork',
+    'Logo / Logotype','Poster Design','Brochure / Catalogue',
+    'Presentation Deck','Social Media Template','Signage Graphic',
+    'Infographic','Print-ready Artwork','Editorial Design',
+    'Magazine Layout','Icon Design','Typography',
+    'Environmental Graphic','Wayfinding','Publication Design',
+    'Illustration','Character Illustration','Sticker / LINE Sticker',
+    'Emoji Design','Mascot Design','Pattern Design',
+    'NFT Art','Digital Art','Concept Art',
   ],
 
   'Keyvisual Creative Ads Design+': [
-    'Campaign Key Visual', 'Poster Design', 'Billboard',
-    'Social Media Ads', 'Digital Banner', 'Print Ads',
-    'Brand Campaign', 'Seasonal Campaign', 'Concept Art',
+    'Campaign Key Visual','Seasonal Campaign','Brand Campaign',
+    'Poster Design','Billboard / OOH','Transit Ads',
+    'Social Media Ads','Digital Banner','HTML5 Banner',
+    'Print Ads','Magazine Ads','Newspaper Ads',
+    'Concept Art','Art Direction','Campaign Strategy',
+    'Campaign Rollout','Influencer KV','Product Launch KV',
   ],
 
   'Packaging Design+': [
-    'Brand Extension Packaging', 'Label System',
-    'Structural Packaging', 'Retail Packaging',
-    'Gift Box', 'Sustainable Packaging',
-    'Food & Beverage Packaging', 'Cosmetic Packaging',
-    'Mockup & Visualization',
+    'Brand Packaging','Brand Extension Packaging','Label System',
+    'Structural Packaging','Retail Packaging','Gift Box',
+    'Luxury Packaging','Premium Packaging','Sustainable Packaging','Eco Packaging',
+    'Food & Beverage Packaging','Cosmetic Packaging','Skincare Packaging',
+    'Pharma Packaging','Supplement Packaging','Health & Wellness Pack',
+    'Beverage Can / Bottle','Pouch Design','Sachet Design',
+    'Mockup & Visualization','Dieline Design','Packaging Strategy',
+    'Unboxing Experience','Packaging Illustration','Pattern for Packaging',
   ],
 
   'Website UX-UI Design+': [
-    'Landing Page', 'Portfolio / Showcase',
-    'E-Commerce', 'Corporate Website',
-    'Web Application UI', 'Dashboard / System UI',
-    'Mobile App UI', 'Design System',
-    'Prototype & Wireframe', 'UX Research',
+    'Website Design','Landing Page','Portfolio / Showcase',
+    'Corporate Website','E-Commerce','Marketplace UI',
+    'Web Application UI','Dashboard / System UI','Admin Panel UI',
+    'Mobile App UI','iOS App Design','Android App Design',
+    'Design System','Component Library','Prototype & Wireframe',
+    'UX Research','User Testing','Information Architecture',
+    'Motion UI','Micro-interaction',
   ],
 
   'Sculpture Design+': [
-    '3D Print Sculpture', 'Character Design',
-    'Art Sculpture', 'Commercial Sculpture',
-    'Resin Cast', 'Bronze Cast',
-    'Large-scale Installation', 'Collectible Figure',
+    'Art Sculpture','Abstract Sculpture','Figurative Sculpture',
+    'Character Design','Character Sculpt','Collectible Figure',
+    '3D Print Sculpture','Large-scale Sculpture','Monumental Art',
+    'Art Installation','Interactive Art','Commercial Sculpture',
+    'Resin Cast','Bronze Cast','Concrete Cast',
+    'Bas-relief','Architectural Ornament','Trophy / Award Design',
   ],
 
   'Fashion Design+': [
-    'Fashion Direction', 'Styling',
-    'Campaign Wardrobe', 'Costume Design',
-    'Lookbook', 'Fashion Film',
-    'Trend Research', 'Capsule Collection Concept',
+    'Fashion Direction','Art Direction Fashion','Styling',
+    'Editorial Styling','Commercial Styling','Campaign Wardrobe',
+    'Costume Design','Costume for Film','Costume for Performance',
+    'Lookbook','Fashion Film','Fashion Photography Direction',
+    'Capsule Collection Concept','Trend Research',
+    'Textile Design','Accessory Design','Jewelry Concept',
   ],
 
   '2D-3D Motion Graphic Design+': [
-    '2D Animation', '3D Animation',
-    'Motion Graphic', 'Storyboard',
-    'VFX / Compositing', '3D Render / Visualization',
-    'Title Sequence', 'Product Animation',
-    'Explainer Video', 'Reel / Showreel',
+    '2D Animation','Frame-by-frame Animation','Cut-out Animation',
+    '3D Animation','3D Character Animation','3D Product Animation',
+    'Motion Graphic','Kinetic Typography','Animated Logo',
+    'Storyboard','Animatic','Concept Art for Animation',
+    'VFX / Compositing','Green Screen','Particle FX',
+    '3D Render / Visualization','Architectural Viz','Interior Viz',
+    'Product Viz','Lifestyle Render','360° Render',
+    'Title Sequence','Opening Titles','End Credits',
+    'Explainer Video','Whiteboard Animation','Infographic Animation',
+    'Reel / Showreel','Music Video','Short Film Animation',
   ],
 
   'Photo / Video / Ads Design+': [
-    'Commercial Shoot', 'Product Photography',
-    'Fashion Photography', 'Video Production',
-    'Brand Film', 'Social Content',
-    'Ads Production', 'Event Coverage',
-    'Post Production / Retouch',
+    'Commercial Shoot','TVC / TV Commercial','Online Film',
+    'Product Photography','Product on White','Lifestyle Product',
+    'Fashion Photography','Beauty Photography','Editorial Photography',
+    'Food Photography','Architectural Photography','Interior Photography',
+    'Event Photography','Corporate Photography','Headshot',
+    'Video Production','Documentary','Brand Film','Corporate Video',
+    'Social Content','Reels / Shorts','Behind the Scenes',
+    'Ads Production','Performance Ad','Conversion Ad',
+    'Post Production','Color Grading','Retouch / Compositing',
+    'Drone / Aerial','360 Video',
   ],
 
   'Prototype 3D Print Service': [
-    '3D Printing', 'Resin Prototype',
-    'FDM Prototype', 'SLA / SLS Print',
-    'Scale Model', 'Functional Prototype',
-    'Architectural Model',
+    '3D Printing FDM','3D Printing SLA','3D Printing SLS',
+    'Resin Prototype','Clear Resin Cast','Flexible Prototype',
+    'Scale Model','Architectural Model','Concept Model',
+    'Functional Prototype','Assembly Prototype','Test Fit',
+    'Vacuum Casting','CNC Milling','Laser Cutting',
   ],
 
   'Production Follow Up': [
-    'Vendor Coordination', 'Production Management',
-    'Quality Control', 'Timeline Management',
-    'Factory Liaison', 'Material Sourcing',
-    'Print Production', 'Installation Supervision',
+    'Production Management','Project Management','Timeline Planning',
+    'Vendor Coordination','Supplier Sourcing','Material Sourcing',
+    'Quality Control','Factory Liaison','On-site Inspection',
+    'Print Production','Offset Print','Digital Print','Large Format Print',
+    'Installation Supervision','Assembly Coordination','Logistics',
   ],
 
   'Build & Installation+': [
-    'Retail Fit-out', 'Shop Construction',
-    'Kiosk Build', 'Booth Construction',
-    'Site Installation', 'Contractor Coordination',
-    'On-site Supervision', 'Mall / Retail Site Work',
-    'Renovation', 'Built Environment Delivery',
+    /* Retail & Commercial */
+    'Retail Fit-out','Shop Construction','Store Build',
+    'Kiosk Build','Pop-up Build','Temporary Structure',
+    /* Exhibition & Events */
+    'Booth Construction','Exhibition Build','Trade Show Build',
+    'Event Stage Build','Backdrop Construction',
+    /* Art & Signage */
+    'Art Installation Build','Public Art Install','Signage Installation',
+    /* FF&E */
+    'FF&E Installation','Fixture Install','Display Install',
+    /* Construction */
+    'Building Construction','Shop Construction',
+    'Office Construction','Residential Construction',
+    'Extension / Add-on','Renovation / Fit-out',
+    'Structural Work','MEP (Electrical / Plumbing)',
+    'Ceiling / Flooring Work','Wall / Glazing Work',
+    'Metalwork / Steel','Joinery / Woodwork',
+    /* Site & Project */
+    'Site Work','Civil Work','Contractor Coordination',
+    'On-site Supervision','Project Handover',
+    'Mall / Retail Site Work','Built Environment Delivery',
   ],
 
-  'Marketing Follow Up': [
-    'Social Media Management', 'Content Planning',
-    'Campaign Management', 'Media Buying',
-    'Influencer Coordination', 'Analytics & Reporting',
-    'Email Marketing', 'SEO / SEM Support',
+  'Marketing': [
+    'Campaign Planning','Campaign Strategy','Go-to-market Plan',
+    'Social Media Strategy','Content Strategy','Content Calendar',
+    'Social Media Management','Community Management',
+    'Digital Marketing','Performance Marketing','SEO / SEM',
+    'Email Marketing','CRM Strategy','Loyalty Program',
+    'Brand Communication','PR Strategy','Media Planning',
+    'Media Buying','Influencer Marketing','KOL Management',
+    'Event Marketing','Experiential Marketing',
+    'Market Research','Consumer Insight','Competitive Analysis',
+    'Marketing Follow Up','Campaign Report','Analytics',
   ],
+
 };
+
 
 function updateSubServices(selectedSub){
   const svcEl = document.getElementById('admProjectService');
