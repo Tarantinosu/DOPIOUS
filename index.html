@@ -5692,6 +5692,20 @@ function filterSvcGrid(q){
 
 
 </style>
+
+<style>
+.svc-bg-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border:0;
+  pointer-events:none;
+  background:#000;
+}
+</style>
+
 </head>
 <body>
 <div id="site-loader"><div><div class="ld-logo">Dopious<span>+</span></div><div class="ld-bar"></div><div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:14px;text-align:center;" id="loaderText">Loading from Firebase...</div></div></div>
@@ -9470,6 +9484,39 @@ setTimeout(()=>{renderAdminSubtopics();applyAdminSubtopicsToCards();}, 500);
 /* AUTO VIDEO PREVIEW FIX */
 function isVideoLike(url=''){
   return /youtube\.com|youtu\.be|vimeo\.com|drive\.google\.com|\.mp4|\.webm|\.ogg/i.test(url||'');
+}
+
+
+/* ==== FORCE SERVICE CARD VIDEO PREVIEW ==== */
+function renderServiceCardMedia(videoUrl, coverImage){
+  const embed = convertVideoUrl(videoUrl||'');
+
+  if(embed && embed.type === 'video'){
+    return `
+      <video
+        class="svc-bg-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        webkit-playsinline
+        preload="auto"
+        src="${embed.src}"></video>
+    `;
+  }
+
+  if(embed && embed.type === 'iframe'){
+    return `
+      <iframe
+        class="svc-bg-video"
+        src="${embed.src}"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        loading="lazy"></iframe>
+    `;
+  }
+
+  return `<div class="svc-bg" style="background:url('${coverImage||''}') center/cover no-repeat"></div>`;
 }
 
 function convertVideoUrl(url){
