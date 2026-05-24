@@ -14888,5 +14888,238 @@ async function uploadImageToSupabase(file){
 })();
 </script>
 
+
+
+<!-- PATCH v6: Fix Service card video autoplay for sub-service cards (Art Sculpture / all services) -->
+<style id="dopious-service-video-subcard-fix-css">
+  #svcGrid .cat-slide-layer.has-video-cover,
+  #serviceGrid .cat-slide-layer.has-video-cover{background:#080808!important;}
+  #svcGrid .cat-slide-layer.has-video-cover > img,
+  #serviceGrid .cat-slide-layer.has-video-cover > img{opacity:0!important;visibility:hidden!important;}
+  #svcGrid .cat-slide-layer .dop-cover-video,
+  #serviceGrid .cat-slide-layer .dop-cover-video{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    z-index:2!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    background:#080808!important;
+  }
+  #svcGrid .cat-slide-layer .dop-cover-video iframe,
+  #svcGrid .cat-slide-layer .dop-cover-video video,
+  #serviceGrid .cat-slide-layer .dop-cover-video iframe,
+  #serviceGrid .cat-slide-layer .dop-cover-video video{
+    position:absolute!important;
+    inset:0!important;
+    width:100%!important;
+    height:100%!important;
+    border:0!important;
+    display:block!important;
+    pointer-events:none!important;
+    background:#080808!important;
+  }
+  #svcGrid .cat-slide-layer .dop-cover-video video,
+  #serviceGrid .cat-slide-layer .dop-cover-video video{object-fit:cover!important;}
+  #svcGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-youtube,
+  #serviceGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-youtube{width:122%!important;height:122%!important;left:-11%!important;top:-11%!important;}
+  #svcGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-vimeo,
+  #serviceGrid .cat-slide-layer .dop-cover-video iframe.dop-cover-vimeo{width:100%!important;height:100%!important;}
+  #svcGrid .cat-slide-layer:after,
+  #serviceGrid .cat-slide-layer:after{z-index:3!important;}
+</style>
+<script id="dopious-service-video-subcard-fix-js">
+(function(){
+  'use strict';
+
+  var PROJECT_KEY = 'dopiousAdminProjects';
+
+  function clean(raw){ return String(raw || '').trim().replace(/&amp;/g,'&'); }
+  function escAttr(s){
+    return String(s || '').replace(/[&<>"']/g,function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  function readProjects(){
+    try{
+      if(typeof adminGet === 'function' && window.adminStoreKeys){
+        var a = adminGet(adminStoreKeys.projects, []);
+        if(Array.isArray(a)) return a;
+      }
+    }catch(e){}
+    try{ return JSON.parse(localStorage.getItem(PROJECT_KEY) || '[]') || []; }
+    catch(e){ return []; }
+  }
+  function hasExplicitPreviewChoice(p){
+    return !!(p && (p.previewType || p.cardPreviewType || p.previewMode || p.coverPreviewType));
+  }
+  function wantsVideo(p){
+    if(!p) return false;
+    var url = clean(p.videoUrl || p.coverVideoUrl || p.video || '');
+    if(!url) return false;
+    var v = String(p.previewType || p.cardPreviewType || p.previewMode || p.coverPreviewType || '').toLowerCase();
+    if(v === 'image') return false;
+    if(v === 'video') return true;
+    /* Backward compatible: older uploaded projects had Video URL but no previewType field. */
+    return !hasExplicitPreviewChoice(p);
+  }
+  function youtubeId(raw){
+    var url = clean(raw);
+    if(/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
+    var m = url.match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+    if(m && m[1]) return m[1];
+    try{
+      var u = new URL(url);
+      var v = u.searchParams.get('v');
+      if(v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v;
+    }catch(e){}
+    return '';
+  }
+  function vimeoId(raw){
+    var m = clean(raw).match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+    return m ? m[1] : '';
+  }
+  function googleDriveId(raw){
+    var url = clean(raw);
+    var m = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
+    if(m && m[1]) return m[1];
+    m = url.match(/[?&]id=([^&]+)/i);
+    if(/drive\.google\.com/i.test(url) && m && m[1]) return m[1];
+    return '';
+  }
+  function directVideo(raw){
+    var url = clean(raw);
+    return /\.(mp4|webm|ogg)(\?|#|$)/i.test(url) ? url : '';
+  }
+  function videoMarkup(raw){
+    var url = clean(raw);
+    if(!url) return '';
+
+    var yt = youtubeId(url);
+    if(yt){
+      var qs = ['autoplay=1','mute=1','muted=1','controls=0','playsinline=1','loop=1','playlist='+encodeURIComponent(yt),'rel=0','modestbranding=1','disablekb=1','fs=0','iv_load_policy=3'];
+      try{ if(window.location && /^https?:\/\//i.test(window.location.origin)) qs.push('origin='+encodeURIComponent(window.location.origin)); }catch(e){}
+      return '<div class="dop-cover-video"><iframe class="dop-cover-youtube" src="https://www.youtube.com/embed/'+yt+'?'+qs.join('&')+'" title="Project cover video" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" aria-hidden="true" tabindex="-1"></iframe></div>';
+    }
+
+    var vi = vimeoId(url);
+    if(vi){
+      return '<div class="dop-cover-video"><iframe class="dop-cover-vimeo" src="https://player.vimeo.com/video/'+vi+'?autoplay=1&muted=1&loop=1&background=1&playsinline=1" title="Project cover video" allow="autoplay; fullscreen; picture-in-picture" aria-hidden="true" tabindex="-1"></iframe></div>';
+    }
+
+    var gd = googleDriveId(url);
+    if(gd){
+      /* Google Drive is less reliable for true autoplay than direct .mp4/CDN, but this embeds the preview when Drive is used. */
+      return '<div class="dop-cover-video"><iframe class="dop-cover-gdrive" src="https://drive.google.com/file/d/'+escAttr(gd)+'/preview" title="Project cover video" allow="autoplay" aria-hidden="true" tabindex="-1"></iframe></div>';
+    }
+
+    var direct = directVideo(url);
+    if(direct){
+      return '<div class="dop-cover-video"><video autoplay muted loop playsinline preload="auto" src="'+escAttr(direct)+'" aria-hidden="true" tabindex="-1"></video></div>';
+    }
+    return '';
+  }
+
+  function projectBySlide(slide, projects){
+    if(!slide) return null;
+    if(slide.ai !== undefined && projects[slide.ai]) return projects[slide.ai];
+    if(slide.id){
+      var byId = projects.find(function(p){ return String(p.id) === String(slide.id); });
+      if(byId) return byId;
+    }
+    if(slide.title){
+      return projects.find(function(p){ return String(p.name || '') === String(slide.title || ''); }) || null;
+    }
+    return null;
+  }
+
+  function fixServiceCardVideos(){
+    var projects = readProjects();
+    var cards = document.querySelectorAll('#svcGrid .cat-slide-card, #serviceGrid .cat-slide-card');
+    cards.forEach(function(card){
+      var slides = [];
+      try{ slides = JSON.parse(card.getAttribute('data-slides') || '[]') || []; }catch(e){ slides = []; }
+      var layers = card.querySelectorAll('.cat-slide-layer');
+      layers.forEach(function(layer, i){
+        var p = projectBySlide(slides[i], projects);
+        var old = layer.querySelector('.dop-cover-video');
+        if(!p || !wantsVideo(p)){
+          if(old) old.remove();
+          layer.classList.remove('has-video-cover');
+          layer.dataset.videoCoverApplied = '';
+          return;
+        }
+        var html = videoMarkup(p.videoUrl || p.coverVideoUrl || p.video || '');
+        if(!html){
+          if(old) old.remove();
+          layer.classList.remove('has-video-cover');
+          return;
+        }
+        if(!old){
+          layer.insertAdjacentHTML('beforeend', html);
+        }
+        layer.classList.add('has-video-cover');
+        layer.dataset.videoCoverApplied = '1';
+      });
+    });
+  }
+
+  /* Add previewType into newly saved project immediately instead of relying only on delayed patches. */
+  function patchSavePreviewType(){
+    if(typeof window.saveAdminProject !== 'function' || window.saveAdminProject.__serviceVideoFixV6) return;
+    var base = window.saveAdminProject;
+    window.saveAdminProject = function(){
+      var prefEl = document.getElementById('admProjectPreviewType');
+      var videoEl = document.getElementById('admProjectVideoUrl');
+      var pref = prefEl && prefEl.value === 'video' ? 'video' : 'image';
+      var videoUrl = videoEl ? videoEl.value.trim() : '';
+      var result = base.apply(this, arguments);
+      setTimeout(function(){
+        var data = readProjects();
+        if(data && data[0]){
+          data[0].previewType = pref;
+          data[0].cardPreviewType = pref;
+          data[0].coverPreviewType = pref;
+          if(pref === 'video' && videoUrl && !data[0].videoUrl) data[0].videoUrl = videoUrl;
+          try{ localStorage.setItem(PROJECT_KEY, JSON.stringify(data)); }catch(e){}
+          try{ if(typeof firestoreSet === 'function') firestoreSet(PROJECT_KEY, data); }catch(e){}
+        }
+        fixServiceCardVideos();
+      }, 60);
+      return result;
+    };
+    window.saveAdminProject.__serviceVideoFixV6 = true;
+  }
+
+  function wrapRender(){
+    if(typeof window.renderSvcGrid !== 'function' || window.renderSvcGrid.__serviceVideoFixV6) return;
+    var base = window.renderSvcGrid;
+    window.renderSvcGrid = function(){
+      var result = base.apply(this, arguments);
+      setTimeout(fixServiceCardVideos, 0);
+      setTimeout(fixServiceCardVideos, 250);
+      setTimeout(fixServiceCardVideos, 800);
+      return result;
+    };
+    window.renderSvcGrid.__serviceVideoFixV6 = true;
+  }
+
+  function boot(){
+    patchSavePreviewType();
+    wrapRender();
+    fixServiceCardVideos();
+    try{ if(typeof window.renderSvcGrid === 'function') window.renderSvcGrid(); }catch(e){}
+    var grid = document.getElementById('svcGrid') || document.getElementById('serviceGrid');
+    if(grid && window.MutationObserver){
+      var mo = new MutationObserver(function(){ setTimeout(fixServiceCardVideos, 0); });
+      mo.observe(grid, {childList:true, subtree:true});
+    }
+  }
+  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else setTimeout(boot, 80);
+})();
+</script>
+
 </body>
 </html>
