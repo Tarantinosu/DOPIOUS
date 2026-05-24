@@ -6538,7 +6538,7 @@ function _showProjectDetail(opts){
     if(embed.type === 'iframe'){
       html += '<iframe src="'+embed.src+'" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
     } else if(embed.type === 'video'){
-      html += '<video autoplay muted loop playsinline controls src="'+embed.src+'"></video>';
+      html += '<video autoplay muted loop playsinline controls preload='auto' src="'+embed.src+'"></video>';
     } else {
       html += '</div><a class="detail-video-link" href="'+videoUrl+'" target="_blank" rel="noopener">▶ เปิดวิดีโอ</a>';
       html += '<div style="display:none">';
@@ -9466,6 +9466,12 @@ setTimeout(()=>{renderAdminSubtopics();applyAdminSubtopicsToCards();}, 500);
    ════════════════════════════════════════════════ */
 
 /* ── Convert any video URL → embed format ── */
+
+/* AUTO VIDEO PREVIEW FIX */
+function isVideoLike(url=''){
+  return /youtube\.com|youtu\.be|vimeo\.com|drive\.google\.com|\.mp4|\.webm|\.ogg/i.test(url||'');
+}
+
 function convertVideoUrl(url){
   if(!url) return {type:'none', src:''};
   url = url.trim();
@@ -9568,7 +9574,7 @@ function previewProjectMediaUrls(){
     if(embed.type === 'iframe'){
       html += '<iframe src="'+embed.src+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
     } else if(embed.type === 'video'){
-      html += '<video autoplay muted loop playsinline controls src="'+embed.src+'"></video>';
+      html += '<video autoplay muted loop playsinline controls preload='auto' src="'+embed.src+'"></video>';
     } else {
       html += '<a class="detail-video-link" href="'+videoVal+'" target="_blank" rel="noopener">▶ เปิดวิดีโอ</a>';
     }
@@ -13534,7 +13540,7 @@ async function uploadImageToSupabase(file){
         var embed = window.convertVideoUrl(videoVal);
         html += '<div class="umv-title" style="margin-top:14px;">▶ Video Preview</div><div class="umv-video">';
         if(embed.type === 'iframe') html += '<iframe src="'+embed.src+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
-        else if(embed.type === 'video') html += '<video autoplay muted loop playsinline controls src="'+embed.src+'"></video>';
+        else if(embed.type === 'video') html += '<video autoplay muted loop playsinline controls preload='auto' src="'+embed.src+'"></video>';
         else html += '<a class="detail-video-link" href="'+videoVal+'" target="_blank" rel="noopener">▶ เปิดวิดีโอ</a>';
         html += '</div>';
       }else{
