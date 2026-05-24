@@ -5632,7 +5632,47 @@ button,a,input,select,textarea{touch-action:manipulation}
   line-height:1.3;
 }
 
-/* Service search box removed */
+/* ── Service Filter Dropdown ── */
+function filterSvcGrid(q){
+  q = (q||'').trim().toLowerCase();
+  var grid = document.getElementById('svcGrid');
+  if(!grid) return;
+  var cards = grid.querySelectorAll('.cat-slide-card, .svc-card');
+  var dividers = grid.querySelectorAll('.svc-cat-divider');
+  if(!q){
+    cards.forEach(function(c){ c.style.display=''; });
+    dividers.forEach(function(d){ d.style.display=''; });
+    return;
+  }
+  cards.forEach(function(card){
+    var label = (card.querySelector('.cat-slide-label,.svc-label')||{}).textContent||'';
+    var match = label.toLowerCase().indexOf(q) >= 0;
+    card.style.display = match ? '' : 'none';
+  });
+  dividers.forEach(function(div){
+    var next = div.nextElementSibling;
+    var hasVisible = false;
+    while(next && !next.classList.contains('svc-cat-divider')){
+      if(next.style.display !== 'none') hasVisible = true;
+      next = next.nextElementSibling;
+    }
+    div.style.display = hasVisible ? '' : 'none';
+  });
+}
+.svc-filter-wrap{padding:0 var(--gutter,40px) 24px;}
+.svc-filter-select-wrap{position:relative;display:inline-flex;align-items:center;width:100%;max-width:400px;}
+.svc-filter-select-wrap input{
+  width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  color:#fff;border-radius:999px;padding:10px 40px 10px 40px;
+  font-size:13px;font-weight:400;font-family:inherit;
+  outline:none;transition:border-color .2s,background .2s;
+}
+.svc-filter-select-wrap input::placeholder{color:rgba(255,255,255,.35);}
+.svc-filter-select-wrap input:focus{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.09);}
+@media(max-width:600px){
+  .svc-filter-wrap{padding:0 18px 18px;}
+  .svc-filter-select-wrap{max-width:100%;}
+}
 .detail-video-section h3{font-size:13px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px;}
 .detail-video-wrap{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0a0a0a;}
 .detail-video-wrap iframe,.detail-video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;}
@@ -5739,6 +5779,15 @@ window.addEventListener('load', function(){
   <div class="sec-label">
     <div><div class="sec-tag">What We Do</div><div class="sec-title">SERVICES</div></div>
     <div class="sec-count">1 Project = 1 Large Visual</div>
+  </div>
+
+  <!-- Search Box -->
+  <div class="svc-filter-wrap">
+    <div class="svc-filter-select-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.4;flex-shrink:0;position:absolute;left:16px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="svcFilterInput" type="text" placeholder="Search services..." autocomplete="off" oninput="filterSvcGrid(this.value)" style="padding-left:40px;">
+      <button onclick="document.getElementById('svcFilterInput').value='';filterSvcGrid('');" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:16px;line-height:1;padding:0;">✕</button>
+    </div>
   </div>
 
   <div class="svc-grid" id="svcGrid"></div>
@@ -15181,267 +15230,6 @@ async function uploadImageToSupabase(file){
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else setTimeout(boot, 80);
-})();
-</script>
-
-
-<!-- PATCH: Remove Service search box -->
-<style id="dopious-remove-service-search-box">
-  #services .svc-filter-wrap,
-  #services #svcFilterInput,
-  #services .svc-filter-select-wrap{display:none!important;visibility:hidden!important;height:0!important;margin:0!important;padding:0!important;overflow:hidden!important;}
-</style>
-
-
-
-<!-- PATCH v10 FINAL: Service card VDO autoplay for actual .slide-bg layers + no Search box -->
-<style id="dopious-service-vdo-final-css">
-  /* Remove Service search box completely */
-  #serviceSearchWrap,
-  #svcSearchWrap,
-  .service-search-wrap,
-  .svc-search-wrap,
-  .service-search,
-  .svc-search,
-  #serviceSearch,
-  #svcSearch,
-  input[placeholder*="Search services"],
-  input[placeholder*="Search Services"]{
-    display:none!important;
-    visibility:hidden!important;
-    opacity:0!important;
-    height:0!important;
-    min-height:0!important;
-    max-height:0!important;
-    margin:0!important;
-    padding:0!important;
-    border:0!important;
-    pointer-events:none!important;
-  }
-
-  /* Video cover on the real service-card background layers */
-  #svcGrid .slide-bg,
-  #serviceGrid .slide-bg{
-    position:absolute!important;
-    inset:0!important;
-    overflow:hidden!important;
-  }
-  #svcGrid .slide-bg.has-video-cover,
-  #serviceGrid .slide-bg.has-video-cover{background:#050505!important;}
-  #svcGrid .slide-bg.has-video-cover::before,
-  #serviceGrid .slide-bg.has-video-cover::before{
-    content:'';
-    position:absolute;
-    inset:0;
-    background:inherit;
-    background-size:cover;
-    background-position:center;
-    opacity:.16;
-    filter:brightness(.55);
-    z-index:0;
-  }
-  #svcGrid .slide-bg .dop-final-vdo,
-  #serviceGrid .slide-bg .dop-final-vdo{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    overflow:hidden!important;
-    pointer-events:none!important;
-    z-index:4!important;
-    background:#050505!important;
-  }
-  #svcGrid .slide-bg .dop-final-vdo video,
-  #serviceGrid .slide-bg .dop-final-vdo video,
-  #svcGrid .slide-bg .dop-final-vdo iframe,
-  #serviceGrid .slide-bg .dop-final-vdo iframe{
-    position:absolute!important;
-    inset:0!important;
-    width:100%!important;
-    height:100%!important;
-    display:block!important;
-    border:0!important;
-    pointer-events:none!important;
-    background:#050505!important;
-  }
-  #svcGrid .slide-bg .dop-final-vdo video,
-  #serviceGrid .slide-bg .dop-final-vdo video{
-    object-fit:cover!important;
-  }
-  #svcGrid .slide-bg .dop-final-vdo iframe.dop-final-youtube,
-  #serviceGrid .slide-bg .dop-final-vdo iframe.dop-final-youtube{
-    width:124%!important;height:124%!important;left:-12%!important;top:-12%!important;
-  }
-  #svcGrid .slide-bg .dop-final-vdo iframe.dop-final-drive,
-  #serviceGrid .slide-bg .dop-final-vdo iframe.dop-final-drive{
-    width:100%!important;height:100%!important;
-  }
-</style>
-<script id="dopious-service-vdo-final-js">
-(function(){
-  'use strict';
-  var PROJECT_KEY = 'dopiousAdminProjects';
-
-  function clean(v){ return String(v || '').trim().replace(/&amp;/g,'&'); }
-  function esc(s){ return String(s || '').replace(/[&<>"']/g,function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-  function readProjects(){
-    try{
-      if(typeof adminGet === 'function' && window.adminStoreKeys){
-        var a = adminGet(adminStoreKeys.projects, []);
-        if(Array.isArray(a)) return a;
-      }
-    }catch(e){}
-    try{ return JSON.parse(localStorage.getItem(PROJECT_KEY) || '[]') || []; }catch(e){ return []; }
-  }
-  function previewType(p){
-    return String((p && (p.previewType || p.cardPreviewType || p.coverPreviewType || p.previewMode)) || 'image').toLowerCase();
-  }
-  function wantsVideo(p){
-    return !!(p && previewType(p) === 'video' && clean(p.videoUrl || p.coverVideoUrl || p.video));
-  }
-  function youtubeId(raw){
-    var url = clean(raw);
-    if(/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
-    var m = url.match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
-    if(m && m[1]) return m[1];
-    try{ var u = new URL(url); var v = u.searchParams.get('v'); if(v && /^[A-Za-z0-9_-]{11}$/.test(v)) return v; }catch(e){}
-    return '';
-  }
-  function vimeoId(raw){ var m = clean(raw).match(/vimeo\.com\/(?:video\/)?(\d+)/i); return m ? m[1] : ''; }
-  function driveId(raw){
-    var url = clean(raw), m;
-    m = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i); if(m && m[1]) return m[1];
-    m = url.match(/[?&]id=([^&]+)/i); if(/drive\.google\.com|drive\.usercontent\.google/i.test(url) && m && m[1]) return m[1];
-    return '';
-  }
-  function directVideo(raw){ var url=clean(raw); return /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(url) ? url : ''; }
-  function driveSources(id){
-    id = encodeURIComponent(id);
-    return [
-      'https://drive.usercontent.google.com/download?id='+id+'&export=download&authuser=0',
-      'https://drive.google.com/uc?export=download&id='+id,
-      'https://drive.google.com/uc?export=view&id='+id
-    ];
-  }
-  function markup(raw){
-    var url = clean(raw); if(!url) return '';
-    var yt = youtubeId(url);
-    if(yt){
-      var qs = ['autoplay=1','mute=1','muted=1','controls=0','playsinline=1','loop=1','playlist='+encodeURIComponent(yt),'rel=0','modestbranding=1','disablekb=1','fs=0','iv_load_policy=3'];
-      try{ if(window.location && /^https?:\/\//i.test(window.location.origin)) qs.push('origin='+encodeURIComponent(window.location.origin)); }catch(e){}
-      return '<div class="dop-final-vdo" data-kind="youtube"><iframe class="dop-final-youtube" src="https://www.youtube.com/embed/'+yt+'?'+qs.join('&')+'" allow="autoplay; encrypted-media; picture-in-picture" referrerpolicy="strict-origin-when-cross-origin" tabindex="-1" aria-hidden="true"></iframe></div>';
-    }
-    var vi = vimeoId(url);
-    if(vi){
-      return '<div class="dop-final-vdo" data-kind="vimeo"><iframe src="https://player.vimeo.com/video/'+vi+'?autoplay=1&muted=1&loop=1&background=1&playsinline=1" allow="autoplay; fullscreen; picture-in-picture" tabindex="-1" aria-hidden="true"></iframe></div>';
-    }
-    var gd = driveId(url);
-    if(gd){
-      var arr = driveSources(gd);
-      return '<div class="dop-final-vdo" data-kind="gdrive" data-fallback="https://drive.google.com/file/d/'+esc(gd)+'/preview">'+
-             '<video autoplay muted defaultMuted loop playsinline webkit-playsinline preload="auto" data-src-list="'+esc(arr.join('|'))+'" src="'+esc(arr[0])+'" tabindex="-1" aria-hidden="true"></video>'+ 
-             '</div>';
-    }
-    var direct = directVideo(url) || url;
-    if(direct){
-      return '<div class="dop-final-vdo" data-kind="direct"><video autoplay muted defaultMuted loop playsinline webkit-playsinline preload="auto" src="'+esc(direct)+'" tabindex="-1" aria-hidden="true"></video></div>';
-    }
-    return '';
-  }
-  function findProject(slide, projects){
-    if(!slide) return null;
-    if(slide.ai !== undefined && projects[slide.ai]) return projects[slide.ai];
-    if(slide.id){ var byId = projects.find(function(p){ return String(p.id) === String(slide.id); }); if(byId) return byId; }
-    if(slide.title){ return projects.find(function(p){ return String(p.name || '') === String(slide.title || ''); }) || null; }
-    return null;
-  }
-  function startVideo(v){
-    if(!v) return;
-    try{ v.muted = true; v.defaultMuted = true; v.autoplay = true; v.loop = true; v.playsInline = true; v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); }catch(e){}
-    var p;
-    try{ p = v.play(); }catch(e){}
-    if(p && typeof p.catch === 'function') p.catch(function(){});
-  }
-  function attachFallback(v){
-    if(!v || v.__dopFinalFallback) return;
-    v.__dopFinalFallback = true;
-    v.__dopTryIndex = 0;
-    v.addEventListener('canplay', function(){ startVideo(v); });
-    v.addEventListener('loadeddata', function(){ startVideo(v); });
-    v.addEventListener('error', function(){
-      var list = String(v.getAttribute('data-src-list') || '').split('|').filter(Boolean);
-      v.__dopTryIndex = (v.__dopTryIndex || 0) + 1;
-      if(list[v.__dopTryIndex]){
-        v.src = list[v.__dopTryIndex];
-        try{ v.load(); }catch(e){}
-        setTimeout(function(){ startVideo(v); }, 80);
-        return;
-      }
-      var wrap = v.closest('.dop-final-vdo');
-      var fb = wrap && wrap.getAttribute('data-fallback');
-      if(fb && !wrap.querySelector('iframe')){
-        wrap.insertAdjacentHTML('beforeend','<iframe class="dop-final-drive" src="'+esc(fb)+'" allow="autoplay" tabindex="-1" aria-hidden="true"></iframe>');
-      }
-    });
-  }
-  function apply(){
-    var projects = readProjects();
-    document.querySelectorAll('#svcGrid .svc-card, #serviceGrid .svc-card').forEach(function(card){
-      var slides=[];
-      try{ slides = JSON.parse(card.getAttribute('data-slides') || '[]') || []; }catch(e){ slides=[]; }
-      var layers = card.querySelectorAll('.slide-bg-wrap .slide-bg, .slide-bg');
-      layers.forEach(function(layer, i){
-        var slide = slides[i];
-        var p = slide && slide.type === 'admin' ? findProject(slide, projects) : null;
-        var existing = layer.querySelector('.dop-final-vdo');
-        if(!p || !wantsVideo(p)){
-          if(existing) existing.remove();
-          layer.classList.remove('has-video-cover');
-          layer.removeAttribute('data-dop-vdo-key');
-          return;
-        }
-        var url = clean(p.videoUrl || p.coverVideoUrl || p.video);
-        var key = String(p.id || p.name || i) + '|' + url;
-        if(existing && layer.getAttribute('data-dop-vdo-key') !== key){ existing.remove(); existing = null; }
-        if(!existing){
-          var html = markup(url);
-          if(html) layer.insertAdjacentHTML('beforeend', html);
-        }
-        layer.classList.add('has-video-cover');
-        layer.setAttribute('data-dop-vdo-key', key);
-      });
-    });
-    document.querySelectorAll('#svcGrid .dop-final-vdo video, #serviceGrid .dop-final-vdo video').forEach(function(v){ attachFallback(v); startVideo(v); });
-  }
-  function wrapRender(){
-    if(typeof window.renderSvcGrid === 'function' && !window.renderSvcGrid.__dopFinalVdo){
-      var base = window.renderSvcGrid;
-      window.renderSvcGrid = function(){
-        var r = base.apply(this, arguments);
-        setTimeout(apply, 0); setTimeout(apply, 200); setTimeout(apply, 900);
-        return r;
-      };
-      window.renderSvcGrid.__dopFinalVdo = true;
-    }
-    if(typeof window.svcCardNav === 'function' && !window.svcCardNav.__dopFinalVdo){
-      var nav = window.svcCardNav;
-      window.svcCardNav = function(){
-        var r = nav.apply(this, arguments);
-        setTimeout(apply, 30); setTimeout(function(){ document.querySelectorAll('#svcGrid .dop-final-vdo video, #serviceGrid .dop-final-vdo video').forEach(startVideo); }, 120);
-        return r;
-      };
-      window.svcCardNav.__dopFinalVdo = true;
-    }
-  }
-  function boot(){
-    wrapRender();
-    try{ if(typeof window.renderSvcGrid === 'function') window.renderSvcGrid(); }catch(e){}
-    apply(); setTimeout(apply, 700); setTimeout(apply, 1800);
-    var grid = document.getElementById('svcGrid') || document.getElementById('serviceGrid');
-    if(grid && window.MutationObserver){ new MutationObserver(function(){ setTimeout(apply, 0); }).observe(grid,{childList:true,subtree:true,attributes:true,attributeFilter:['style','class']}); }
-    ['click','touchstart','scroll','mousemove'].forEach(function(ev){ window.addEventListener(ev, function(){ document.querySelectorAll('#svcGrid .dop-final-vdo video, #serviceGrid .dop-final-vdo video').forEach(startVideo); }, {passive:true}); });
-  }
-  if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else setTimeout(boot, 80);
 })();
 </script>
 
