@@ -111,6 +111,47 @@ creative agency กรุงเทพ, ดีไซน์เอเจนซี�
 #site-loader .ld-bar{width:60px;height:2px;background:rgba(255,255,255,.12);margin:18px auto 0;border-radius:2px;overflow:hidden}
 #site-loader .ld-bar:after{content:'';display:block;height:100%;width:40%;background:#ff2a14;border-radius:2px;animation:ldpulse 1s ease-in-out infinite alternate}
 @keyframes ldpulse{from{transform:translateX(0)}to{transform:translateX(150px)}}
+
+/* VIDEO CARD FIX */
+.svc-bg-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border:0;
+  background:#000;
+  pointer-events:none;
+  z-index:0;
+}
+
+
+/* ===== VIDEO CARD REWRITE ===== */
+.svc-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border:0;
+  z-index:0;
+  background:#000;
+  pointer-events:none;
+}
+
+.svc-card{
+  overflow:hidden;
+}
+
+.svc-card::after{
+  z-index:2;
+}
+
+.svc-label,
+.svc-desc{
+  z-index:3;
+}
+
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -5692,6 +5733,20 @@ function filterSvcGrid(q){
 
 
 </style>
+
+<style>
+.svc-bg-video{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border:0;
+  pointer-events:none;
+  background:#000;
+}
+</style>
+
 </head>
 <body>
 <div id="site-loader"><div><div class="ld-logo">Dopious<span>+</span></div><div class="ld-bar"></div><div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:14px;text-align:center;" id="loaderText">Loading from Firebase...</div></div></div>
@@ -6538,7 +6593,7 @@ function _showProjectDetail(opts){
     if(embed.type === 'iframe'){
       html += '<iframe src="'+embed.src+'" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>';
     } else if(embed.type === 'video'){
-      html += '<video controls src="'+embed.src+'"></video>';
+      html += '<video autoplay muted loop playsinline controls preload='auto' src="'+embed.src+'"></video>';
     } else {
       html += '</div><a class="detail-video-link" href="'+videoUrl+'" target="_blank" rel="noopener">▶ เปิดวิดีโอ</a>';
       html += '<div style="display:none">';
@@ -9466,21 +9521,184 @@ setTimeout(()=>{renderAdminSubtopics();applyAdminSubtopicsToCards();}, 500);
    ════════════════════════════════════════════════ */
 
 /* ── Convert any video URL → embed format ── */
+
+
+/* ===============================
+   SERVICE CARD VIDEO ENGINE
+================================= */
+
+/* ========= NEW VIDEO CARD SYSTEM ========= */
+
+function renderCardMedia(project){
+  const cover =
+    project.coverImage ||
+    project.cover ||
+    '';
+
+  const rawVideo =
+    project.videoUrl ||
+    '';
+
+  const videoUrl = rawVideo.trim();
+
+  if(videoUrl){
+
+    /* YouTube */
+    let yt = videoUrl.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+
+    if(yt){
+      return `
+        <iframe
+          class="svc-video"
+          src="https://www.youtube.com/embed/${yt[1]}?autoplay=1&mute=1&loop=1&playlist=${yt[1]}&controls=0&playsinline=1"
+          allow="autoplay; encrypted-media"
+          frameborder="0">
+        </iframe>
+      `;
+    }
+
+    /* MP4 / Cloudinary */
+    if(videoUrl.includes('.mp4') || videoUrl.includes('/video/upload/')){
+      return `
+        <video
+          class="svc-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          webkit-playsinline
+          preload="auto">
+          <source src="${videoUrl}" type="video/mp4">
+        </video>
+      `;
+    }
+  }
+
+  return `
+    <div class="svc-bg"
+      style="background:url('${cover}') center/cover no-repeat">
+    </div>
+  `;
+}
+
+function getServiceCardMedia(project){
+  const videoUrl = (project.videoUrl || '').trim();
+  const cover = project.cover || project.coverImage || '';
+
+  if(videoUrl){
+    const embed = convertVideoUrl(videoUrl);
+
+    if(embed.type === 'video'){
+      return `
+        <video
+          class="svc-bg-video"
+          autoplay
+          muted
+          loop
+          playsinline
+          webkit-playsinline
+          preload="auto"
+        >
+          <source src="${embed.src}" type="video/mp4">
+        </video>
+      `;
+    }
+
+    if(embed.type === 'iframe'){
+      return `
+        <iframe
+          class="svc-bg-video"
+          src="${embed.src}"
+          allow="autoplay; encrypted-media"
+          allowfullscreen
+          loading="lazy"
+          referrerpolicy="strict-origin-when-cross-origin">
+        </iframe>
+      `;
+    }
+  }
+
+  return `
+    <div class="svc-bg"
+      style="background:url('${cover}') center/cover no-repeat">
+    </div>
+  `;
+}
+
+/* AUTO VIDEO PREVIEW FIX */
+function isVideoLike(url=''){
+  return /youtube\.com|youtu\.be|vimeo\.com|drive\.google\.com|\.mp4|\.webm|\.ogg/i.test(url||'');
+}
+
+
+/* ==== FORCE SERVICE CARD VIDEO PREVIEW ==== */
+function renderServiceCardMedia(videoUrl, coverImage){
+  const embed = convertVideoUrl(videoUrl||'');
+
+  if(embed && embed.type === 'video'){
+    return `
+      <video
+        class="svc-bg-video"
+        autoplay
+        muted
+        loop
+        playsinline
+        webkit-playsinline
+        preload="auto"
+        src="${embed.src}"></video>
+    `;
+  }
+
+  if(embed && embed.type === 'iframe'){
+    return `
+      <iframe
+        class="svc-bg-video"
+        src="${embed.src}"
+        allow="autoplay; encrypted-media"
+        allowfullscreen
+        loading="lazy"></iframe>
+    `;
+  }
+
+  return `<div class="svc-bg" style="background:url('${coverImage||''}') center/cover no-repeat"></div>`;
+}
+
 function convertVideoUrl(url){
   if(!url) return {type:'none', src:''};
   url = url.trim();
+
   /* YouTube */
-  let m = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([A-Za-z0-9_-]{11})/);
-  if(m) return {type:'iframe', src:'https://www.youtube.com/embed/'+m[1]+'?rel=0'};
+  let m = url.match(/(?:youtube\.com\/(?:watch\?.*v=|embed\/|shorts\/|live\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);
+  if(m){
+    return {
+      type:'iframe',
+      src:'https://www.youtube.com/embed/'+m[1]+'?autoplay=1&mute=1&playsinline=1&loop=1&playlist='+m[1]+'&controls=0&rel=0&modestbranding=1'
+    };
+  }
+
   /* Vimeo */
-  m = url.match(/vimeo\.com\/(\d+)/);
-  if(m) return {type:'iframe', src:'https://player.vimeo.com/video/'+m[1]};
-  /* Google Drive video */
-  m = url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-  if(m) return {type:'iframe', src:'https://drive.google.com/file/d/'+m[1]+'/preview'};
-  /* Direct MP4 or video */
-  if(/\.(mp4|webm|ogg)(\?|$)/i.test(url)) return {type:'video', src:url};
-  /* Fallback — try iframe */
+  m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/i);
+  if(m){
+    return {
+      type:'iframe',
+      src:'https://player.vimeo.com/video/'+m[1]+'?autoplay=1&muted=1&loop=1&background=1'
+    };
+  }
+
+  /* Google Drive */
+  m = url.match(/drive\.google\.com\/file\/d\/([^/]+)/i);
+  if(m){
+    return {
+      type:'iframe',
+      src:'https://drive.google.com/file/d/'+m[1]+'/preview'
+    };
+  }
+
+  /* Direct video */
+  if(/\.(mp4|webm|ogg)(\?|#|$)/i.test(url)){
+    return {type:'video', src:url};
+  }
+
   return {type:'link', src:url};
 }
 
@@ -9545,9 +9763,9 @@ function previewProjectMediaUrls(){
     html += '<div class="umv-title" style="margin-top:14px;">▶ Video Preview</div>';
     html += '<div class="umv-video">';
     if(embed.type === 'iframe'){
-      html += '<iframe src="'+embed.src+'" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>';
+      html += '<iframe src="'+embed.src+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
     } else if(embed.type === 'video'){
-      html += '<video controls src="'+embed.src+'"></video>';
+      html += '<video autoplay muted loop playsinline controls preload='auto' src="'+embed.src+'"></video>';
     } else {
       html += '<a class="detail-video-link" href="'+videoVal+'" target="_blank" rel="noopener">▶ เปิดวิดีโอ</a>';
     }
@@ -13512,8 +13730,8 @@ async function uploadImageToSupabase(file){
       if(typeof window.convertVideoUrl === 'function'){
         var embed = window.convertVideoUrl(videoVal);
         html += '<div class="umv-title" style="margin-top:14px;">▶ Video Preview</div><div class="umv-video">';
-        if(embed.type === 'iframe') html += '<iframe src="'+embed.src+'" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>';
-        else if(embed.type === 'video') html += '<video controls src="'+embed.src+'"></video>';
+        if(embed.type === 'iframe') html += '<iframe src="'+embed.src+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe>';
+        else if(embed.type === 'video') html += '<video autoplay muted loop playsinline controls preload='auto' src="'+embed.src+'"></video>';
         else html += '<a class="detail-video-link" href="'+videoVal+'" target="_blank" rel="noopener">▶ เปิดวิดีโอ</a>';
         html += '</div>';
       }else{
