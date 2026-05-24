@@ -5631,6 +5631,48 @@ button,a,input,select,textarea{touch-action:manipulation}
   margin-top:10px;
   line-height:1.3;
 }
+
+/* ── Service Filter Dropdown ── */
+function filterSvcGrid(q){
+  q = (q||'').trim().toLowerCase();
+  var grid = document.getElementById('svcGrid');
+  if(!grid) return;
+  var cards = grid.querySelectorAll('.cat-slide-card, .svc-card');
+  var dividers = grid.querySelectorAll('.svc-cat-divider');
+  if(!q){
+    cards.forEach(function(c){ c.style.display=''; });
+    dividers.forEach(function(d){ d.style.display=''; });
+    return;
+  }
+  cards.forEach(function(card){
+    var label = (card.querySelector('.cat-slide-label,.svc-label')||{}).textContent||'';
+    var match = label.toLowerCase().indexOf(q) >= 0;
+    card.style.display = match ? '' : 'none';
+  });
+  dividers.forEach(function(div){
+    var next = div.nextElementSibling;
+    var hasVisible = false;
+    while(next && !next.classList.contains('svc-cat-divider')){
+      if(next.style.display !== 'none') hasVisible = true;
+      next = next.nextElementSibling;
+    }
+    div.style.display = hasVisible ? '' : 'none';
+  });
+}
+.svc-filter-wrap{padding:0 var(--gutter,40px) 24px;}
+.svc-filter-select-wrap{position:relative;display:inline-flex;align-items:center;width:100%;max-width:400px;}
+.svc-filter-select-wrap input{
+  width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);
+  color:#fff;border-radius:999px;padding:10px 40px 10px 40px;
+  font-size:13px;font-weight:400;font-family:inherit;
+  outline:none;transition:border-color .2s,background .2s;
+}
+.svc-filter-select-wrap input::placeholder{color:rgba(255,255,255,.35);}
+.svc-filter-select-wrap input:focus{border-color:rgba(255,255,255,.3);background:rgba(255,255,255,.09);}
+@media(max-width:600px){
+  .svc-filter-wrap{padding:0 18px 18px;}
+  .svc-filter-select-wrap{max-width:100%;}
+}
 .detail-video-section h3{font-size:13px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:14px;}
 .detail-video-wrap{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:#0a0a0a;}
 .detail-video-wrap iframe,.detail-video-wrap video{position:absolute;inset:0;width:100%;height:100%;border:none;display:block;}
@@ -5738,6 +5780,16 @@ window.addEventListener('load', function(){
     <div><div class="sec-tag">What We Do</div><div class="sec-title">SERVICES</div></div>
     <div class="sec-count">1 Project = 1 Large Visual</div>
   </div>
+
+  <!-- Search Box -->
+  <div class="svc-filter-wrap">
+    <div class="svc-filter-select-wrap">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="opacity:.4;flex-shrink:0;position:absolute;left:16px;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input id="svcFilterInput" type="text" placeholder="Search services..." autocomplete="off" oninput="filterSvcGrid(this.value)" style="padding-left:40px;">
+      <button onclick="document.getElementById('svcFilterInput').value='';filterSvcGrid('');" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);background:none;border:none;color:rgba(255,255,255,.35);cursor:pointer;font-size:16px;line-height:1;padding:0;">✕</button>
+    </div>
+  </div>
+
   <div class="svc-grid" id="svcGrid"></div>
 </section>
 
@@ -12798,52 +12850,98 @@ document.addEventListener('DOMContentLoaded', () => {
     Object.keys(_timers).forEach(function(k){clearInterval(_timers[k]);});
 
     var cats=(typeof categories!=='undefined'&&Array.isArray(categories))?categories:[];
-    /* Build grouped WITHOUT hidden filter */
-    var grouped={};
+
+    /* ── Define service grouping order ── */
+    var SVC_ORDER = [
+      /* Space & Build */
+      'Space Design+',
+      'Build & Installation+',
+      /* Art & Craft */
+      'Sculpture Design+',
+      '2D-3D Motion Graphic Design+',
+      'Industrial Design+',
+      'Prototype 3D Print Service',
+      /* Brand & Print */
+      'Brand Strategy Corporate Identity Design+',
+      'Graphic Design+',
+      'Packaging Design+',
+      /* Visual & Campaign */
+      'Keyvisual Creative Ads Design+',
+      'Photo / Video / Ads Design+',
+      'Fashion Design+',
+      /* Digital */
+      'Website UX-UI Design+',
+      /* Strategy */
+      'Marketing',
+      'Production Follow Up',
+    ];
+
+    /* Group by service → sub → projects */
+    var svcGroups={};
     getProjects().forEach(function(ap,ai){
-      var rawSvc = (ap.service||'').replace(/Design\+?$/i,'').replace(/\+$/,'').trim();
-      var rawSub = (ap.sub && ap.sub !== '— Select sub-service —') ? ap.sub.trim() : '';
-      var shortSvc = rawSvc.split('/')[0].trim();
-      if(shortSvc.length > 14) shortSvc = shortSvc.split(' ').slice(0,2).join(' ');
-      var labelTop = rawSub || shortSvc || 'Project';
-      var labelBot = rawSub ? shortSvc : '';
-      var idx=SVC_TO_CAT[String(ap.service||'').trim()];
-      if(idx===undefined) return;
-      if(!grouped[idx]) grouped[idx]=[];
-      grouped[idx].push({ap:ap,ai:ai,labelTop:labelTop,labelBot:labelBot});
+      var svcKey=(ap.service||'Other').trim();
+      var subKey=(ap.sub && ap.sub!=='— Select sub-service —') ? ap.sub.trim() : '__none__';
+      if(!svcGroups[svcKey]) svcGroups[svcKey]={};
+      if(!svcGroups[svcKey][subKey]) svcGroups[svcKey][subKey]=[];
+      svcGroups[svcKey][subKey].push({ap:ap,ai:ai});
+    });
+
+    /* Sort service keys by defined order */
+    var orderedSvcKeys = Object.keys(svcGroups).sort(function(a,b){
+      var ia = SVC_ORDER.indexOf(a);
+      var ib = SVC_ORDER.indexOf(b);
+      if(ia===-1) ia=999;
+      if(ib===-1) ib=999;
+      return ia-ib;
     });
 
     var html='';
-    cats.forEach(function(c,i){
-      var items=grouped[i]; if(!items||!items.length) return;
-      var lbl=cleanLabel(c.cat);
-      var slides=items.map(function(item){
-        return {type:'admin',ai:item.ai,title:item.ap.name||'Untitled',img:getCardImg(item.ap),bg:c.bg,desc:item.ap.desc||'',labelTop:item.labelTop,labelBot:item.labelBot};
+    orderedSvcKeys.forEach(function(svcKey){
+      var subs=svcGroups[svcKey];
+      var idx=SVC_TO_CAT[svcKey];
+      var cat=(idx!==undefined&&cats[idx])?cats[idx]:null;
+      var bg=(cat&&cat.bg)||'#111';
+      var rawSvc=svcKey.replace(/Design\+?$/i,'').replace(/\+$/,'').trim();
+      var shortSvc=rawSvc.split('/')[0].trim();
+      if(shortSvc.length>14) shortSvc=shortSvc.split(' ').slice(0,2).join(' ');
+
+      html+='<div class="svc-cat-divider">'+esc(shortSvc)+'</div>';
+
+      Object.keys(subs).forEach(function(subKey,si){
+        var items=subs[subKey];
+        var rawSub=subKey==='__none__'?'':subKey;
+        var labelTop=rawSub||shortSvc;
+        var labelBot=rawSub?shortSvc:'';
+
+        var slides=items.map(function(item){
+          return {type:'admin',ai:item.ai,title:item.ap.name||'Untitled',img:getCardImg(item.ap),bg:bg,desc:item.ap.desc||'',labelTop:labelTop,labelBot:labelBot};
+        });
+
+        var id='csSub_'+String(svcKey+subKey).replace(/[^a-zA-Z0-9]/g,'_').slice(0,36);
+        var count=slides.length;
+        var controls=count>1
+          ?'<div class="cat-slide-controls"><button class="cat-slide-btn" data-dir="-1" type="button">‹</button><span class="cat-slide-count">1 / '+count+'</span><button class="cat-slide-btn" data-dir="1" type="button">›</button></div>'
+          :'';
+        var layers=slides.map(function(s,si2){
+          var on=si2===0?' is-on':'';
+          return s.img
+            ?'<div class="cat-slide-layer'+on+'" data-layer="'+si2+'"><img src="'+s.img+'" alt="'+esc(s.title)+'" loading="eager" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
+            :'<div class="cat-slide-layer'+on+'" data-layer="'+si2+'" style="background:'+bg+'"></div>';
+        }).join('');
+        var safe=JSON.stringify(slides.map(function(s){return{type:s.type,ai:s.ai,title:s.title,desc:s.desc,labelTop:s.labelTop,labelBot:s.labelBot};})).replace(/'/g,'&#39;');
+        var firstDesc=slides[0]&&slides[0].desc?slides[0].desc:'';
+        var descHtml=firstDesc?'<div class="svc-desc" id="desc_'+id+'"><p>'+esc(firstDesc)+'</p></div>':'<div class="svc-desc" id="desc_'+id+'" style="display:none"></div>';
+        var cardStyle=si===0
+          ?'position:relative;display:block;width:100%;aspect-ratio:16/9;min-height:220px;border-radius:12px;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.10);cursor:pointer;grid-column:1/-1;'
+          :'position:relative;display:block;width:100%;aspect-ratio:16/9;min-height:180px;border-radius:12px;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.10);cursor:pointer;';
+
+        html+='<article class="cat-slide-card" id="'+id+'" data-ci="'+(idx!==undefined?idx:-1)+'" data-slides=\''+safe+'\' style="'+cardStyle+'">'
+          +layers
+          +'<div class="cat-slide-top" style="pointer-events:none;"><div class="cat-slide-name" style="pointer-events:none;">'+esc(slides[0].title)+'</div><div style="pointer-events:auto;">'+controls+'</div></div>'
+          +'<div class="cat-slide-label"><span>'+esc(labelTop)+'</span>'+(labelBot?'<span>'+esc(labelBot)+'</span>':'')+'<strong>Design<em>+</em></strong></div>'
+          +descHtml
+          +'</article>';
       });
-      var id='csFx_'+i; var count=slides.length;
-      var controls=count>1
-        ?'<div class="cat-slide-controls"><button class="cat-slide-btn" data-dir="-1" type="button">‹</button><span class="cat-slide-count">1 / '+count+'</span><button class="cat-slide-btn" data-dir="1" type="button">›</button></div>'
-        :'';
-      var layers=slides.map(function(s,si){
-        var on=si===0?' is-on':'';
-        return s.img
-          ?'<div class="cat-slide-layer'+on+'" data-layer="'+si+'"><img src="'+s.img+'" alt="'+esc(s.title)+'" loading="eager" style="width:100%;height:100%;object-fit:cover;display:block;"></div>'
-          :'<div class="cat-slide-layer'+on+'" data-layer="'+si+'" style="background:'+(s.bg||'#111')+'"></div>';
-      }).join('');
-      var safe=JSON.stringify(slides.map(function(s){return{type:s.type,ai:s.ai,title:s.title,desc:s.desc,labelTop:s.labelTop,labelBot:s.labelBot};})).replace(/'/g,'&#39;');
-
-      /* Description of first slide — updates when slide changes */
-      var firstDesc = slides[0] && slides[0].desc ? slides[0].desc : '';
-      var descHtml = firstDesc
-        ? '<div class="svc-desc" id="desc_'+id+'"><p>'+esc(firstDesc)+'</p></div>'
-        : '<div class="svc-desc" id="desc_'+id+'" style="display:none"></div>';
-
-      html+='<article class="cat-slide-card" id="'+id+'" data-ci="'+i+'" data-slides=\''+safe+'\' style="position:relative;display:block;width:100%;aspect-ratio:16/9;min-height:220px;border-radius:12px;overflow:hidden;background:#111;border:1px solid rgba(255,255,255,.10);cursor:pointer;">'
-        +layers
-        +'<div class="cat-slide-top" style="pointer-events:none;"><div class="cat-slide-name" style="pointer-events:none;">'+esc(slides[0].title)+'</div><div style="pointer-events:auto;">'+controls+'</div></div>'
-        +'<div class="cat-slide-label"><span>'+esc(slides[0].labelTop||lbl.l1)+'</span>'+(slides[0].labelBot?'<span>'+esc(slides[0].labelBot)+'</span>':'')+'<strong>Design<em>+</em></strong></div>'
-        +descHtml
-        +'</article>';
     });
 
     grid.innerHTML=html||'<div class="mobile-upload-empty">No uploaded project yet. Add work from Admin panel.</div>';
