@@ -256,9 +256,12 @@ async function firestoreSetPublished(payload) {
       return;
     }
 
-    const pub = await firestoreGetPublished();
+    const pub = await Promise.race([
+      firestoreGetPublished(),
+      new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, 1500); })
+    ]);
     if (!pub) {
-      console.info('[Dopious+] No published data in Firestore yet.');
+      console.info('[Dopious+] Firebase slow/no data — showing local cache first.');
       if (typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
       return;
     }
@@ -869,8 +872,8 @@ section{padding:76px 40px}
   transition:opacity .18s ease, transform .18s ease;
 }
 .hero-content.switching{
-  opacity:1;
-  transform:none;
+  opacity:0;
+  transform:translateY(16px);
 }
 .hero.budget-slide{
   background:
@@ -1026,8 +1029,8 @@ section{padding:76px 40px}
   transition:opacity .18s ease, transform .18s ease;
 }
 .hero-content.switching{
-  opacity:1;
-  transform:none;
+  opacity:0;
+  transform:translateY(16px);
 }
 .hero-info{
   max-width:720px;
@@ -5686,6 +5689,11 @@ button,a,input,select,textarea{touch-action:manipulation}
 #dopLightbox .lb-next{right:16px;}
 
 
+
+
+/* Performance fix: unloaded project covers stay lightweight and fade in when ready */
+.slide-bg.lazy-bg{background-image:none!important;transition:opacity .18s ease, filter .18s ease;}
+.slide-bg.bg-ready{filter:brightness(.86) saturate(1.02);}
 </style>
 </head>
 <body>
@@ -5857,9 +5865,6 @@ const heroSlides = [
 ];
 
 let heroIndex = 0;
-let heroAutoTimer = null;
-let heroSwitchTimer = null;
-
 const hero = document.querySelector('.hero');
 const heroContent = document.querySelector('.hero-content');
 const heroEyebrow = document.getElementById('heroEyebrow');
@@ -5867,51 +5872,24 @@ const heroTitle = document.getElementById('heroTitle');
 const heroDesc = document.getElementById('heroDesc');
 const heroDots = [...document.querySelectorAll('#heroDots span')];
 
-function heroText(v){
-  return (v === undefined || v === null) ? '' : String(v);
-}
-
 function setHeroSlide(index, instant){
-  if(!heroSlides.length) return;
-
-  index = ((Number(index) || 0) % heroSlides.length + heroSlides.length) % heroSlides.length;
   heroIndex = index;
-
-  const fallback = heroSlides[0] || {};
-  const s = Object.assign({}, fallback, heroSlides[index] || {});
-
-  window.clearTimeout(heroSwitchTimer);
-
-  const applySlide = function(){
-    try{
-      const tags = Array.isArray(s.tags) && s.tags.length ? s.tags : fallback.tags || [];
-
-      if(hero) hero.classList.toggle('budget-slide', s.mode === 'budget-slide');
-      if(heroEyebrow) heroEyebrow.textContent = heroText(s.eyebrow);
-      if(heroTitle) heroTitle.innerHTML = heroText(s.title);
-
-      if(heroDesc){
-        heroDesc.innerHTML = `
-          <strong>${heroText(s.strong)}</strong>
-          <span>${heroText(s.desc)}</span>
-          <div class="hero-info-tags">
-            ${tags.map(function(t){ return `<em>${heroText(t)}</em>`; }).join('')}
-          </div>
-        `;
-      }
-
-      heroDots.forEach(function(d,i){ d.classList.toggle('active', i === index); });
-    }catch(e){
-      console.warn('[Dopious+] Hero slide render failed:', e.message);
-    }finally{
-      /* Keep hero text visible at all times. */
-      if(heroContent){
-        heroContent.classList.remove('switching');
-        heroContent.style.visibility = 'visible';
-        heroContent.style.opacity = '';
-        heroContent.style.transform = '';
-      }
+  const applySlide = () => {
+    const s = heroSlides[index];
+    if(hero) hero.classList.toggle('budget-slide', s.mode === 'budget-slide');
+    if(heroEyebrow) heroEyebrow.textContent = s.eyebrow;
+    if(heroTitle) heroTitle.innerHTML = s.title;
+    if(heroDesc){
+      heroDesc.innerHTML = `
+        <strong>${s.strong}</strong>
+        <span>${s.desc}</span>
+        <div class="hero-info-tags">
+          ${s.tags.map(t=>`<em>${t}</em>`).join('')}
+        </div>
+      `;
     }
+    heroDots.forEach((d,i)=>d.classList.toggle('active', i===index));
+    if(heroContent) heroContent.classList.remove('switching');
   };
 
   if(instant){
@@ -5919,33 +5897,13 @@ function setHeroSlide(index, instant){
     return;
   }
 
-  /* Do not fade out / hide current slide while waiting for the next slide. */
-  if(heroContent){
-    heroContent.classList.remove('switching');
-    heroContent.style.visibility = 'visible';
-    heroContent.style.opacity = '';
-    heroContent.style.transform = '';
-  }
-
-  heroSwitchTimer = window.setTimeout(applySlide, 0);
+  if(heroContent) heroContent.classList.add('switching');
+  setTimeout(applySlide, 90);
 }
 
-function startHeroAutoSlide(){
-  window.clearInterval(heroAutoTimer);
-  heroAutoTimer = window.setInterval(function(){
-    setHeroSlide((heroIndex + 1) % heroSlides.length, false);
-  }, 5200);
-}
-
-heroDots.forEach(function(dot,i){
-  dot.addEventListener('click', function(){
-    setHeroSlide(i, false);
-    startHeroAutoSlide();
-  });
-});
-
+heroDots.forEach((dot,i)=>dot.addEventListener('click',()=>setHeroSlide(i, true)));
+setInterval(()=>setHeroSlide((heroIndex+1)%heroSlides.length), 5200);
 setHeroSlide(0, true);
-startHeroAutoSlide();
 </script>
 <script>
 const categories=[
@@ -6100,10 +6058,65 @@ function hideCategory(index){const h=getHiddenCategories();if(!h.includes(index)
 function restoreAllCategories(){localStorage.removeItem(HIDDEN_KEY);renderSvcGrid();if(typeof renderAdminProjects==='function')renderAdminProjects();}
 function restoreSingleCategory(index){const h=getHiddenCategories().filter(i=>i!==index);localStorage.setItem(HIDDEN_KEY,JSON.stringify(h));renderSvcGrid();if(typeof renderAdminProjects==='function')renderAdminProjects();}
 
+
+function escAttr(s){
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+/* Fast mobile loading: only first visible project covers load immediately. Other covers load when near viewport. */
+function buildLazyBgLayer(url, fallbackBg, idx){
+  const activeStyle = 'opacity:'+(idx===0?1:0)+';z-index:'+(idx===0?2:1)+';';
+  if(url){
+    window._dopiousBgEagerCount = (window._dopiousBgEagerCount || 0) + 1;
+    if(window._dopiousBgEagerCount <= 4){
+      return '<div class="slide-bg" data-idx="'+idx+'" style="background-image:url('+JSON.stringify(url)+');background-size:cover;background-position:center;'+activeStyle+'"></div>';
+    }
+    return '<div class="slide-bg lazy-bg" data-idx="'+idx+'" data-bg="'+escAttr(url)+'" style="background:#121212;background-size:cover;background-position:center;'+activeStyle+'"></div>';
+  }
+  return '<div class="slide-bg" data-idx="'+idx+'" style="background:'+(fallbackBg||'#111')+';'+activeStyle+'"></div>';
+}
+
+function initLazyProjectBackgrounds(root){
+  root = root || document;
+  const nodes = Array.prototype.slice.call(root.querySelectorAll('.slide-bg.lazy-bg[data-bg]'));
+  if(!nodes.length) return;
+  const loadBg = function(el){
+    if(!el || el.dataset.loaded) return;
+    const src = el.getAttribute('data-bg');
+    if(!src) return;
+    el.dataset.loaded = '1';
+    const img = new Image();
+    img.decoding = 'async';
+    img.onload = function(){
+      el.style.backgroundImage = 'url("'+src.replace(/"/g,'\"')+'")';
+      el.style.backgroundSize = 'cover';
+      el.style.backgroundPosition = 'center';
+      el.classList.add('bg-ready');
+    };
+    img.src = src;
+  };
+  if('IntersectionObserver' in window){
+    const io = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          loadBg(entry.target);
+          io.unobserve(entry.target);
+        }
+      });
+    }, {rootMargin:'900px 0px'});
+    nodes.forEach(function(el){ io.observe(el); });
+  }else{
+    nodes.slice(0,8).forEach(loadBg);
+    setTimeout(function(){ nodes.forEach(loadBg); }, 1800);
+  }
+}
+
 function renderSvcGrid(){
   const grid = document.getElementById('svcGrid') || document.getElementById('serviceGrid');
   if(!grid){ console.warn('renderSvcGrid: grid element not found'); return; }
 
+  let html = '';
+  window._dopiousBgEagerCount = 0;
   const hidden = getHiddenCategories();
   let adminProjects = [];
   try{ adminProjects = JSON.parse(localStorage.getItem('dopiousAdminProjects')||'[]'); }catch(e){ adminProjects = []; }
@@ -6171,11 +6184,9 @@ function renderSvcGrid(){
       var firstCover = slideData[0] && slideData[0].cover;
       var bg = (cat && cat.bg) || 'linear-gradient(135deg,#1a0505,#ff2a14 70%,#111)';
 
-      /* BG layers for slideshow */
+      /* BG layers for slideshow — lazy after first visible covers */
       var bgLayers = slideData.map(function(s, si2){
-        return s.cover
-          ? '<div class="slide-bg" data-idx="'+si2+'" style="background-image:url('+JSON.stringify(s.cover)+');background-size:cover;background-position:center;opacity:'+(si2===0?1:0)+';z-index:'+(si2===0?2:1)+';"></div>'
-          : '<div class="slide-bg" data-idx="'+si2+'" style="background:'+bg+';opacity:'+(si2===0?1:0)+';z-index:'+(si2===0?2:1)+';"></div>';
+        return buildLazyBgLayer(s.cover, bg, si2);
       }).join('');
 
       var safeSlides = JSON.stringify(slideData.map(function(s){ return {type:'admin',ai:s.ai,title:s.title}; })).replace(/'/g,'&#39;');
@@ -6229,6 +6240,7 @@ function renderSvcGrid(){
   }
 
   grid.innerHTML = html;
+  if(typeof initLazyProjectBackgrounds === 'function') initLazyProjectBackgrounds(grid);
 
   grid.querySelectorAll('.svc-card').forEach(function(el){
     el.addEventListener('click', function(e){
@@ -6252,7 +6264,6 @@ function renderSvcGrid(){
 }
 
 function buildSvcCard(cardId, slides, l1, l2, badge, cat, catIdx, desc){
-  console.log('[buildSvcCard]', cardId, 'slides:', slides.length, 'l1:', l1);
   var first = slides[0]||{};
   var bgStyle = '';
   if(first.cover){
@@ -6261,12 +6272,9 @@ function buildSvcCard(cardId, slides, l1, l2, badge, cat, catIdx, desc){
     bgStyle = 'background:'+( (cat&&cat.bg)||'#111')+';';
   }
 
-  /* BG layers */
+  /* BG layers — lazy after first visible covers */
   var bgLayers = slides.map(function(s,si){
-    var bs = s.cover
-      ? 'background-image:url('+JSON.stringify(s.cover)+');background-size:cover;background-position:center;'
-      : 'background:'+s.bg+';';
-    return '<div class="slide-bg" data-idx="'+si+'" style="'+bs+'opacity:'+(si===0?1:0)+';z-index:'+(si===0?2:1)+';"></div>';
+    return buildLazyBgLayer(s.cover, s.bg || ((cat&&cat.bg)||'#111'), si);
   }).join('');
 
   /* Bar */
