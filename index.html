@@ -16212,7 +16212,279 @@ document.addEventListener('touchstart', function() { fixVid(); }, {once: true, p
 })();
 </script>
 
-<!-- SEO: semantic content block (visually hidden, crawlable) -->
+<!-- ══════════════════════════════════════════════════
+     IMAGE SPEED PATCH — โหลดรูปเร็วขึ้น
+     ══════════════════════════════════════════════════ -->
+<style id="img-speed-css">
+
+/* ── Blur-up placeholder สำหรับรูปที่กำลังโหลด ── */
+.cat-slide-layer img,
+.detail-wide-img img {
+  transition: opacity .25s ease !important;
+}
+.cat-slide-layer img.dop-loading,
+.detail-wide-img img.dop-loading {
+  opacity: 0 !important;
+}
+.cat-slide-layer img.dop-loaded,
+.detail-wide-img img.dop-loaded {
+  opacity: 1 !important;
+}
+
+/* ── Skeleton shimmer สำหรับ card ที่รูปยังไม่โหลด ── */
+.cat-slide-layer.no-img-yet {
+  background: linear-gradient(90deg,#141414 25%,#1e1e1e 50%,#141414 75%) !important;
+  background-size: 200% 100% !important;
+  animation: dop-shimmer 1.4s ease infinite !important;
+}
+@keyframes dop-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* ── Google Drive thumbnail size ── */
+img[src*="drive.google.com/uc"] {
+  /* force สี้ placeholder สวยขึ้นระหว่างรอ */
+  background: #111;
+}
+
+</style>
+
+<script id="img-speed-js">
+(function(){
+'use strict';
+
+/* ══════════════════════════════════════════════════════
+   CORE APPROACH:
+   1. Card images → lazy + IntersectionObserver (ไม่โหลดจนกว่าจะเห็น)
+   2. รูปแรกของ viewport → eager (โหลดทันที)
+   3. Google Drive URL → แปลงเป็น thumbnail เล็ก (=s600) ก่อน แล้วค่อย swap ใหญ่
+   4. base64 thumbnail → ใช้ coverThumb แทน cover ใน card
+   5. detail page → โหลด cover ก่อน gallery ทีหลัง
+══════════════════════════════════════════════════════ */
+
+/* ── 1. แปลง Google Drive URL ให้ใช้ thumbnail API ── */
+function driveThumb(url, size) {
+  size = size || 600;
+  /* format: drive.google.com/uc?export=view&id=FILE_ID */
+  var m = String(url || '').match(/[?&]id=([A-Za-z0-9_-]+)/);
+  if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=s' + size;
+  /* format: drive.google.com/file/d/FILE_ID/ */
+  m = String(url || '').match(/\/d\/([A-Za-z0-9_-]+)/);
+  if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=s' + size;
+  return url;
+}
+window.driveThumbUrl = driveThumb;
+
+/* ── 2. ตรวจว่าเป็น Drive URL ── */
+function isDriveUrl(url) {
+  return /drive\.google\.com/i.test(String(url || ''));
+}
+
+/* ── 3. Progressive image loader ──
+   - โหลด thumbnail (s600) ก่อน แสดงเลย blur-up
+   - แล้ว swap เป็น full size (s1400) ── */
+function loadProgressive(img, src) {
+  if (!src) return;
+  img.classList.add('dop-loading');
+
+  if (isDriveUrl(src)) {
+    var thumbSrc = driveThumb(src, 600);
+    var fullSrc  = driveThumb(src, 1400);
+
+    /* โหลด thumb ก่อน */
+    var thumbImg = new Image();
+    thumbImg.onload = function() {
+      img.src = thumbSrc;
+      img.classList.remove('dop-loading');
+      img.classList.add('dop-loaded');
+      /* แล้วค่อย swap เป็น full ── */
+      var fullImg = new Image();
+      fullImg.onload = function() { img.src = fullSrc; };
+      fullImg.src = fullSrc;
+    };
+    thumbImg.onerror = function() {
+      /* thumb ล้มเหลว ลองใช้ src เดิม */
+      img.src = src;
+      img.classList.remove('dop-loading');
+      img.classList.add('dop-loaded');
+    };
+    thumbImg.src = thumbSrc;
+  } else {
+    /* URL ปกติหรือ base64 — โหลดตรง */
+    img.onload = function() {
+      img.classList.remove('dop-loading');
+      img.classList.add('dop-loaded');
+    };
+    img.onerror = function() {
+      img.classList.remove('dop-loading');
+    };
+    img.src = src;
+  }
+}
+
+/* ── 4. IntersectionObserver สำหรับ lazy load ── */
+var _io = null;
+if ('IntersectionObserver' in window) {
+  _io = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (!entry.isIntersecting) return;
+      var img = entry.target;
+      var src = img.dataset.dopSrc;
+      if (src) {
+        delete img.dataset.dopSrc;
+        loadProgressive(img, src);
+      }
+      _io.unobserve(img);
+    });
+  }, { rootMargin: '200px 0px' }); /* pre-load 200px ก่อน visible */
+}
+
+function scheduleImg(img, src, eager) {
+  if (!src) return;
+  if (eager || !_io) {
+    loadProgressive(img, src);
+  } else {
+    img.dataset.dopSrc = src;
+    img.classList.add('dop-loading');
+    _io.observe(img);
+  }
+}
+
+/* ── 5. Patch slideLayer ── ใส่ lazy + progressive ── */
+function patchSlideLayerImages() {
+  var cardIdx = 0;
+  document.querySelectorAll('.cat-slide-card').forEach(function(card) {
+    card.querySelectorAll('.cat-slide-layer').forEach(function(layer, layerIdx) {
+      var img = layer.querySelector('img');
+      if (!img) return;
+      var src = img.getAttribute('src') || '';
+      if (!src || img.dataset.dopPatched) return;
+      img.dataset.dopPatched = '1';
+
+      /* Card ใบแรก layer แรก = eager (อยู่ใน viewport) */
+      var isEager = (cardIdx === 0 && layerIdx === 0);
+
+      /* ถ้าเป็น Drive URL → ใช้ progressive */
+      if (isDriveUrl(src)) {
+        img.removeAttribute('src');
+        img.removeAttribute('loading');
+        scheduleImg(img, src, isEager);
+      } else if (!isEager) {
+        /* รูปปกติ layer ที่ไม่ใช่แรก → lazy */
+        img.setAttribute('loading', 'lazy');
+        img.setAttribute('decoding', 'async');
+      } else {
+        /* รูปแรกสุด → eager + decoded ก่อน paint */
+        img.setAttribute('loading', 'eager');
+        img.setAttribute('decoding', 'sync');
+        img.classList.add('dop-loaded');
+      }
+    });
+    cardIdx++;
+  });
+}
+
+/* ── 6. Patch detail page images ── */
+function patchDetailImages() {
+  var gallery = document.getElementById('detailGallery');
+  if (!gallery) return;
+  /* Cover (รูปแรก) → eager */
+  var first = gallery.querySelector('.detail-wide-img img');
+  if (first && !first.dataset.dopPatched) {
+    first.dataset.dopPatched = '1';
+    var src = first.getAttribute('src') || '';
+    if (isDriveUrl(src)) {
+      first.removeAttribute('src');
+      loadProgressive(first, src);
+    } else {
+      first.setAttribute('loading', 'eager');
+      first.setAttribute('decoding', 'async');
+      first.classList.add('dop-loaded');
+    }
+  }
+  /* Gallery รูปที่เหลือ → lazy */
+  var imgs = gallery.querySelectorAll('.detail-wide-img img');
+  imgs.forEach(function(img, i) {
+    if (i === 0 || img.dataset.dopPatched) return;
+    img.dataset.dopPatched = '1';
+    var s = img.getAttribute('src') || '';
+    if (!s) return;
+    if (isDriveUrl(s)) {
+      img.removeAttribute('src');
+      scheduleImg(img, s, false);
+    } else {
+      img.setAttribute('loading', 'lazy');
+      img.setAttribute('decoding', 'async');
+    }
+  });
+}
+
+/* ── 7. Patch _showProjectDetail ── */
+function patchDetailRenderer() {
+  var base = window._showProjectDetail;
+  if (!base || base.__imgSpeedV1) return;
+  window._showProjectDetail = function(opts) {
+    var r = base.apply(this, arguments);
+    setTimeout(patchDetailImages, 30);
+    return r;
+  };
+  window._showProjectDetail.__imgSpeedV1 = true;
+}
+
+/* ── 8. Patch renderSvcGrid ── */
+function patchGridRenderer() {
+  var base = window.renderSvcGrid;
+  if (!base || base.__imgSpeedV1) return;
+  window.renderSvcGrid = function() {
+    var r = base.apply(this, arguments);
+    setTimeout(patchSlideLayerImages, 80);
+    return r;
+  };
+  window.renderSvcGrid.__imgSpeedV1 = true;
+}
+
+/* ── 9. แปลง coverImage ของ admin projects ให้ใช้ thumbnail ──
+   ใน localStorage จะ cache thumbnail URL แทน full URL ── */
+function optimizeDriveImagesInProjects() {
+  try {
+    var raw = localStorage.getItem('dopiousAdminProjects');
+    if (!raw) return;
+    var projects = JSON.parse(raw);
+    var changed = false;
+    projects.forEach(function(p) {
+      /* เพิ่ม coverThumb ถ้ายังไม่มี */
+      if (p.coverImage && isDriveUrl(p.coverImage) && !p.coverThumb) {
+        p.coverThumb = driveThumb(p.coverImage, 600);
+        changed = true;
+      }
+      if (p.cover && isDriveUrl(p.cover) && !p.coverThumb) {
+        p.coverThumb = driveThumb(p.cover, 600);
+        changed = true;
+      }
+    });
+    if (changed) {
+      localStorage.setItem('dopiousAdminProjects', JSON.stringify(projects));
+    }
+  } catch(e) {}
+}
+
+/* ── BOOT ── */
+function boot() {
+  optimizeDriveImagesInProjects();
+  patchDetailRenderer();
+  patchGridRenderer();
+  patchSlideLayerImages();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else { boot(); }
+setTimeout(boot, 500);
+setTimeout(boot, 1500);
+
+})();
+</script>
 <section id="seo-content" aria-label="About DOPIOUS+ Services" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;margin:-1px;padding:0;">
   <h1>DOPIOUS+ — Creative Design &amp; Production Agency Thailand</h1>
   <p>DOPIOUS+ is a full-service creative design and production agency based in Thailand, delivering innovative solutions across Industrial Design, Interior Design, Exhibition &amp; Event Design, Branding, Visual Merchandising, 3D Visualization, and Production Services.</p>
