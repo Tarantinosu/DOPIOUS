@@ -11328,11 +11328,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if(!file || !target) return;
     target.innerHTML = '<div style="color:rgba(255,255,255,.5);font-size:12px;letter-spacing:.1em;text-align:center;padding:20px;">🗜 กำลังบีบอัดรูป 3 ขนาด…</div>';
 
-    /* รัน parallel ทั้ง 3 ขนาด */
-    const [card, medium, full] = await Promise.all([
-      imageFromFile(file, 420,  .62, 50000),   /* card thumbnail — เล็กมาก */
-      imageFromFile(file, 900,  .72, 150000),  /* detail hero   — กลาง    */
-      imageFromFile(file, 1300, .76, 320000),  /* gallery full  — ใหญ่สุด  */
+    /* รัน parallel ทั้ง 4 ขนาด — lqip คือรูปจิ๋วสำหรับ blur placeholder */
+    const [lqip, card, medium, full] = await Promise.all([
+      imageFromFile(file,  20,  .30, 9999999),  /* lqip  — 20px blur placeholder ~0.3KB */
+      imageFromFile(file, 420,  .62, 50000),    /* card  — card thumbnail ~30-50KB     */
+      imageFromFile(file, 900,  .72, 150000),   /* medium— detail hero ~80-120KB       */
+      imageFromFile(file, 1300, .76, 320000),   /* full  — gallery ~150-300KB          */
     ]);
 
     if(card || medium){
@@ -11345,7 +11346,8 @@ document.addEventListener('DOMContentLoaded', () => {
           'Card '+kb(card)+'KB · Detail '+kb(medium)+'KB · Full '+kb(full)+'KB' +
         '</div>';
       target.style.position = 'relative';
-      /* เก็บแยกครบ 3 size */
+      /* เก็บแยกครบ 4 size */
+      target.dataset.lqip  = lqip  || '';
       target.dataset.card   = card   || medium;
       target.dataset.thumb  = card   || medium;
       target.dataset.image  = medium || card;
@@ -11362,7 +11364,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function getCoverFromForm(){
     const coverEl = document.getElementById('admCoverPreview');
-    /* อ่านครบ 3 ขนาด */
+    /* อ่านครบ 4 ขนาด */
+    const lqip   = coverEl?.dataset.lqip  || '';
     const card   = coverEl?.dataset.card   || '';
     const thumb  = coverEl?.dataset.thumb  || coverEl?.dataset.image || '';
     const image  = coverEl?.dataset.image  || thumb;
@@ -11371,6 +11374,7 @@ document.addEventListener('DOMContentLoaded', () => {
     try{ images = JSON.parse(document.getElementById('admGalleryPreview')?.dataset.images || '[]'); }catch(e){}
     const first = images[0] && (images[0].data || images[0]);
     return {
+      lqip:  lqip,
       card:  card  || thumb || first || '',
       thumb: thumb || card  || first || '',
       cover: image || thumb || first || '',
@@ -11398,6 +11402,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let savedImages = true;
       try{
         localStorage.setItem(imgKey, JSON.stringify({
+          lqip:   media.lqip  || '',
           cover:  media.full  || media.cover || media.thumb || '',
           thumb:  media.thumb || media.card  || media.cover || '',
           card:   media.card  || media.thumb || '',
@@ -11409,9 +11414,10 @@ document.addEventListener('DOMContentLoaded', () => {
         try{
           /* เต็ม storage — บันทึกเฉพาะ card thumbnail (เล็กสุด) */
           localStorage.setItem(imgKey, JSON.stringify({
-            cover: media.card  || media.thumb || '',
-            thumb: media.card  || media.thumb || '',
-            card:  media.card  || '',
+            lqip:   media.lqip || '',
+            cover:  media.card  || media.thumb || '',
+            thumb:  media.card  || media.thumb || '',
+            card:   media.card  || '',
             images: [],
             videos: []
           }));
@@ -11429,6 +11435,8 @@ document.addEventListener('DOMContentLoaded', () => {
         desc: document.getElementById('admProjectDesc')?.value.trim() || '',
         layout: document.getElementById('admProjectLayout')?.value || 'stack',
         imgKey: imgKey,
+        /* lqip  = 20px blurry placeholder แสดงทันทีก่อนรูปโหลด */
+        coverLQIP:  media.lqip  || '',
         /* card = thumbnail เล็กสุด ใช้ใน service grid */
         coverThumb: media.card  || media.thumb || '',
         /* cover = medium ใช้ใน detail hero */
@@ -11471,7 +11479,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* override loader: use card thumbnail for grid, full for detail */
   window.loadProjectImages = function(project){
-    if(!project) return {cover:'', thumb:'', card:'', images:[], videos:[]};
+    if(!project) return {lqip:'', cover:'', thumb:'', card:'', images:[], videos:[]};
     if(project.imgKey){
       try{
         const raw = localStorage.getItem(project.imgKey);
@@ -11482,10 +11490,9 @@ document.addEventListener('DOMContentLoaded', () => {
           const cardThumb = d.card || d.thumb || project.coverThumb || project.cover || firstGallery || '';
           const detailCover = d.cover || d.thumb || project.cover || firstGallery || '';
           return {
-            /* card = thumbnail เล็ก ใช้ใน grid */
+            lqip:   d.lqip  || project.coverLQIP || '',
             card:   cardThumb,
             thumb:  cardThumb,
-            /* cover = medium/full ใช้ใน detail */
             cover:  detailCover,
             images: imgs,
             videos: d.videos || []
@@ -11494,7 +11501,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }catch(e){}
     }
     const fallback = project.coverThumb || project.cover || '';
-    return {card: fallback, thumb: fallback, cover: project.cover || fallback, images: project.images || [], videos: project.videos || []};
+    return {lqip: project.coverLQIP||'', card: fallback, thumb: fallback, cover: project.cover || fallback, images: project.images || [], videos: project.videos || []};
   };
 
   /* Rebuild service cards after the final overrides are ready */
@@ -12347,7 +12354,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const imgs=(d&&d.images)||project.images||[];
     const first=imgs[0]&&(imgs[0].data||imgs[0]);
     const thumb=(d&&(d.card||d.thumb||d.cover))||project.coverThumb||project.cover||first||'';
-    return {thumb:thumb, cover:thumb, images:imgs, videos:(d&&d.videos)||project.videos||[]};
+    return {lqip:(d&&d.lqip)||project.coverLQIP||'', thumb:thumb, cover:thumb, images:imgs, videos:(d&&d.videos)||project.videos||[]};
   }
   function cleanCatLabel(cat){
     const title=String(cat||'Dopious Service').replace(' DESIGN+','').replace('DESIGN+','DESIGN').trim();
@@ -12357,7 +12364,15 @@ document.addEventListener('DOMContentLoaded', () => {
   function slideLayer(s, idx){
     const on = idx===0 ? ' is-on' : '';
     if(s.img){
-      return '<div class="cat-slide-layer'+on+'" data-layer="'+idx+'"><img src="'+s.img+'" alt="'+esc(s.title)+'" loading="eager"></div>';
+      /* LQIP: ใช้ data-lqip เป็น background blur ก่อน แล้ว lazy load รูปจริง */
+      const lqipStyle = s.lqip
+        ? 'background-image:url("'+s.lqip+'");background-size:cover;background-position:center;filter:blur(12px);transform:scale(1.08);'
+        : '';
+      const eager = idx===0 ? 'loading="eager"' : 'loading="lazy"';
+      return '<div class="cat-slide-layer'+on+' dop-lqip-wrap" data-layer="'+idx+'">'
+        + (s.lqip ? '<div class="dop-lqip" style="position:absolute;inset:0;z-index:0;'+lqipStyle+'"></div>' : '')
+        + '<img src="'+s.img+'" alt="'+esc(s.title)+'" '+eager+' decoding="async" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;" onload="this.parentElement.querySelector('.dop-lqip')&&(this.parentElement.querySelector('.dop-lqip').style.opacity='0')">'
+        + '</div>';
     }
     return '<div class="cat-slide-layer'+on+'" data-layer="'+idx+'" style="background:'+(s.bg||'linear-gradient(135deg,#151515,#050505)')+'"></div>';
   }
@@ -12369,7 +12384,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const media=getMedia(item.ap);
       return {
         type:'admin', ai:item.ai, title:item.ap.name||'Untitled Project',
-        img:media.thumb||media.cover||'', bg:(category&&category.bg)||'linear-gradient(135deg,#151515,#050505)'
+        img:media.thumb||media.card||media.cover||'',
+        lqip:media.lqip||item.ap.coverLQIP||'',
+        bg:(category&&category.bg)||'linear-gradient(135deg,#151515,#050505)'
       };
     });
     const id='catSlide_'+ci;
@@ -15847,3 +15864,13 @@ document.addEventListener('touchstart',function(){document.querySelectorAll('vid
 
 })();
 </script>
+
+<!-- LQIP blur-up placeholder CSS -->
+<style id="lqip-css">
+.dop-lqip {
+  transition: opacity .4s ease !important;
+  will-change: opacity;
+}
+.dop-lqip-wrap { overflow: hidden !important; }
+.dop-lqip-wrap img { transition: none !important; }
+</style>
