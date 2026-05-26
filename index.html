@@ -102,8 +102,9 @@
 }
 </script>
 <style>
-#site-loader{position:fixed;inset:0;z-index:9999;background:#050505;display:flex;align-items:center;justify-content:center;transition:opacity .4s ease .1s}
-#site-loader.hidden{opacity:0;pointer-events:none}
+#site-loader{position:fixed;inset:0;z-index:9999;background:#050505;display:flex;align-items:center;justify-content:center;transition:opacity .35s ease,visibility .35s ease}
+#site-loader.hidden{opacity:0!important;pointer-events:none!important;visibility:hidden!important}
+body.loader-killed #site-loader{display:none!important;pointer-events:none!important;visibility:hidden!important}
 #site-loader .ld-logo{font-size:36px;font-weight:950;letter-spacing:-.06em;color:#fff;font-family:Arial,sans-serif}
 #site-loader .ld-logo span{color:#ff2a14}
 #site-loader .ld-bar{width:60px;height:2px;background:rgba(255,255,255,.12);margin:18px auto 0;border-radius:2px;overflow:hidden}
@@ -209,23 +210,56 @@ async function firestoreSetPublished(payload) {
   }
 }
 
+
+/* Robust site-loader control — never let Firebase loading overlay block project clicks */
+(function(){
+  var hideTimer = null;
+  window.hideSiteLoader = function hideSiteLoader(){
+    try{
+      var loader = document.getElementById('site-loader');
+      if(loader){
+        loader.classList.add('hidden');
+        loader.setAttribute('aria-hidden','true');
+        window.clearTimeout(hideTimer);
+        hideTimer = window.setTimeout(function(){
+          if(loader && loader.parentNode){ loader.parentNode.removeChild(loader); }
+          document.body && document.body.classList.add('loader-killed');
+        }, 450);
+      }else if(document.body){
+        document.body.classList.add('loader-killed');
+      }
+    }catch(e){
+      console.warn('[Dopious+] hideSiteLoader failed:', e.message);
+    }
+  };
+
+  /* Safety timeout: even if Firebase, CDN, or window.load is slow, the site remains clickable. */
+  window.setTimeout(function(){
+    if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
+  }, 3500);
+
+  document.addEventListener('DOMContentLoaded', function(){
+    window.setTimeout(function(){
+      if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
+    }, 2200);
+  });
+})();
+
 /* ══ PUBLIC PAGE BOOT — load published data from Firestore on every page open ══
    Runs immediately; fills localStorage cache so the rest of the page renders correctly. */
 (async function publicBoot() {
-  const loader = document.getElementById('site-loader');
-
   try {
     // Check if Firebase is properly configured (not placeholder values)
     if (FIREBASE_CONFIG.apiKey === 'YOUR_API_KEY') {
       console.info('[Dopious+] Firebase not configured yet — using localStorage fallback');
-      if (loader) loader.classList.add('hidden');
+      if (typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
       return;
     }
 
     const pub = await firestoreGetPublished();
     if (!pub) {
       console.info('[Dopious+] No published data in Firestore yet.');
-      if (loader) loader.classList.add('hidden');
+      if (typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
       return;
     }
 
@@ -271,7 +305,7 @@ async function firestoreSetPublished(payload) {
   } catch(e) {
     console.warn('[Dopious+] publicBoot error, using localStorage fallback:', e.message);
   } finally {
-    if (loader) setTimeout(function() { loader.classList.add('hidden'); }, 200);
+    setTimeout(function() { if (typeof window.hideSiteLoader === 'function') window.hideSiteLoader(); }, 200);
   }
 })();
 </script>
@@ -5655,12 +5689,13 @@ button,a,input,select,textarea{touch-action:manipulation}
 </style>
 </head>
 <body>
-<div id="site-loader"><div><div class="ld-logo">Dopious<span>+</span></div><div class="ld-bar"></div><div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:14px;text-align:center;" id="loaderText">Loading from Firebase...</div></div></div>
+<div id="site-loader" role="status" aria-live="polite"><div><div class="ld-logo">Dopious<span>+</span></div><div class="ld-bar"></div><div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:14px;text-align:center;" id="loaderText">Loading from Firebase...</div></div></div>
 <script>
-/* Site-loader: auto-hide on window load as fallback (Firebase boot also hides it) */
+/* Site-loader fallback: hide quickly and remove so it can never block project card clicks */
 window.addEventListener('load', function(){
-  var l = document.getElementById('site-loader');
-  if(l){ setTimeout(function(){ l.classList.add('hidden'); setTimeout(function(){ l.remove(); }, 500); }, 600); }
+  setTimeout(function(){
+    if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
+  }, 300);
 });
 </script>
 
