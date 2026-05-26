@@ -15555,12 +15555,12 @@ async function uploadImageToSupabase(file){
 
 
 <!-- ══════════════════════════════════════════════════════
-     CROSS-PLATFORM COMPATIBILITY PATCH
-     รองรับ: iPhone Safari, Chrome iOS, Android, Desktop
+     CROSS-PLATFORM COMPATIBILITY PATCH v3
+     แก้ปัญหา: iPhone / iPad Safari กดเข้าดูงานไม่ได้
      ══════════════════════════════════════════════════════ -->
 <style id="cross-platform-patch-css">
 
-/* ── 1. iOS Safari: -webkit-backdrop-filter ── */
+/* ── 1. -webkit-backdrop-filter สำหรับ iOS Safari ── */
 nav,
 .detail-top,
 .how-top,
@@ -15576,50 +15576,20 @@ nav,
   -webkit-backdrop-filter: blur(8px) !important;
 }
 
-/* ── 2. Prevent 300ms tap delay on interactive cards ── */
-.cat-slide-card,
-.svc-card,
-.mind-center,
-.mind-node,
-.method-card,
-.client-logo,
-.detail-box,
-.contact-choice,
-.team-card,
-.proc-item,
-.related-card {
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-  cursor: pointer;
-}
-
-/* ── 3. Smooth momentum scrolling on overlays (older iOS) ── */
-.project-detail,
-.site-page,
-.how-page,
-.start-popup,
-#mobilePanel,
-.admin-login-overlay,
-.admin-panel-overlay,
-.admin-panel-wide {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* ── 4. Prevent iOS font size auto-adjustment ── */
+/* ── 2. Prevent iOS font size auto-adjustment ── */
 html {
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
 }
 
-/* ── 5. Safe area insets for iPhone notch / Dynamic Island ── */
+/* ── 3. Safe area insets (Notch / Dynamic Island) ── */
 nav {
-  padding-left: max(32px, env(safe-area-inset-left)) !important;
+  padding-left:  max(32px, env(safe-area-inset-left))  !important;
   padding-right: max(32px, env(safe-area-inset-right)) !important;
 }
 @media (max-width: 768px) {
   nav {
-    padding-left: max(16px, env(safe-area-inset-left)) !important;
+    padding-left:  max(16px, env(safe-area-inset-left))  !important;
     padding-right: max(16px, env(safe-area-inset-right)) !important;
   }
   .hero {
@@ -15629,271 +15599,299 @@ nav {
 .footer {
   padding-bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
 }
-.contact {
-  padding-bottom: max(0px, env(safe-area-inset-bottom));
-}
 
-/* ── 6. position: sticky webkit prefix for all sticky elements ── */
-.detail-top,
-.how-top,
-.site-page-top,
-nav {
-  position: -webkit-sticky;
-  position: sticky;
-}
-/* nav is fixed not sticky, restore it */
-nav {
-  position: fixed !important;
-}
-
-/* ── 7. aspect-ratio fallback for Safari < 15 ── */
-@supports not (aspect-ratio: 16/9) {
-  .detail-wide-img {
-    padding-top: 56.25% !important;
-    height: 0 !important;
-  }
-  .cat-slide-card {
-    min-height: 190px !important;
-  }
-}
-
-/* ── 8. Fix overflow-x bleed on mobile ── */
-body, html {
-  overflow-x: hidden !important;
-  max-width: 100vw;
-}
-
-/* ── 9. Tap highlight removal on all buttons/links ── */
+/* ── 4. Tap highlight off / touch-action on buttons & links ── */
 a, button, [onclick] {
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
 }
 
-/* ── 10. Fix z-index stacking on iOS for project detail ── */
-.project-detail.on,
-.site-page.on,
-.how-page.on,
-.start-popup.on {
-  -webkit-transform: translateZ(0);
-  transform: translateZ(0);
-  isolation: isolate;
-}
-
-/* ── 11. Ensure project detail scrolls independently on iOS ── */
+/* ── 5. iOS: ทำให้ project-detail panel scroll ได้อย่างถูกต้อง ── */
 .project-detail {
   -webkit-overflow-scrolling: touch !important;
-  overflow-y: auto !important;
+  overflow-y: scroll !important;   /* scroll (not auto) forces iOS to create scroll layer */
   overflow-x: hidden !important;
+  overscroll-behavior-y: contain !important;
 }
-
-/* ── 12. Fix sticky header inside scrolling detail panel ── */
 .project-detail .detail-top {
   position: -webkit-sticky !important;
   position: sticky !important;
   top: 0 !important;
 }
 
-/* ── 13. Image rendering across platforms ── */
-img {
-  -webkit-backface-visibility: hidden;
-  backface-visibility: hidden;
-  max-width: 100%;
+/* ── 6. iOS: panels / overlays ── */
+.site-page,
+.how-page,
+.start-popup {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
 }
 
-/* ── 14. Fix min-height on iPhone for hero section ── */
-@media (max-width: 768px) {
-  .hero {
-    min-height: 100svh !important;
-    min-height: -webkit-fill-available !important;
-  }
+/* ── 7. iOS: tap-button layer ── invisible full-size button ทับการ์ดทุกใบ
+   ทำให้ iOS Safari ยอมรับ tap เป็น click เสมอ ── */
+.card-ios-tap {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 4 !important;           /* ต่ำกว่า .cat-slide-top (z-index 5) */
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  border: none !important;
+  outline: none !important;
+  cursor: pointer !important;
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
-/* ── 15. Fix .btn min touch target size (iOS HIG: 44×44px) ── */
-.btn,
-.detail-back,
-.how-back,
-.site-page-back {
+/* ── 8. ปิด default input appearance บน iOS ── */
+input, textarea, select {
+  -webkit-appearance: none;
+  appearance: none;
+  caret-color: #ff2a14;
+}
+
+/* ── 9. ปิด overflow-x เกิน ── */
+body, html {
+  overflow-x: hidden !important;
+  max-width: 100vw;
+}
+
+/* ── 10. Touch target size ขั้นต่ำ (Apple HIG: 44×44pt) ── */
+.detail-back, .how-back, .site-page-back {
   min-height: 44px !important;
   min-width: 44px !important;
 }
 
-/* ── 16. Fix caret color for inputs on iOS dark mode ── */
-input, textarea, select {
-  caret-color: #ff2a14;
-  -webkit-appearance: none;
-  appearance: none;
+/* ── 11. aspect-ratio fallback สำหรับ Safari เก่า ── */
+@supports not (aspect-ratio: 16/9) {
+  .cat-slide-card { min-height: 190px !important; }
+  .detail-wide-img { padding-top: 56.25% !important; height: 0 !important; }
 }
 
 </style>
 
 <script id="cross-platform-patch-js">
 (function(){
-  'use strict';
+'use strict';
 
-  /* ── A. iOS body scroll lock ──
-     On iPhone/iPad, setting overflow:hidden on body doesn't always stop scroll.
-     Fix: use position:fixed trick. */
-  var _scrollY = 0;
-  var _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || 
-               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+/* ════════════════════════════════════════════════════
+   ROOT FIX: iOS Safari ไม่ fire click บน <article>
+   แก้โดย: ใส่ <button class="card-ios-tap"> ทับการ์ดทุกใบ
+   button element ถูก iOS Safari ยอมรับเป็น interactive เสมอ
+════════════════════════════════════════════════════ */
 
-  function lockBodyScroll() {
-    if (_isIOS) {
-      _scrollY = window.pageYOffset || window.scrollY || 0;
-      document.body.style.position = 'fixed';
-      document.body.style.top = '-' + _scrollY + 'px';
-      document.body.style.left = '0';
-      document.body.style.right = '0';
-      document.body.style.overflow = 'hidden';
-    } else {
-      document.body.style.overflow = 'hidden';
-    }
+var _iosActive = {};  /* track active slide index per card */
+
+/* เปิด project ตามข้อมูลใน data-slides */
+function _openCardProject(card) {
+  var slides = [];
+  try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(e) {}
+  if (!slides.length) return;
+  var s = slides[_iosActive[card.id] || 0] || slides[0];
+  if (!s) return;
+
+  if (s.type === 'admin' && s.ai !== undefined && typeof window.openSavedAdminProject === 'function') {
+    window.openSavedAdminProject(s.ai);
+  } else if (typeof window.openProject === 'function') {
+    var ci = s.ci !== undefined ? s.ci : parseInt(card.getAttribute('data-ci') || '0', 10);
+    var pi = s.pi !== undefined ? s.pi : 0;
+    window.openProject(ci, pi);
   }
-  function unlockBodyScroll() {
-    if (_isIOS) {
-      document.body.style.position = '';
-      document.body.style.top = '';
-      document.body.style.left = '';
-      document.body.style.right = '';
+}
+
+/* ใส่ tap-button เข้าไปในการ์ดที่ยังไม่มี */
+function injectTapButtons() {
+  var cards = document.querySelectorAll('.cat-slide-card');
+  cards.forEach(function(card) {
+    if (card.querySelector('.card-ios-tap')) return;  /* มีแล้ว ข้าม */
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'card-ios-tap';
+    btn.setAttribute('aria-label', 'View project');
+    btn.setAttribute('tabindex', '-1');
+
+    /* ใช้ onclick attribute (ไม่ใช่ addEventListener) → iOS Safari รับรอง */
+    btn.onclick = function(e) {
+      e.stopPropagation();
+      _openCardProject(card);
+    };
+
+    /* ใส่เป็น first child ให้อยู่ล่างสุด (z-index 4 จาก CSS) */
+    card.insertBefore(btn, card.firstChild);
+
+    /* sync active index ถ้า renderSvcGrid อัปเดต */
+    _iosActive[card.id] = 0;
+  });
+}
+
+/* Sync active slide index จาก renderSvcGrid ── */
+function syncActiveIndex(card, index) {
+  _iosActive[card.id] = index;
+}
+
+/* ── Patch _showProjectDetail: แก้ scroll lock บน iOS ── */
+var _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+var _savedScrollY = 0;
+
+function iosLockScroll() {
+  if (!_isIOS) { document.body.style.overflow = 'hidden'; return; }
+  _savedScrollY = window.pageYOffset || window.scrollY || 0;
+  /* ไม่ใช้ position:fixed บน body เพราะทำให้ project-detail scroll ไม่ได้ */
+  /* ใช้ wrapper approach แทน */
+  document.documentElement.style.overflow = 'hidden';
+  document.documentElement.style.height = '100%';
+  document.body.style.overflow = 'hidden';
+  document.body.style.height = '100%';
+}
+function iosUnlockScroll() {
+  if (!_isIOS) { document.body.style.overflow = ''; return; }
+  document.documentElement.style.overflow = '';
+  document.documentElement.style.height = '';
+  document.body.style.overflow = '';
+  document.body.style.height = '';
+  window.scrollTo(0, _savedScrollY);
+}
+window._iosLockScroll   = iosLockScroll;
+window._iosUnlockScroll = iosUnlockScroll;
+
+/* Patch _showProjectDetail (project detail opener) */
+function patchShowProjectDetail() {
+  var base = window._showProjectDetail;
+  if (typeof base !== 'function' || base.__iosPatchV3) return;
+  window._showProjectDetail = function(opts) {
+    var result = base.apply(this, arguments);
+    /* Override body.overflow ที่ base function ตั้งไว้ ด้วย iOS-safe version */
+    document.body.style.overflow = '';
+    document.body.style.height = '';
+    iosLockScroll();
+    /* Force project-detail panel to scroll correctly on iOS */
+    var panel = document.getElementById('projectDetail');
+    if (panel) {
+      panel.style.webkitOverflowScrolling = 'touch';
+      panel.style.overflowY = 'scroll';
+    }
+    return result;
+  };
+  window._showProjectDetail.__iosPatchV3 = true;
+}
+
+/* Patch closeProject */
+function patchCloseProject() {
+  var base = window.closeProject;
+  if (typeof base !== 'function' || base.__iosPatchV3) return;
+  window.closeProject = function() {
+    var r = base.apply(this, arguments);
+    iosUnlockScroll();
+    return r;
+  };
+  window.closeProject.__iosPatchV3 = true;
+}
+
+/* Patch openWhoPage, openContactPage, etc. */
+function patchPageOpen(openName, closeName) {
+  var baseOpen  = window[openName];
+  var baseClose = window[closeName];
+  if (typeof baseOpen === 'function' && !baseOpen.__iosPatchV3) {
+    window[openName] = function() {
+      var r = baseOpen.apply(this, arguments);
       document.body.style.overflow = '';
-      window.scrollTo(0, _scrollY);
-    } else {
-      document.body.style.overflow = '';
-    }
+      iosLockScroll();
+      var el = document.getElementById(openName.replace('open','').replace(/^(\w)/, function(m, c){ return c.toLowerCase(); }) + 'Page') ||
+               document.getElementById(openName.replace('open','') + 'Page');
+      if (el) { el.style.webkitOverflowScrolling = 'touch'; el.style.overflowY = 'scroll'; }
+      return r;
+    };
+    window[openName].__iosPatchV3 = true;
   }
-
-  /* Patch all open/close functions to use iOS-safe scroll lock */
-  function patchOpenClose(openFnName, closeFnName) {
-    var origOpen  = window[openFnName];
-    var origClose = window[closeFnName];
-    if (typeof origOpen === 'function' && !origOpen.__iosPatch) {
-      window[openFnName] = function() {
-        var r = origOpen.apply(this, arguments);
-        document.body.style.overflow = '';  // reset before our lock
-        lockBodyScroll();
-        return r;
-      };
-      window[openFnName].__iosPatch = true;
-    }
-    if (typeof origClose === 'function' && !origClose.__iosPatch) {
-      window[closeFnName] = function() {
-        var r = origClose.apply(this, arguments);
-        unlockBodyScroll();
-        return r;
-      };
-      window[closeFnName].__iosPatch = true;
-    }
+  if (typeof baseClose === 'function' && !baseClose.__iosPatchV3) {
+    window[closeName] = function() {
+      var r = baseClose.apply(this, arguments);
+      iosUnlockScroll();
+      return r;
+    };
+    window[closeName].__iosPatchV3 = true;
   }
+}
 
-  function applyPatches() {
-    patchOpenClose('openStartPopup',   'closeStartPopup');
-    patchOpenClose('openWhoPage',      'closeWhoPage');
-    patchOpenClose('openContactPage',  'closeContactPage');
-    patchOpenClose('openHowPage',      'closeHowPage');
-    patchOpenClose('openCareerPage',   'closeCareerPage');
-
-    /* openProject / closeProject */
-    var origOpenProject = window.openProject;
-    if (typeof origOpenProject === 'function' && !origOpenProject.__iosPatch) {
-      window.openProject = function() {
-        var r = origOpenProject.apply(this, arguments);
-        document.body.style.overflow = '';
-        lockBodyScroll();
-        return r;
-      };
-      window.openProject.__iosPatch = true;
-    }
-    var origClose = window.closeProject;
-    if (typeof origClose === 'function' && !origClose.__iosPatch) {
-      window.closeProject = function() {
-        var r = origClose.apply(this, arguments);
-        unlockBodyScroll();
-        return r;
-      };
-      window.closeProject.__iosPatch = true;
-    }
-  }
-
-  /* ── B. iOS Video autoplay: ensure muted + playsinline on all videos ── */
-  function fixVideoAutoplay() {
-    document.querySelectorAll('video').forEach(function(v) {
-      v.setAttribute('playsinline', '');
-      v.setAttribute('webkit-playsinline', '');
-      v.muted = true;
-      v.defaultMuted = true;
-      if (v.paused) {
-        try { var p = v.play(); if (p && p.catch) p.catch(function(){}); } catch(e) {}
-      }
-    });
-  }
-
-  /* ── C. Fix card clicks on iOS (ensure touchend doesn't prevent click) ── */
-  function fixCardClicks() {
-    var cards = document.querySelectorAll('.cat-slide-card, .svc-card');
-    cards.forEach(function(card) {
-      if (card.dataset.iosTouchFixed) return;
-      card.dataset.iosTouchFixed = '1';
-      /* Prevent ghost click delay by also listening on touchend */
-      card.addEventListener('touchend', function(e) {
-        /* Only fire if not scrolling and not on a nav button */
-        if (e.target.closest('.cat-slide-btn')) return;
-        /* The existing click listener will fire normally — just ensure tap highlight is clean */
-      }, {passive: true});
-    });
-  }
-
-  /* ── D. Fix mobile menu keyboard escape ── */
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-      unlockBodyScroll();
+/* ── Video autoplay fix บน iOS ── */
+function fixVideos() {
+  document.querySelectorAll('video').forEach(function(v) {
+    v.setAttribute('playsinline', '');
+    v.setAttribute('webkit-playsinline', '');
+    v.muted = true;
+    v.defaultMuted = true;
+    if (v.paused) {
+      try { var p = v.play(); if (p && p.catch) p.catch(function(){}); } catch(e) {}
     }
   });
+}
 
-  /* ── E. On orientation change, recalculate viewport ── */
-  window.addEventListener('orientationchange', function() {
+/* ── Patch renderSvcGrid เพื่อ sync active index กับ iOS tap buttons ── */
+function patchRenderSvcGrid() {
+  var base = window.renderSvcGrid;
+  if (typeof base !== 'function' || base.__iosPatchV3) return;
+  window.renderSvcGrid = function() {
+    var r = base.apply(this, arguments);
     setTimeout(function() {
-      /* Force layout reflow */
-      document.documentElement.style.display = 'none';
-      // eslint-disable-next-line no-unused-expressions
-      document.documentElement.offsetHeight;
-      document.documentElement.style.display = '';
-    }, 100);
-  });
+      injectTapButtons();
+      fixVideos();
 
-  /* Boot */
-  function boot() {
-    applyPatches();
-    fixVideoAutoplay();
-    fixCardClicks();
+      /* Sync ‹ › nav buttons กับ _iosActive */
+      document.querySelectorAll('.cat-slide-card').forEach(function(card) {
+        card.querySelectorAll('.cat-slide-btn').forEach(function(btn) {
+          if (btn.dataset.iosSyncDone) return;
+          btn.dataset.iosSyncDone = '1';
+          btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            var dir = parseInt(btn.getAttribute('data-dir') || '1', 10);
+            var slides = [];
+            try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(ex) {}
+            if (!slides.length) return;
+            var cur = _iosActive[card.id] || 0;
+            _iosActive[card.id] = ((cur + dir) % slides.length + slides.length) % slides.length;
+          }, false);
+        });
+      });
+    }, 80);
+    return r;
+  };
+  window.renderSvcGrid.__iosPatchV3 = true;
+}
 
-    /* Re-apply after dynamic render */
-    var origRender = window.renderSvcGrid;
-    if (typeof origRender === 'function' && !origRender.__iosPatchRender) {
-      window.renderSvcGrid = function() {
-        var r = origRender.apply(this, arguments);
-        setTimeout(function() { fixVideoAutoplay(); fixCardClicks(); }, 150);
-        return r;
-      };
-      window.renderSvcGrid.__iosPatchRender = true;
-    }
+/* ── Boot ── */
+function boot() {
+  patchShowProjectDetail();
+  patchCloseProject();
+  patchPageOpen('openStartPopup',  'closeStartPopup');
+  patchPageOpen('openWhoPage',     'closeWhoPage');
+  patchPageOpen('openContactPage', 'closeContactPage');
+  patchPageOpen('openHowPage',     'closeHowPage');
+  patchPageOpen('openCareerPage',  'closeCareerPage');
+  patchRenderSvcGrid();
 
-    /* Video retry on user interaction (iOS requires user gesture for autoplay) */
-    var _videoFixed = false;
-    ['touchstart','click'].forEach(function(evt) {
-      document.addEventListener(evt, function() {
-        if (!_videoFixed) { _videoFixed = true; fixVideoAutoplay(); }
-      }, {once: true, passive: true});
-    });
-  }
+  injectTapButtons();
+  fixVideos();
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
-  /* Also boot after a short delay to catch late-rendered elements */
-  setTimeout(boot, 600);
-  setTimeout(boot, 1500);
+  /* Video retry เมื่อ user แตะ (iOS ต้องการ user gesture) */
+  var _vFixed = false;
+  document.addEventListener('touchstart', function() {
+    if (!_vFixed) { _vFixed = true; fixVideos(); }
+  }, {once: true, passive: true});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
+/* Retry เผื่อ Firebase render ช้า */
+setTimeout(boot, 800);
+setTimeout(boot, 2000);
 })();
 </script>
 
