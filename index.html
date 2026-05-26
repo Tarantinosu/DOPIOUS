@@ -5857,6 +5857,9 @@ const heroSlides = [
 ];
 
 let heroIndex = 0;
+let heroAutoTimer = null;
+let heroSwitchTimer = null;
+
 const hero = document.querySelector('.hero');
 const heroContent = document.querySelector('.hero-content');
 const heroEyebrow = document.getElementById('heroEyebrow');
@@ -5864,24 +5867,51 @@ const heroTitle = document.getElementById('heroTitle');
 const heroDesc = document.getElementById('heroDesc');
 const heroDots = [...document.querySelectorAll('#heroDots span')];
 
+function heroText(v){
+  return (v === undefined || v === null) ? '' : String(v);
+}
+
 function setHeroSlide(index, instant){
+  if(!heroSlides.length) return;
+
+  index = ((Number(index) || 0) % heroSlides.length + heroSlides.length) % heroSlides.length;
   heroIndex = index;
-  const applySlide = () => {
-    const s = heroSlides[index];
-    if(hero) hero.classList.toggle('budget-slide', s.mode === 'budget-slide');
-    if(heroEyebrow) heroEyebrow.textContent = s.eyebrow;
-    if(heroTitle) heroTitle.innerHTML = s.title;
-    if(heroDesc){
-      heroDesc.innerHTML = `
-        <strong>${s.strong}</strong>
-        <span>${s.desc}</span>
-        <div class="hero-info-tags">
-          ${s.tags.map(t=>`<em>${t}</em>`).join('')}
-        </div>
-      `;
+
+  const fallback = heroSlides[0] || {};
+  const s = Object.assign({}, fallback, heroSlides[index] || {});
+
+  window.clearTimeout(heroSwitchTimer);
+
+  const applySlide = function(){
+    try{
+      const tags = Array.isArray(s.tags) && s.tags.length ? s.tags : fallback.tags || [];
+
+      if(hero) hero.classList.toggle('budget-slide', s.mode === 'budget-slide');
+      if(heroEyebrow) heroEyebrow.textContent = heroText(s.eyebrow);
+      if(heroTitle) heroTitle.innerHTML = heroText(s.title);
+
+      if(heroDesc){
+        heroDesc.innerHTML = `
+          <strong>${heroText(s.strong)}</strong>
+          <span>${heroText(s.desc)}</span>
+          <div class="hero-info-tags">
+            ${tags.map(function(t){ return `<em>${heroText(t)}</em>`; }).join('')}
+          </div>
+        `;
+      }
+
+      heroDots.forEach(function(d,i){ d.classList.toggle('active', i === index); });
+    }catch(e){
+      console.warn('[Dopious+] Hero slide render failed:', e.message);
+    }finally{
+      /* Important: never leave the hero hidden after slide 2+ changes */
+      if(heroContent){
+        heroContent.classList.remove('switching');
+        heroContent.style.visibility = 'visible';
+        heroContent.style.opacity = '';
+        heroContent.style.transform = '';
+      }
     }
-    heroDots.forEach((d,i)=>d.classList.toggle('active', i===index));
-    if(heroContent) heroContent.classList.remove('switching');
   };
 
   if(instant){
@@ -5889,13 +5919,35 @@ function setHeroSlide(index, instant){
     return;
   }
 
-  if(heroContent) heroContent.classList.add('switching');
-  setTimeout(applySlide, 90);
+  if(heroContent){
+    heroContent.style.visibility = 'visible';
+    heroContent.classList.add('switching');
+  }
+
+  heroSwitchTimer = window.setTimeout(applySlide, 90);
+
+  /* Failsafe for slow browsers / interrupted timers */
+  window.setTimeout(function(){
+    if(heroContent) heroContent.classList.remove('switching');
+  }, 420);
 }
 
-heroDots.forEach((dot,i)=>dot.addEventListener('click',()=>setHeroSlide(i, true)));
-setInterval(()=>setHeroSlide((heroIndex+1)%heroSlides.length), 5200);
+function startHeroAutoSlide(){
+  window.clearInterval(heroAutoTimer);
+  heroAutoTimer = window.setInterval(function(){
+    setHeroSlide((heroIndex + 1) % heroSlides.length, false);
+  }, 5200);
+}
+
+heroDots.forEach(function(dot,i){
+  dot.addEventListener('click', function(){
+    setHeroSlide(i, false);
+    startHeroAutoSlide();
+  });
+});
+
 setHeroSlide(0, true);
+startHeroAutoSlide();
 </script>
 <script>
 const categories=[
