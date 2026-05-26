@@ -236,12 +236,12 @@ async function firestoreSetPublished(payload) {
   /* Safety timeout: even if Firebase, CDN, or window.load is slow, the site remains clickable. */
   window.setTimeout(function(){
     if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
-  }, 300);
+  }, 100);
 
   document.addEventListener('DOMContentLoaded', function(){
     window.setTimeout(function(){
       if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
-    }, 80);
+    }, 60);
   });
 })();
 
@@ -258,7 +258,7 @@ async function firestoreSetPublished(payload) {
 
     const pub = await Promise.race([
       firestoreGetPublished(),
-      new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, 800); })
+      new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, 700); })
     ]);
     if (!pub) {
       console.info('[Dopious+] Firebase slow/no data — showing local cache first.');
@@ -9099,10 +9099,10 @@ function previewProjectMedia(input, targetId, type){
       adminStatus('Only ' + canAdd + ' slot(s) remaining — first ' + canAdd + ' image(s) added.');
     }
 
-    target.innerHTML = 'Compressing gallery images...';
+    target.innerHTML = 'กำลังบีบอัด gallery…';
     Promise.all(filesToRead.map(async (file)=>({
       name: file.name,
-      data: await adminCompressImage(file, 1600, 0.82)
+      data: await adminCompressImage(file, 1100, 0.74)
     }))).then(results=>{
       stored = stored.concat(results.filter(r=>r.data));
       target.dataset.images = JSON.stringify(stored);
@@ -9683,7 +9683,7 @@ function mobileUnlockOverlayScroll(){
     el.style.webkitOverflowScrolling='touch';
   });
 }
-setInterval(mobileUnlockOverlayScroll,600);
+setTimeout(mobileUnlockOverlayScroll,200);
 </script>
 
 
@@ -9800,7 +9800,7 @@ setInterval(mobileUnlockOverlayScroll,600);
   }
   document.addEventListener('DOMContentLoaded', ()=>setTimeout(fixAdminUi, 300));
   setTimeout(fixAdminUi, 1000);
-  setInterval(fixAdminUi, 1500);
+  setTimeout(function(){fixAdminUi();}, 500);
 })();
 </script>
 
@@ -11312,39 +11312,71 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* override existing compressor with a stricter version */
-  window.adminCompressImage = function(file, maxW=1200, quality=.76){
-    return imageFromFile(file, maxW, quality, 650000);
+  /* ═══════════════════════════════════════════════════════════════
+     AUTO 3-SIZE COMPRESSION
+     card  = 420px / q0.62 / max ~40KB  ← ใช้ใน service grid card
+     medium= 900px / q0.72 / max ~120KB ← ใช้ใน detail hero
+     full  = 1300px/ q0.76 / max ~300KB ← ใช้ใน gallery
+     ═══════════════════════════════════════════════════════════════ */
+  window.adminCompressImage = function(file, maxW=900, quality=.72){
+    return imageFromFile(file, maxW, quality, 180000);
   };
 
   window.previewAdminImage = async function(input, targetId){
     const file = input && input.files && input.files[0];
     const target = document.getElementById(targetId);
     if(!file || !target) return;
-    target.innerHTML = 'Preparing image...';
-    const thumb = await imageFromFile(file, 900, .74, 420000);
-    const detail = await imageFromFile(file, 1500, .76, 900000);
-    if(thumb){
-      target.innerHTML = '<img src="'+thumb+'" alt="preview">';
-      target.dataset.image = detail || thumb;
-      target.dataset.thumb = thumb;
-      if(typeof adminStatus === 'function') adminStatus('✓ Cover image ready. It is ready to appear in Services.', 'ok');
+    target.innerHTML = '<div style="color:rgba(255,255,255,.5);font-size:12px;letter-spacing:.1em;text-align:center;padding:20px;">🗜 กำลังบีบอัดรูป 3 ขนาด…</div>';
+
+    /* รัน parallel ทั้ง 3 ขนาด */
+    const [card, medium, full] = await Promise.all([
+      imageFromFile(file, 420,  .62, 50000),   /* card thumbnail — เล็กมาก */
+      imageFromFile(file, 900,  .72, 150000),  /* detail hero   — กลาง    */
+      imageFromFile(file, 1300, .76, 320000),  /* gallery full  — ใหญ่สุด  */
+    ]);
+
+    if(card || medium){
+      const preview = card || medium;
+      /* แสดง preview + ขนาดไฟล์ */
+      const kb = (s) => Math.round(s.length * 0.75 / 1024);
+      target.innerHTML =
+        '<img src="'+preview+'" alt="preview" style="width:100%;height:100%;object-fit:cover;">' +
+        '<div style="position:absolute;bottom:6px;right:8px;background:rgba(0,0,0,.7);color:#fff;font-size:9px;letter-spacing:.1em;padding:3px 6px;border-radius:4px;">' +
+          'Card '+kb(card)+'KB · Detail '+kb(medium)+'KB · Full '+kb(full)+'KB' +
+        '</div>';
+      target.style.position = 'relative';
+      /* เก็บแยกครบ 3 size */
+      target.dataset.card   = card   || medium;
+      target.dataset.thumb  = card   || medium;
+      target.dataset.image  = medium || card;
+      target.dataset.full   = full   || medium || card;
+      if(typeof adminStatus === 'function')
+        adminStatus('✓ บีบอัดอัตโนมัติ — Card '+kb(card)+'KB · Detail '+kb(medium)+'KB · Full '+kb(full)+'KB', 'ok');
     }else{
       target.innerHTML = 'Cover preview';
-      delete target.dataset.image;
-      delete target.dataset.thumb;
+      delete target.dataset.image; delete target.dataset.thumb;
+      delete target.dataset.card;  delete target.dataset.full;
       if(typeof adminStatus === 'function') adminStatus('Cannot read this image. Try JPG/PNG.', 'err');
     }
   };
 
   function getCoverFromForm(){
     const coverEl = document.getElementById('admCoverPreview');
-    const cover = coverEl?.dataset.image || '';
-    const thumb = coverEl?.dataset.thumb || cover || '';
+    /* อ่านครบ 3 ขนาด */
+    const card   = coverEl?.dataset.card   || '';
+    const thumb  = coverEl?.dataset.thumb  || coverEl?.dataset.image || '';
+    const image  = coverEl?.dataset.image  || thumb;
+    const full   = coverEl?.dataset.full   || image || thumb;
     let images = [];
     try{ images = JSON.parse(document.getElementById('admGalleryPreview')?.dataset.images || '[]'); }catch(e){}
     const first = images[0] && (images[0].data || images[0]);
-    return {cover: cover || first || '', thumb: thumb || first || '', images};
+    return {
+      card:  card  || thumb || first || '',
+      thumb: thumb || card  || first || '',
+      cover: image || thumb || first || '',
+      full:  full  || image || first || '',
+      images
+    };
   }
 
   /* Strong override: save a lightweight thumbnail directly inside project object */
@@ -11366,17 +11398,20 @@ document.addEventListener('DOMContentLoaded', () => {
       let savedImages = true;
       try{
         localStorage.setItem(imgKey, JSON.stringify({
-          cover: media.cover || media.thumb || '',
-          thumb: media.thumb || media.cover || '',
+          cover:  media.full  || media.cover || media.thumb || '',
+          thumb:  media.thumb || media.card  || media.cover || '',
+          card:   media.card  || media.thumb || '',
           images: media.images || [],
           videos: videos || []
         }));
       }catch(e){
         savedImages = false;
         try{
+          /* เต็ม storage — บันทึกเฉพาะ card thumbnail (เล็กสุด) */
           localStorage.setItem(imgKey, JSON.stringify({
-            cover: media.thumb || '',
-            thumb: media.thumb || '',
+            cover: media.card  || media.thumb || '',
+            thumb: media.card  || media.thumb || '',
+            card:  media.card  || '',
             images: [],
             videos: []
           }));
@@ -11394,8 +11429,10 @@ document.addEventListener('DOMContentLoaded', () => {
         desc: document.getElementById('admProjectDesc')?.value.trim() || '',
         layout: document.getElementById('admProjectLayout')?.value || 'stack',
         imgKey: imgKey,
-        coverThumb: media.thumb || '',
-        cover: media.thumb || '',
+        /* card = thumbnail เล็กสุด ใช้ใน service grid */
+        coverThumb: media.card  || media.thumb || '',
+        /* cover = medium ใช้ใน detail hero */
+        cover:      media.cover || media.thumb || '',
         galleryCount: (media.images||[]).length
       };
 
@@ -11425,16 +11462,16 @@ document.addEventListener('DOMContentLoaded', () => {
       setTimeout(()=>{
         if(panel){ panel.classList.add('on'); document.body.style.overflow = 'hidden'; }
         if(typeof adminStatus === 'function') adminStatus('✓ Published: '+nameVal+' — image is now visible in Services' + (!savedImages?' (thumbnail only was saved because the image is large)':''), 'ok');
-      }, 1200);
+      }, 100);
     }catch(err){
       console.error('FINAL saveAdminProject error', err);
       if(typeof adminStatus === 'function') adminStatus('❌ Error: '+err.message, 'err');
     }
   };
 
-  /* override loader: use thumb fallback before giving empty image */
+  /* override loader: use card thumbnail for grid, full for detail */
   window.loadProjectImages = function(project){
-    if(!project) return {cover:'', images:[], videos:[]};
+    if(!project) return {cover:'', thumb:'', card:'', images:[], videos:[]};
     if(project.imgKey){
       try{
         const raw = localStorage.getItem(project.imgKey);
@@ -11442,16 +11479,22 @@ document.addEventListener('DOMContentLoaded', () => {
           const d = JSON.parse(raw);
           const imgs = d.images || [];
           const firstGallery = imgs[0] && (imgs[0].data || imgs[0]);
+          const cardThumb = d.card || d.thumb || project.coverThumb || project.cover || firstGallery || '';
+          const detailCover = d.cover || d.thumb || project.cover || firstGallery || '';
           return {
-            cover: d.cover || d.thumb || project.coverThumb || project.cover || firstGallery || '',
-            thumb: d.thumb || project.coverThumb || project.cover || d.cover || firstGallery || '',
+            /* card = thumbnail เล็ก ใช้ใน grid */
+            card:   cardThumb,
+            thumb:  cardThumb,
+            /* cover = medium/full ใช้ใน detail */
+            cover:  detailCover,
             images: imgs,
             videos: d.videos || []
           };
         }
       }catch(e){}
     }
-    return {cover: project.coverThumb || project.cover || '', thumb: project.coverThumb || project.cover || '', images: project.images || [], videos: project.videos || []};
+    const fallback = project.coverThumb || project.cover || '';
+    return {card: fallback, thumb: fallback, cover: project.cover || fallback, images: project.images || [], videos: project.videos || []};
   };
 
   /* Rebuild service cards after the final overrides are ready */
@@ -11630,7 +11673,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(project.imgKey){ try{ d = JSON.parse(localStorage.getItem(project.imgKey)||'null'); }catch(e){} }
     const imgs = (d && d.images) || project.images || [];
     const first = imgs[0] && (imgs[0].data || imgs[0]);
-    const thumb = project.coverThumb || project.cover || (d && (d.thumb || d.cover)) || first || '';
+    const thumb = (d && (d.card || d.thumb || d.cover)) || project.coverThumb || project.cover || first || '';
     return {cover: thumb, thumb: thumb, images: imgs, videos:(d && d.videos) || project.videos || []};
   };
 
@@ -11747,7 +11790,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let d=null; if(project.imgKey){try{d=JSON.parse(localStorage.getItem(project.imgKey)||'null')}catch(e){}}
     const imgs=(d&&d.images)||project.images||[];
     const first=imgs[0]&&(imgs[0].data||imgs[0]);
-    const thumb=project.coverThumb||project.cover||(d&&(d.thumb||d.cover))||first||'';
+    const thumb=(d&&(d.card||d.thumb||d.cover))||project.coverThumb||project.cover||first||'';
     return {thumb:thumb,cover:thumb,images:imgs,videos:(d&&d.videos)||project.videos||[]};
   }
   window.loadProjectImages = getMedia;
@@ -12059,7 +12102,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(project.imgKey){ try{ d = JSON.parse(localStorage.getItem(project.imgKey)||'null'); }catch(e){} }
     const imgs = (d && d.images) || project.images || [];
     const first = imgs[0] && (imgs[0].data || imgs[0]);
-    const thumb = (d && (d.thumb || d.cover)) || project.coverThumb || project.cover || first || '';
+    const thumb = (d && (d.card || d.thumb || d.cover)) || project.coverThumb || project.cover || first || '';
     return {thumb:thumb, cover:thumb, images:imgs, videos:(d && d.videos) || project.videos || []};
   }
   window.loadProjectImages = getMedia;
@@ -12303,7 +12346,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if(project.imgKey){ try{ d=JSON.parse(localStorage.getItem(project.imgKey)||'null'); }catch(e){} }
     const imgs=(d&&d.images)||project.images||[];
     const first=imgs[0]&&(imgs[0].data||imgs[0]);
-    const thumb=project.coverThumb||project.cover||(d&&(d.thumb||d.cover))||first||'';
+    const thumb=(d&&(d.card||d.thumb||d.cover))||project.coverThumb||project.cover||first||'';
     return {thumb:thumb, cover:thumb, images:imgs, videos:(d&&d.videos)||project.videos||[]};
   }
   function cleanCatLabel(cat){
@@ -15554,937 +15597,7 @@ async function uploadImageToSupabase(file){
 </script>
 
 
-<!-- ══════════════════════════════════════════════════════
-     CROSS-PLATFORM COMPATIBILITY PATCH v3
-     แก้ปัญหา: iPhone / iPad Safari กดเข้าดูงานไม่ได้
-     ══════════════════════════════════════════════════════ -->
-<style id="cross-platform-patch-css">
-
-/* ── 1. -webkit-backdrop-filter สำหรับ iOS Safari ── */
-nav,
-.detail-top,
-.how-top,
-.how-top.minimal,
-.site-page-top,
-.start-popup-card,
-.admin-login-card,
-.admin-panel-card {
-  -webkit-backdrop-filter: blur(16px);
-}
-#svcGrid .cat-slide-btn,
-#serviceGrid .cat-slide-btn {
-  -webkit-backdrop-filter: blur(8px) !important;
-}
-
-/* ── 2. Prevent iOS font size auto-adjustment ── */
-html {
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
-
-/* ── 3. Safe area insets (Notch / Dynamic Island) ── */
-nav {
-  padding-left:  max(32px, env(safe-area-inset-left))  !important;
-  padding-right: max(32px, env(safe-area-inset-right)) !important;
-}
-@media (max-width: 768px) {
-  nav {
-    padding-left:  max(16px, env(safe-area-inset-left))  !important;
-    padding-right: max(16px, env(safe-area-inset-right)) !important;
-  }
-  .hero {
-    padding-top: max(92px, calc(env(safe-area-inset-top) + 80px)) !important;
-  }
-}
-.footer {
-  padding-bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
-}
-
-/* ── 4. Tap highlight off / touch-action on buttons & links ── */
-a, button, [onclick] {
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-}
-
-/* ── 5. iOS: ทำให้ project-detail panel scroll ได้อย่างถูกต้อง ── */
-.project-detail {
-  -webkit-overflow-scrolling: touch !important;
-  overflow-y: scroll !important;   /* scroll (not auto) forces iOS to create scroll layer */
-  overflow-x: hidden !important;
-  overscroll-behavior-y: contain !important;
-}
-.project-detail .detail-top {
-  position: -webkit-sticky !important;
-  position: sticky !important;
-  top: 0 !important;
-}
-
-/* ── 6. iOS: panels / overlays ── */
-.site-page,
-.how-page,
-.start-popup {
-  -webkit-overflow-scrolling: touch;
-  overscroll-behavior: contain;
-}
-
-/* ── 7. iOS: tap-button layer ── invisible full-size button ทับการ์ดทุกใบ
-   ทำให้ iOS Safari ยอมรับ tap เป็น click เสมอ ── */
-.card-ios-tap {
-  position: absolute !important;
-  inset: 0 !important;
-  z-index: 4 !important;           /* ต่ำกว่า .cat-slide-top (z-index 5) */
-  width: 100% !important;
-  height: 100% !important;
-  background: transparent !important;
-  border: none !important;
-  outline: none !important;
-  cursor: pointer !important;
-  -webkit-appearance: none !important;
-  appearance: none !important;
-  -webkit-tap-highlight-color: transparent !important;
-  padding: 0 !important;
-  margin: 0 !important;
-}
-
-/* ── 8. ปิด default input appearance บน iOS ── */
-input, textarea, select {
-  -webkit-appearance: none;
-  appearance: none;
-  caret-color: #ff2a14;
-}
-
-/* ── 9. ปิด overflow-x เกิน ── */
-body, html {
-  overflow-x: hidden !important;
-  max-width: 100vw;
-}
-
-/* ── 10. Touch target size ขั้นต่ำ (Apple HIG: 44×44pt) ── */
-.detail-back, .how-back, .site-page-back {
-  min-height: 44px !important;
-  min-width: 44px !important;
-}
-
-/* ── 11. aspect-ratio fallback สำหรับ Safari เก่า ── */
-@supports not (aspect-ratio: 16/9) {
-  .cat-slide-card { min-height: 190px !important; }
-  .detail-wide-img { padding-top: 56.25% !important; height: 0 !important; }
-}
-
-</style>
-
-<script id="cross-platform-patch-js">
-(function(){
-'use strict';
-
-/* ════════════════════════════════════════════════════
-   ROOT FIX: iOS Safari ไม่ fire click บน <article>
-   แก้โดย: ใส่ <button class="card-ios-tap"> ทับการ์ดทุกใบ
-   button element ถูก iOS Safari ยอมรับเป็น interactive เสมอ
-════════════════════════════════════════════════════ */
-
-var _iosActive = {};  /* track active slide index per card */
-
-/* เปิด project ตามข้อมูลใน data-slides */
-function _openCardProject(card) {
-  var slides = [];
-  try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(e) {}
-  if (!slides.length) return;
-  var s = slides[_iosActive[card.id] || 0] || slides[0];
-  if (!s) return;
-
-  if (s.type === 'admin' && s.ai !== undefined && typeof window.openSavedAdminProject === 'function') {
-    window.openSavedAdminProject(s.ai);
-  } else if (typeof window.openProject === 'function') {
-    var ci = s.ci !== undefined ? s.ci : parseInt(card.getAttribute('data-ci') || '0', 10);
-    var pi = s.pi !== undefined ? s.pi : 0;
-    window.openProject(ci, pi);
-  }
-}
-
-/* ใส่ tap-button เข้าไปในการ์ดที่ยังไม่มี */
-function injectTapButtons() {
-  var cards = document.querySelectorAll('.cat-slide-card');
-  cards.forEach(function(card) {
-    if (card.querySelector('.card-ios-tap')) return;  /* มีแล้ว ข้าม */
-
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'card-ios-tap';
-    btn.setAttribute('aria-label', 'View project');
-    btn.setAttribute('tabindex', '-1');
-
-    /* ใช้ onclick attribute (ไม่ใช่ addEventListener) → iOS Safari รับรอง */
-    btn.onclick = function(e) {
-      e.stopPropagation();
-      _openCardProject(card);
-    };
-
-    /* ใส่เป็น first child ให้อยู่ล่างสุด (z-index 4 จาก CSS) */
-    card.insertBefore(btn, card.firstChild);
-
-    /* sync active index ถ้า renderSvcGrid อัปเดต */
-    _iosActive[card.id] = 0;
-  });
-}
-
-/* Sync active slide index จาก renderSvcGrid ── */
-function syncActiveIndex(card, index) {
-  _iosActive[card.id] = index;
-}
-
-/* ── Patch _showProjectDetail: แก้ scroll lock บน iOS ── */
-var _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-var _savedScrollY = 0;
-
-function iosLockScroll() {
-  if (!_isIOS) { document.body.style.overflow = 'hidden'; return; }
-  _savedScrollY = window.pageYOffset || window.scrollY || 0;
-  /* ไม่ใช้ position:fixed บน body เพราะทำให้ project-detail scroll ไม่ได้ */
-  /* ใช้ wrapper approach แทน */
-  document.documentElement.style.overflow = 'hidden';
-  document.documentElement.style.height = '100%';
-  document.body.style.overflow = 'hidden';
-  document.body.style.height = '100%';
-}
-function iosUnlockScroll() {
-  if (!_isIOS) { document.body.style.overflow = ''; return; }
-  document.documentElement.style.overflow = '';
-  document.documentElement.style.height = '';
-  document.body.style.overflow = '';
-  document.body.style.height = '';
-  window.scrollTo(0, _savedScrollY);
-}
-window._iosLockScroll   = iosLockScroll;
-window._iosUnlockScroll = iosUnlockScroll;
-
-/* Patch _showProjectDetail (project detail opener) */
-function patchShowProjectDetail() {
-  var base = window._showProjectDetail;
-  if (typeof base !== 'function' || base.__iosPatchV3) return;
-  window._showProjectDetail = function(opts) {
-    var result = base.apply(this, arguments);
-    /* Override body.overflow ที่ base function ตั้งไว้ ด้วย iOS-safe version */
-    document.body.style.overflow = '';
-    document.body.style.height = '';
-    iosLockScroll();
-    /* Force project-detail panel to scroll correctly on iOS */
-    var panel = document.getElementById('projectDetail');
-    if (panel) {
-      panel.style.webkitOverflowScrolling = 'touch';
-      panel.style.overflowY = 'scroll';
-    }
-    return result;
-  };
-  window._showProjectDetail.__iosPatchV3 = true;
-}
-
-/* Patch closeProject */
-function patchCloseProject() {
-  var base = window.closeProject;
-  if (typeof base !== 'function' || base.__iosPatchV3) return;
-  window.closeProject = function() {
-    var r = base.apply(this, arguments);
-    iosUnlockScroll();
-    return r;
-  };
-  window.closeProject.__iosPatchV3 = true;
-}
-
-/* Patch openWhoPage, openContactPage, etc. */
-function patchPageOpen(openName, closeName) {
-  var baseOpen  = window[openName];
-  var baseClose = window[closeName];
-  if (typeof baseOpen === 'function' && !baseOpen.__iosPatchV3) {
-    window[openName] = function() {
-      var r = baseOpen.apply(this, arguments);
-      document.body.style.overflow = '';
-      iosLockScroll();
-      var el = document.getElementById(openName.replace('open','').replace(/^(\w)/, function(m, c){ return c.toLowerCase(); }) + 'Page') ||
-               document.getElementById(openName.replace('open','') + 'Page');
-      if (el) { el.style.webkitOverflowScrolling = 'touch'; el.style.overflowY = 'scroll'; }
-      return r;
-    };
-    window[openName].__iosPatchV3 = true;
-  }
-  if (typeof baseClose === 'function' && !baseClose.__iosPatchV3) {
-    window[closeName] = function() {
-      var r = baseClose.apply(this, arguments);
-      iosUnlockScroll();
-      return r;
-    };
-    window[closeName].__iosPatchV3 = true;
-  }
-}
-
-/* ── Video autoplay fix บน iOS ── */
-function fixVideos() {
-  document.querySelectorAll('video').forEach(function(v) {
-    v.setAttribute('playsinline', '');
-    v.setAttribute('webkit-playsinline', '');
-    v.muted = true;
-    v.defaultMuted = true;
-    if (v.paused) {
-      try { var p = v.play(); if (p && p.catch) p.catch(function(){}); } catch(e) {}
-    }
-  });
-}
-
-/* ── Patch renderSvcGrid เพื่อ sync active index กับ iOS tap buttons ── */
-function patchRenderSvcGrid() {
-  var base = window.renderSvcGrid;
-  if (typeof base !== 'function' || base.__iosPatchV3) return;
-  window.renderSvcGrid = function() {
-    var r = base.apply(this, arguments);
-    setTimeout(function() {
-      injectTapButtons();
-      fixVideos();
-
-      /* Sync ‹ › nav buttons กับ _iosActive */
-      document.querySelectorAll('.cat-slide-card').forEach(function(card) {
-        card.querySelectorAll('.cat-slide-btn').forEach(function(btn) {
-          if (btn.dataset.iosSyncDone) return;
-          btn.dataset.iosSyncDone = '1';
-          btn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            var dir = parseInt(btn.getAttribute('data-dir') || '1', 10);
-            var slides = [];
-            try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(ex) {}
-            if (!slides.length) return;
-            var cur = _iosActive[card.id] || 0;
-            _iosActive[card.id] = ((cur + dir) % slides.length + slides.length) % slides.length;
-          }, false);
-        });
-      });
-    }, 80);
-    return r;
-  };
-  window.renderSvcGrid.__iosPatchV3 = true;
-}
-
-/* ── Boot ── */
-function boot() {
-  patchShowProjectDetail();
-  patchCloseProject();
-  patchPageOpen('openStartPopup',  'closeStartPopup');
-  patchPageOpen('openWhoPage',     'closeWhoPage');
-  patchPageOpen('openContactPage', 'closeContactPage');
-  patchPageOpen('openHowPage',     'closeHowPage');
-  patchPageOpen('openCareerPage',  'closeCareerPage');
-  patchRenderSvcGrid();
-
-  injectTapButtons();
-  fixVideos();
-
-  /* Video retry เมื่อ user แตะ (iOS ต้องการ user gesture) */
-  var _vFixed = false;
-  document.addEventListener('touchstart', function() {
-    if (!_vFixed) { _vFixed = true; fixVideos(); }
-  }, {once: true, passive: true});
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
-} else {
-  boot();
-}
-/* Retry เผื่อ Firebase render ช้า */
-setTimeout(boot, 800);
-setTimeout(boot, 2000);
-})();
-</script>
-
-<!-- ══════════════════════════════════════════════════
-     iOS SPEED FIX — เจาะทุกต้นตอที่ทำให้ช้า
-     ══════════════════════════════════════════════════ -->
-<style id="ios-perf-css">
-
-/* ── 1. ปิด backdrop-filter ทุกจุด บน mobile (GPU หนักสุด) ── */
-@media (max-width: 1024px) {
-  nav,
-  .detail-top, .how-top, .how-top.minimal, .site-page-top,
-  .admin-login-card, .admin-panel-card,
-  #svcGrid .cat-slide-btn, #serviceGrid .cat-slide-btn {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
-  nav { background: rgba(5,5,5,.97) !important; }
-  .detail-top, .how-top, .how-top.minimal, .site-page-top {
-    background: rgba(5,5,5,.98) !important;
-  }
-  #svcGrid .cat-slide-btn, #serviceGrid .cat-slide-btn {
-    background: rgba(60,60,60,.85) !important;
-  }
-}
-
-/* ── 2. ปิด mouse glow บน touch (ไม่มี mouse ก็ไม่ต้องวาด) ── */
-@media (hover: none), (pointer: coarse) {
-  #mouseGlow { display: none !important; }
-}
-
-/* ── 3. ลด transition ให้เบาลงบน mobile ── */
-@media (max-width: 768px) {
-  .cat-slide-layer   { transition: opacity .12s linear !important; }
-  .hero-content      { transition: opacity .1s, transform .1s !important; }
-  .project-detail, .site-page, .how-page,
-  .admin-login-overlay, .admin-panel-overlay {
-    transition: none !important;
-  }
-}
-
-/* ── 4. ปิด animation ที่ไม่จำเป็นตอน load ── */
-@media (prefers-reduced-motion: reduce) {
-  .marquee div, .popup-track { animation: none !important; }
-}
-
-/* ── 5. contain: layout — จำกัด reflow scope ── */
-.project-detail, .site-page, .how-page, .start-popup {
-  contain: layout style !important;
-}
-
-/* ── 6. ลด font weight ที่ใช้ (ลดขนาด font download) ── */
-@media (max-width: 768px) {
-  .hero h1, #heroTitle { font-size: 52px !important; }
-}
-
-/* ── 7. iOS: project-detail scroll ── */
-.project-detail {
-  -webkit-overflow-scrolling: touch !important;
-  overflow-y: scroll !important;
-  overflow-x: hidden !important;
-}
-.project-detail .detail-top {
-  position: -webkit-sticky !important;
-  position: sticky !important;
-  top: 0 !important;
-}
-
-/* ── 8. safe area insets ── */
-nav {
-  padding-left:  max(32px, env(safe-area-inset-left)) !important;
-  padding-right: max(32px, env(safe-area-inset-right)) !important;
-}
-@media (max-width: 768px) {
-  nav { padding-left: max(16px, env(safe-area-inset-left)) !important; padding-right: max(16px, env(safe-area-inset-right)) !important; }
-}
-.footer { padding-bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px)); }
-
-/* ── 9. tap ── */
-a, button, [onclick] {
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
-  -webkit-text-size-adjust: 100%;
-}
-html { -webkit-text-size-adjust: 100%; }
-body, html { overflow-x: hidden !important; }
-
-/* ── 10. iOS tap button ทับการ์ด ── */
-.card-ios-tap {
-  position: absolute !important; inset: 0 !important; z-index: 4 !important;
-  width: 100% !important; height: 100% !important;
-  background: transparent !important; border: none !important; outline: none !important;
-  cursor: pointer !important; -webkit-appearance: none !important; appearance: none !important;
-  -webkit-tap-highlight-color: transparent !important; padding: 0 !important; margin: 0 !important;
-}
-input, textarea, select { -webkit-appearance: none; appearance: none; caret-color: #ff2a14; }
-.detail-back, .how-back, .site-page-back { min-height: 44px !important; }
-@supports not (aspect-ratio: 16/9) {
-  .cat-slide-card { min-height: 190px !important; }
-  .detail-wide-img { padding-top: 56.25% !important; height: 0 !important; }
-}
-</style>
-
-<script id="ios-perf-js">
-(function(){
-'use strict';
-
-var _touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-var _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
-             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-/* ══════════════════════════════════════════════════════
-   1. KILL setInterval(mobileUnlockOverlayScroll, 600)
-      และ setInterval(fixAdminUi, 1500) ทั้งคู่
-      รันอยู่ตลอดชีวิตหน้าเว็บ ทำให้ main thread ไม่ว่าง
-══════════════════════════════════════════════════════ */
-var _killIntervalFns = ['mobileUnlockOverlayScroll', 'fixAdminUi'];
-var _origSetInterval = window.setInterval;
-var _managedIntervals = {};
-
-window.setInterval = function(fn, delay) {
-  /* ตรวจ function name */
-  var fnStr = (fn && fn.name) ? fn.name : (fn ? fn.toString().slice(0, 60) : '');
-  for (var i = 0; i < _killIntervalFns.length; i++) {
-    if (fnStr.indexOf(_killIntervalFns[i]) !== -1) {
-      /* รันครั้งเดียว แล้วหยุด */
-      try { fn(); } catch(e) {}
-      return -1;
-    }
-  }
-  return _origSetInterval.apply(this, arguments);
-};
-
-/* ══════════════════════════════════════════════════════
-   2. ปิด mousemove RAF loop บน touch device
-      mouse glow ใช้ requestAnimationFrame ทุก frame
-══════════════════════════════════════════════════════ */
-if (_touch) {
-  var glow = document.getElementById('mouseGlow');
-  if (glow) glow.style.display = 'none';
-
-  /* intercept addEventListener เพื่อ block mousemove ก่อนที่ glow script จะ register */
-  var _docAddEvt = document.addEventListener;
-  document.addEventListener = function(type, fn, opts) {
-    if (type === 'mousemove' || type === 'mouseleave') return;
-    return _docAddEvt.apply(this, arguments);
-  };
-  /* Restore หลังจาก all scripts boot เสร็จ */
-  setTimeout(function() { document.addEventListener = _docAddEvt; }, 1000);
-}
-
-/* ══════════════════════════════════════════════════════
-   3. iOS SCROLL LOCK — ใช้ html/body height:100%
-      แทน position:fixed (ซึ่งทำให้ panel scroll ไม่ได้)
-══════════════════════════════════════════════════════ */
-var _savedSY = 0;
-function iosLock() {
-  if (_isIOS) {
-    _savedSY = window.pageYOffset || 0;
-    document.documentElement.style.cssText += ';overflow:hidden;height:100%';
-    document.body.style.cssText += ';overflow:hidden;height:100%';
-  } else {
-    document.body.style.overflow = 'hidden';
-  }
-}
-function iosUnlock() {
-  if (_isIOS) {
-    document.documentElement.style.overflow = '';
-    document.documentElement.style.height = '';
-    document.body.style.overflow = '';
-    document.body.style.height = '';
-    window.scrollTo(0, _savedSY);
-  } else {
-    document.body.style.overflow = '';
-  }
-}
-
-/* ══════════════════════════════════════════════════════
-   4. PATCH _showProjectDetail — scroll lock + panel fix
-══════════════════════════════════════════════════════ */
-function patchShowDetail() {
-  var base = window._showProjectDetail;
-  if (!base || base.__speedV4) return;
-  window._showProjectDetail = function(opts) {
-    var r = base.apply(this, arguments);
-    document.body.style.overflow = '';
-    document.body.style.height = '';
-    iosLock();
-    var panel = document.getElementById('projectDetail');
-    if (panel) { panel.style.overflowY = 'scroll'; panel.style.webkitOverflowScrolling = 'touch'; }
-    return r;
-  };
-  window._showProjectDetail.__speedV4 = true;
-}
-function patchClose(name) {
-  var base = window[name];
-  if (!base || base.__speedV4) return;
-  window[name] = function() { var r = base.apply(this, arguments); iosUnlock(); return r; };
-  window[name].__speedV4 = true;
-}
-function patchOpen(name) {
-  var base = window[name];
-  if (!base || base.__speedV4) return;
-  window[name] = function() {
-    var r = base.apply(this, arguments);
-    document.body.style.overflow = '';
-    document.body.style.height = '';
-    iosLock();
-    return r;
-  };
-  window[name].__speedV4 = true;
-}
-
-/* ══════════════════════════════════════════════════════
-   5. iOS TAP FIX — ใส่ <button> ทับการ์ดทุกใบ
-      iOS Safari ไม่ fire click บน <article> แน่นอน
-══════════════════════════════════════════════════════ */
-var _cardIdx = {};
-
-function _openCard(card) {
-  var slides = [];
-  try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(e) {}
-  if (!slides.length) return;
-  var s = slides[_cardIdx[card.id] || 0] || slides[0];
-  if (!s) return;
-  if (s.type === 'admin' && s.ai !== undefined && typeof window.openSavedAdminProject === 'function') {
-    window.openSavedAdminProject(s.ai);
-  } else if (typeof window.openProject === 'function') {
-    window.openProject(s.ci !== undefined ? s.ci : parseInt(card.getAttribute('data-ci') || '0', 10), s.pi || 0);
-  }
-}
-
-function injectTapBtns() {
-  document.querySelectorAll('.cat-slide-card').forEach(function(card) {
-    if (!_cardIdx[card.id]) _cardIdx[card.id] = 0;
-    if (card.querySelector('.card-ios-tap')) return;
-    var btn = document.createElement('button');
-    btn.type = 'button';
-    btn.className = 'card-ios-tap';
-    btn.setAttribute('aria-label', 'View project');
-    btn.onclick = function(e) { e.stopPropagation(); _openCard(card); };
-    card.insertBefore(btn, card.firstChild);
-
-    /* Sync ‹ › index กับ _cardIdx */
-    card.querySelectorAll('.cat-slide-btn').forEach(function(nb) {
-      nb.addEventListener('click', function(e) {
-        e.stopPropagation();
-        var slides = [];
-        try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(ex) {}
-        var d = parseInt(nb.getAttribute('data-dir') || '1', 10);
-        _cardIdx[card.id] = ((_cardIdx[card.id] || 0) + d + slides.length) % slides.length;
-      }, false);
-    });
-  });
-}
-
-/* ══════════════════════════════════════════════════════
-   6. PATCH renderSvcGrid — inject tap btns หลัง render
-══════════════════════════════════════════════════════ */
-function patchRender() {
-  var base = window.renderSvcGrid;
-  if (!base || base.__speedV4) return;
-  window.renderSvcGrid = function() {
-    var r = base.apply(this, arguments);
-    setTimeout(injectTapBtns, 100);
-    return r;
-  };
-  window.renderSvcGrid.__speedV4 = true;
-}
-
-/* ══════════════════════════════════════════════════════
-   7. Video autoplay fix บน iOS
-══════════════════════════════════════════════════════ */
-function fixVid() {
-  document.querySelectorAll('video').forEach(function(v) {
-    v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
-    v.muted = true; v.defaultMuted = true;
-    if (v.paused) { try { var p = v.play(); if (p && p.catch) p.catch(function(){}); } catch(e) {} }
-  });
-}
-
-/* ══════════════════════════════════════════════════════
-   8. Lazy load images ที่ยังไม่ visible
-══════════════════════════════════════════════════════ */
-function lazyImgs() {
-  document.querySelectorAll('img:not([loading])').forEach(function(img) {
-    if (img.getBoundingClientRect().top > window.innerHeight + 100) {
-      img.setAttribute('loading', 'lazy');
-    }
-  });
-}
-
-/* ══════════════════════════════════════════════════════
-   BOOT
-══════════════════════════════════════════════════════ */
-function boot() {
-  patchShowDetail();
-  patchClose('closeProject'); patchClose('closeWhoPage'); patchClose('closeContactPage');
-  patchClose('closeHowPage'); patchClose('closeCareerPage'); patchClose('closeStartPopup');
-  patchOpen('openWhoPage'); patchOpen('openContactPage');
-  patchOpen('openHowPage'); patchOpen('openCareerPage'); patchOpen('openStartPopup');
-  patchRender();
-  injectTapBtns();
-  fixVid();
-  lazyImgs();
-}
-
-if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); }
-else { boot(); }
-
-/* Retry หลัง renderSvcGrid ทำงาน */
-setTimeout(boot, 400);
-setTimeout(boot, 1200);
-
-/* Video retry on first touch */
-document.addEventListener('touchstart', function() { fixVid(); }, {once: true, passive: true});
-
-})();
-</script>
-
-<!-- ══════════════════════════════════════════════════
-     IMAGE SPEED PATCH — โหลดรูปเร็วขึ้น
-     ══════════════════════════════════════════════════ -->
-<style id="img-speed-css">
-
-/* ── Blur-up placeholder สำหรับรูปที่กำลังโหลด ── */
-.cat-slide-layer img,
-.detail-wide-img img {
-  transition: opacity .25s ease !important;
-}
-.cat-slide-layer img.dop-loading,
-.detail-wide-img img.dop-loading {
-  opacity: 0 !important;
-}
-.cat-slide-layer img.dop-loaded,
-.detail-wide-img img.dop-loaded {
-  opacity: 1 !important;
-}
-
-/* ── Skeleton shimmer สำหรับ card ที่รูปยังไม่โหลด ── */
-.cat-slide-layer.no-img-yet {
-  background: linear-gradient(90deg,#141414 25%,#1e1e1e 50%,#141414 75%) !important;
-  background-size: 200% 100% !important;
-  animation: dop-shimmer 1.4s ease infinite !important;
-}
-@keyframes dop-shimmer {
-  0%   { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
-}
-
-/* ── Google Drive thumbnail size ── */
-img[src*="drive.google.com/uc"] {
-  /* force สี้ placeholder สวยขึ้นระหว่างรอ */
-  background: #111;
-}
-
-</style>
-
-<script id="img-speed-js">
-(function(){
-'use strict';
-
-/* ══════════════════════════════════════════════════════
-   CORE APPROACH:
-   1. Card images → lazy + IntersectionObserver (ไม่โหลดจนกว่าจะเห็น)
-   2. รูปแรกของ viewport → eager (โหลดทันที)
-   3. Google Drive URL → แปลงเป็น thumbnail เล็ก (=s600) ก่อน แล้วค่อย swap ใหญ่
-   4. base64 thumbnail → ใช้ coverThumb แทน cover ใน card
-   5. detail page → โหลด cover ก่อน gallery ทีหลัง
-══════════════════════════════════════════════════════ */
-
-/* ── 1. แปลง Google Drive URL ให้ใช้ thumbnail API ── */
-function driveThumb(url, size) {
-  size = size || 600;
-  /* format: drive.google.com/uc?export=view&id=FILE_ID */
-  var m = String(url || '').match(/[?&]id=([A-Za-z0-9_-]+)/);
-  if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=s' + size;
-  /* format: drive.google.com/file/d/FILE_ID/ */
-  m = String(url || '').match(/\/d\/([A-Za-z0-9_-]+)/);
-  if (m) return 'https://drive.google.com/thumbnail?id=' + m[1] + '&sz=s' + size;
-  return url;
-}
-window.driveThumbUrl = driveThumb;
-
-/* ── 2. ตรวจว่าเป็น Drive URL ── */
-function isDriveUrl(url) {
-  return /drive\.google\.com/i.test(String(url || ''));
-}
-
-/* ── 3. Progressive image loader ──
-   - โหลด thumbnail (s600) ก่อน แสดงเลย blur-up
-   - แล้ว swap เป็น full size (s1400) ── */
-function loadProgressive(img, src) {
-  if (!src) return;
-  img.classList.add('dop-loading');
-
-  if (isDriveUrl(src)) {
-    var thumbSrc = driveThumb(src, 600);
-    var fullSrc  = driveThumb(src, 1400);
-
-    /* โหลด thumb ก่อน */
-    var thumbImg = new Image();
-    thumbImg.onload = function() {
-      img.src = thumbSrc;
-      img.classList.remove('dop-loading');
-      img.classList.add('dop-loaded');
-      /* แล้วค่อย swap เป็น full ── */
-      var fullImg = new Image();
-      fullImg.onload = function() { img.src = fullSrc; };
-      fullImg.src = fullSrc;
-    };
-    thumbImg.onerror = function() {
-      /* thumb ล้มเหลว ลองใช้ src เดิม */
-      img.src = src;
-      img.classList.remove('dop-loading');
-      img.classList.add('dop-loaded');
-    };
-    thumbImg.src = thumbSrc;
-  } else {
-    /* URL ปกติหรือ base64 — โหลดตรง */
-    img.onload = function() {
-      img.classList.remove('dop-loading');
-      img.classList.add('dop-loaded');
-    };
-    img.onerror = function() {
-      img.classList.remove('dop-loading');
-    };
-    img.src = src;
-  }
-}
-
-/* ── 4. IntersectionObserver สำหรับ lazy load ── */
-var _io = null;
-if ('IntersectionObserver' in window) {
-  _io = new IntersectionObserver(function(entries) {
-    entries.forEach(function(entry) {
-      if (!entry.isIntersecting) return;
-      var img = entry.target;
-      var src = img.dataset.dopSrc;
-      if (src) {
-        delete img.dataset.dopSrc;
-        loadProgressive(img, src);
-      }
-      _io.unobserve(img);
-    });
-  }, { rootMargin: '200px 0px' }); /* pre-load 200px ก่อน visible */
-}
-
-function scheduleImg(img, src, eager) {
-  if (!src) return;
-  if (eager || !_io) {
-    loadProgressive(img, src);
-  } else {
-    img.dataset.dopSrc = src;
-    img.classList.add('dop-loading');
-    _io.observe(img);
-  }
-}
-
-/* ── 5. Patch slideLayer ── ใส่ lazy + progressive ── */
-function patchSlideLayerImages() {
-  var cardIdx = 0;
-  document.querySelectorAll('.cat-slide-card').forEach(function(card) {
-    card.querySelectorAll('.cat-slide-layer').forEach(function(layer, layerIdx) {
-      var img = layer.querySelector('img');
-      if (!img) return;
-      var src = img.getAttribute('src') || '';
-      if (!src || img.dataset.dopPatched) return;
-      img.dataset.dopPatched = '1';
-
-      /* Card ใบแรก layer แรก = eager (อยู่ใน viewport) */
-      var isEager = (cardIdx === 0 && layerIdx === 0);
-
-      /* ถ้าเป็น Drive URL → ใช้ progressive */
-      if (isDriveUrl(src)) {
-        img.removeAttribute('src');
-        img.removeAttribute('loading');
-        scheduleImg(img, src, isEager);
-      } else if (!isEager) {
-        /* รูปปกติ layer ที่ไม่ใช่แรก → lazy */
-        img.setAttribute('loading', 'lazy');
-        img.setAttribute('decoding', 'async');
-      } else {
-        /* รูปแรกสุด → eager + decoded ก่อน paint */
-        img.setAttribute('loading', 'eager');
-        img.setAttribute('decoding', 'sync');
-        img.classList.add('dop-loaded');
-      }
-    });
-    cardIdx++;
-  });
-}
-
-/* ── 6. Patch detail page images ── */
-function patchDetailImages() {
-  var gallery = document.getElementById('detailGallery');
-  if (!gallery) return;
-  /* Cover (รูปแรก) → eager */
-  var first = gallery.querySelector('.detail-wide-img img');
-  if (first && !first.dataset.dopPatched) {
-    first.dataset.dopPatched = '1';
-    var src = first.getAttribute('src') || '';
-    if (isDriveUrl(src)) {
-      first.removeAttribute('src');
-      loadProgressive(first, src);
-    } else {
-      first.setAttribute('loading', 'eager');
-      first.setAttribute('decoding', 'async');
-      first.classList.add('dop-loaded');
-    }
-  }
-  /* Gallery รูปที่เหลือ → lazy */
-  var imgs = gallery.querySelectorAll('.detail-wide-img img');
-  imgs.forEach(function(img, i) {
-    if (i === 0 || img.dataset.dopPatched) return;
-    img.dataset.dopPatched = '1';
-    var s = img.getAttribute('src') || '';
-    if (!s) return;
-    if (isDriveUrl(s)) {
-      img.removeAttribute('src');
-      scheduleImg(img, s, false);
-    } else {
-      img.setAttribute('loading', 'lazy');
-      img.setAttribute('decoding', 'async');
-    }
-  });
-}
-
-/* ── 7. Patch _showProjectDetail ── */
-function patchDetailRenderer() {
-  var base = window._showProjectDetail;
-  if (!base || base.__imgSpeedV1) return;
-  window._showProjectDetail = function(opts) {
-    var r = base.apply(this, arguments);
-    setTimeout(patchDetailImages, 30);
-    return r;
-  };
-  window._showProjectDetail.__imgSpeedV1 = true;
-}
-
-/* ── 8. Patch renderSvcGrid ── */
-function patchGridRenderer() {
-  var base = window.renderSvcGrid;
-  if (!base || base.__imgSpeedV1) return;
-  window.renderSvcGrid = function() {
-    var r = base.apply(this, arguments);
-    setTimeout(patchSlideLayerImages, 80);
-    return r;
-  };
-  window.renderSvcGrid.__imgSpeedV1 = true;
-}
-
-/* ── 9. แปลง coverImage ของ admin projects ให้ใช้ thumbnail ──
-   ใน localStorage จะ cache thumbnail URL แทน full URL ── */
-function optimizeDriveImagesInProjects() {
-  try {
-    var raw = localStorage.getItem('dopiousAdminProjects');
-    if (!raw) return;
-    var projects = JSON.parse(raw);
-    var changed = false;
-    projects.forEach(function(p) {
-      /* เพิ่ม coverThumb ถ้ายังไม่มี */
-      if (p.coverImage && isDriveUrl(p.coverImage) && !p.coverThumb) {
-        p.coverThumb = driveThumb(p.coverImage, 600);
-        changed = true;
-      }
-      if (p.cover && isDriveUrl(p.cover) && !p.coverThumb) {
-        p.coverThumb = driveThumb(p.cover, 600);
-        changed = true;
-      }
-    });
-    if (changed) {
-      localStorage.setItem('dopiousAdminProjects', JSON.stringify(projects));
-    }
-  } catch(e) {}
-}
-
-/* ── BOOT ── */
-function boot() {
-  optimizeDriveImagesInProjects();
-  patchDetailRenderer();
-  patchGridRenderer();
-  patchSlideLayerImages();
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', boot);
-} else { boot(); }
-setTimeout(boot, 500);
-setTimeout(boot, 1500);
-
-})();
-</script>
+<!-- SEO: semantic content block (visually hidden, crawlable) -->
 <section id="seo-content" aria-label="About DOPIOUS+ Services" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;margin:-1px;padding:0;">
   <h1>DOPIOUS+ — Creative Design &amp; Production Agency Thailand</h1>
   <p>DOPIOUS+ is a full-service creative design and production agency based in Thailand, delivering innovative solutions across Industrial Design, Interior Design, Exhibition &amp; Event Design, Branding, Visual Merchandising, 3D Visualization, and Production Services.</p>
@@ -16505,3 +15618,232 @@ setTimeout(boot, 1500);
 </section>
 </body>
 </html>
+<!-- ═══════════════════════════════════════════════════
+     SPEED PATCH — iOS + Desktop
+     แก้ตรงจุด ไม่เพิ่ม overhead ไม่จำเป็น
+═══════════════════════════════════════════════════ -->
+<style>
+/* ─ ปิด backdrop-filter บน mobile (GPU หนัก) ─ */
+@media(max-width:1024px){
+  nav,.detail-top,.how-top,.how-top.minimal,.site-page-top{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    background:rgba(5,5,5,.97)!important;
+  }
+  #svcGrid .cat-slide-btn,#serviceGrid .cat-slide-btn{
+    backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+    background:rgba(50,50,50,.9)!important;
+  }
+}
+/* ─ ปิด mouse glow บน touch ─ */
+@media(hover:none),(pointer:coarse){#mouseGlow{display:none!important}}
+/* ─ content-visibility ลด repaint sections ─ */
+.clients,section.process,.service-cycle-section{content-visibility:auto;contain-intrinsic-size:0 400px}
+/* ─ transition เบาลงบน mobile ─ */
+@media(max-width:768px){
+  .cat-slide-layer{transition:opacity .12s linear!important}
+  .project-detail,.site-page,.how-page{transition:none!important}
+}
+/* ─ iOS project-detail scroll ─ */
+.project-detail{-webkit-overflow-scrolling:touch!important;overflow-y:scroll!important}
+.project-detail .detail-top{position:-webkit-sticky!important;position:sticky!important;top:0!important}
+/* ─ tap ─ */
+a,button,[onclick]{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+html{-webkit-text-size-adjust:100%}
+body,html{overflow-x:hidden!important}
+/* ─ iOS tap button ─ */
+.card-ios-tap{position:absolute!important;inset:0!important;z-index:4!important;width:100%!important;height:100%!important;background:transparent!important;border:none!important;outline:none!important;cursor:pointer!important;-webkit-appearance:none!important;appearance:none!important;-webkit-tap-highlight-color:transparent!important;padding:0!important}
+/* ─ safe area ─ */
+@media(max-width:768px){
+  nav{padding-left:max(16px,env(safe-area-inset-left))!important;padding-right:max(16px,env(safe-area-inset-right))!important}
+}
+/* ─ shimmer placeholder ─ */
+.cat-slide-layer.dop-pending{background:linear-gradient(90deg,#141414 25%,#1c1c1c 50%,#141414 75%)!important;background-size:200% 100%!important;animation:dop-sh 1.4s ease infinite!important}
+@keyframes dop-sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.cat-slide-layer img{transition:opacity .2s ease}
+.cat-slide-layer img[data-src]{opacity:0}
+.cat-slide-layer img.dop-in{opacity:1}
+/* ─ Drive thumbnail ─ */
+img[src*="drive.google.com"]{background:#111}
+@supports not(aspect-ratio:16/9){.cat-slide-card{min-height:190px!important}.detail-wide-img{padding-top:56.25%!important;height:0!important}}
+</style>
+
+<script>
+(function(){
+'use strict';
+
+/* ── ตัวแปรพื้นฐาน ── */
+var T = ('ontouchstart' in window)||navigator.maxTouchPoints>0;
+var IOS = /iPhone|iPad|iPod/.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1);
+var SY = 0;
+
+/* ═══ 1. ปิด mousemove RAF บน touch ═══ */
+if(T){
+  var g=document.getElementById('mouseGlow');
+  if(g) g.style.display='none';
+  var _da=document.addEventListener;
+  document.addEventListener=function(t,f,o){
+    if(t==='mousemove'||t==='mouseleave') return;
+    return _da.apply(this,arguments);
+  };
+  setTimeout(function(){document.addEventListener=_da;},800);
+}
+
+/* ═══ 2. iOS scroll lock ═══ */
+function lock(){
+  if(IOS){SY=window.pageYOffset||0;document.documentElement.style.cssText+='overflow:hidden;height:100%';document.body.style.cssText+='overflow:hidden;height:100%';}
+  else document.body.style.overflow='hidden';
+}
+function unlock(){
+  if(IOS){document.documentElement.style.overflow='';document.documentElement.style.height='';document.body.style.overflow='';document.body.style.height='';window.scrollTo(0,SY);}
+  else document.body.style.overflow='';
+}
+
+/* ═══ 3. Patch open/close + detail renderer ═══ */
+function wp(name,open){
+  var b=window[name]; if(!b||b.__sp4) return;
+  window[name]=function(){
+    var r=b.apply(this,arguments);
+    if(open){document.body.style.overflow='';document.body.style.height='';lock();}
+    else unlock();
+    return r;
+  };
+  window[name].__sp4=true;
+}
+function patchDetail(){
+  var b=window._showProjectDetail; if(!b||b.__sp4) return;
+  window._showProjectDetail=function(o){
+    var r=b.apply(this,arguments);
+    document.body.style.overflow='';document.body.style.height='';lock();
+    var p=document.getElementById('projectDetail');
+    if(p){p.style.overflowY='scroll';p.style.webkitOverflowScrolling='touch';}
+    setTimeout(applyLazy,40);
+    return r;
+  };
+  window._showProjectDetail.__sp4=true;
+}
+
+/* ═══ 4. iOS tap button ═══ */
+var CI={};
+function openCard(card){
+  var sl=[]; try{sl=JSON.parse(card.getAttribute('data-slides')||'[]');}catch(e){}
+  if(!sl.length) return;
+  var s=sl[CI[card.id]||0]||sl[0]; if(!s) return;
+  if(s.type==='admin'&&s.ai!==undefined&&typeof openSavedAdminProject==='function') openSavedAdminProject(s.ai);
+  else if(typeof openProject==='function') openProject(s.ci!==undefined?s.ci:+card.getAttribute('data-ci')||0,s.pi||0);
+}
+function injectTap(){
+  document.querySelectorAll('.cat-slide-card').forEach(function(card){
+    if(!CI[card.id]) CI[card.id]=0;
+    if(card.querySelector('.card-ios-tap')) return;
+    var b=document.createElement('button');
+    b.type='button'; b.className='card-ios-tap'; b.setAttribute('aria-label','View');
+    b.onclick=function(e){e.stopPropagation();openCard(card);};
+    card.insertBefore(b,card.firstChild);
+    card.querySelectorAll('.cat-slide-btn').forEach(function(nb){
+      nb.addEventListener('click',function(e){
+        e.stopPropagation();
+        var sl=[]; try{sl=JSON.parse(card.getAttribute('data-slides')||'[]');}catch(x){}
+        CI[card.id]=(((CI[card.id]||0)+(+nb.getAttribute('data-dir')||1))+sl.length)%sl.length;
+      },false);
+    });
+  });
+}
+
+/* ═══ 5. Lazy image + Google Drive thumbnail ═══ */
+var IO=('IntersectionObserver' in window)&&new IntersectionObserver(function(en){
+  en.forEach(function(e){
+    if(!e.isIntersecting) return;
+    var img=e.target, src=img.dataset.src;
+    if(!src) return;
+    delete img.dataset.src;
+    loadImg(img,src);
+    IO.unobserve(img);
+  });
+},{rootMargin:'250px 0px'});
+
+function driveThumb(url,sz){
+  var m=String(url).match(/[?&]id=([A-Za-z0-9_-]+)/)||String(url).match(/\/d\/([A-Za-z0-9_-]+)/);
+  return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=s'+(sz||600):url;
+}
+function isDrive(url){return /drive\.google\.com/i.test(String(url||''));}
+
+function loadImg(img,src){
+  if(!src) return;
+  var final=isDrive(src)?driveThumb(src,1200):src;
+  var small=isDrive(src)?driveThumb(src,500):src;
+  /* thumb first */
+  var t=new Image();
+  t.onload=function(){img.src=small;img.classList.add('dop-in');if(small!==final){var f=new Image();f.onload=function(){img.src=final;};f.src=final;}};
+  t.onerror=function(){img.src=src;img.classList.add('dop-in');};
+  t.src=small;
+}
+
+function schedImg(img,src,eager){
+  if(!src) return;
+  img.removeAttribute('src');
+  if(eager||!IO){loadImg(img,src);}
+  else{img.dataset.src=src;IO.observe(img);}
+}
+
+function applyLazy(){
+  /* service grid cards */
+  var n=0;
+  document.querySelectorAll('.cat-slide-card').forEach(function(card){
+    card.querySelectorAll('.cat-slide-layer').forEach(function(layer,li){
+      var img=layer.querySelector('img');
+      if(!img||img.dataset.dopDone) return;
+      img.dataset.dopDone='1';
+      var src=img.getAttribute('src')||img.dataset.src||'';
+      if(!src) return;
+      var eager=(n===0&&li===0);
+      if(eager){img.setAttribute('loading','eager');img.setAttribute('decoding','async');img.classList.add('dop-in');}
+      else if(isDrive(src)){img.removeAttribute('src');schedImg(img,src,false);}
+      else{img.setAttribute('loading','lazy');img.setAttribute('decoding','async');img.classList.add('dop-in');}
+    });
+    n++;
+  });
+  /* detail page */
+  document.querySelectorAll('#detailGallery .detail-wide-img img').forEach(function(img,i){
+    if(img.dataset.dopDone) return;
+    img.dataset.dopDone='1';
+    var src=img.getAttribute('src')||'';
+    if(!src) return;
+    if(isDrive(src)){img.removeAttribute('src');schedImg(img,src,i===0);}
+    else{img.setAttribute(i===0?'loading':'loading',i===0?'eager':'lazy');img.setAttribute('decoding','async');}
+  });
+}
+
+/* ═══ 6. Patch renderSvcGrid ═══ */
+function patchRender(){
+  var b=window.renderSvcGrid; if(!b||b.__sp4) return;
+  window.renderSvcGrid=function(){
+    var r=b.apply(this,arguments);
+    setTimeout(function(){injectTap();applyLazy();},80);
+    return r;
+  };
+  window.renderSvcGrid.__sp4=true;
+}
+
+/* ═══ BOOT ═══ */
+function boot(){
+  patchDetail();
+  ['openStartPopup','openWhoPage','openContactPage','openHowPage','openCareerPage'].forEach(function(n){wp(n,true);});
+  ['closeProject','closeWhoPage','closeContactPage','closeHowPage','closeCareerPage','closeStartPopup'].forEach(function(n){wp(n,false);});
+  patchRender();
+  injectTap();
+  applyLazy();
+  /* video */
+  document.querySelectorAll('video').forEach(function(v){
+    v.setAttribute('playsinline','');v.setAttribute('webkit-playsinline','');
+    v.muted=true;v.defaultMuted=true;
+    if(v.paused){try{var p=v.play();if(p&&p.catch)p.catch(function(){});}catch(e){}}
+  });
+}
+
+if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot);
+else boot();
+setTimeout(boot,500);
+document.addEventListener('touchstart',function(){document.querySelectorAll('video').forEach(function(v){v.muted=true;try{v.play().catch(function(){});}catch(e){}});},{once:true,passive:true});
+
+})();
+</script>
