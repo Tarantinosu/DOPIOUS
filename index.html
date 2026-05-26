@@ -236,12 +236,12 @@ async function firestoreSetPublished(payload) {
   /* Safety timeout: even if Firebase, CDN, or window.load is slow, the site remains clickable. */
   window.setTimeout(function(){
     if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
-  }, 3500);
+  }, 1200);
 
   document.addEventListener('DOMContentLoaded', function(){
     window.setTimeout(function(){
       if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
-    }, 2200);
+    }, 350);
   });
 })();
 
@@ -866,7 +866,7 @@ section{padding:76px 40px}
 
 
 .hero-content{
-  transition:opacity .35s ease, transform .35s ease;
+  transition:opacity .18s ease, transform .18s ease;
 }
 .hero-content.switching{
   opacity:0;
@@ -1023,7 +1023,7 @@ section{padding:76px 40px}
 
 /* HERO MULTI SLIDE CONTENT */
 .hero-content{
-  transition:opacity .35s ease, transform .35s ease;
+  transition:opacity .18s ease, transform .18s ease;
 }
 .hero-content.switching{
   opacity:0;
@@ -5695,7 +5695,14 @@ button,a,input,select,textarea{touch-action:manipulation}
 window.addEventListener('load', function(){
   setTimeout(function(){
     if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
-  }, 300);
+  }, 80);
+});
+
+/* Hide loader without waiting for all images/videos */
+document.addEventListener('DOMContentLoaded', function(){
+  setTimeout(function(){
+    if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
+  }, 120);
 });
 </script>
 
@@ -5747,13 +5754,13 @@ window.addEventListener('load', function(){
 
 <header class="hero" id="home">
   <div class="hero-content">
-    <div class="eyebrow" id="heroEyebrow">Concept to Production</div>
-    <h1 id="heroTitle">Tell us about <em>your vision.</em></h1>
+    <div class="eyebrow" id="heroEyebrow">One-stop Service</div>
+    <h1 id="heroTitle">Creative work<br><em>from start to finish.</em></h1>
 <div class="hero-info" id="heroDesc">
-      <strong>Budget-based customization available.</strong>
-      <span>We scale the scope, design detail, service package, and production support to match your goal, timeline, and investment.</span>
+      <strong>Strategy, design, visuals, and production in one workflow.</strong>
+      <span>Choose the services you need, or connect everything into one complete project.</span>
       <div class="hero-info-tags">
-        <em>Concept</em><em>Design</em><em>Prototype</em><em>Production</em>
+        <em>Strategy</em><em>Design</em><em>Visual</em><em>Production</em>
       </div>
     </div>
     <div class="cta">
@@ -5857,10 +5864,9 @@ const heroTitle = document.getElementById('heroTitle');
 const heroDesc = document.getElementById('heroDesc');
 const heroDots = [...document.querySelectorAll('#heroDots span')];
 
-function setHeroSlide(index){
+function setHeroSlide(index, instant){
   heroIndex = index;
-  if(heroContent) heroContent.classList.add('switching');
-  setTimeout(()=>{
+  const applySlide = () => {
     const s = heroSlides[index];
     if(hero) hero.classList.toggle('budget-slide', s.mode === 'budget-slide');
     if(heroEyebrow) heroEyebrow.textContent = s.eyebrow;
@@ -5876,12 +5882,20 @@ function setHeroSlide(index){
     }
     heroDots.forEach((d,i)=>d.classList.toggle('active', i===index));
     if(heroContent) heroContent.classList.remove('switching');
-  }, 260);
+  };
+
+  if(instant){
+    applySlide();
+    return;
+  }
+
+  if(heroContent) heroContent.classList.add('switching');
+  setTimeout(applySlide, 90);
 }
 
-heroDots.forEach((dot,i)=>dot.addEventListener('click',()=>setHeroSlide(i)));
-setInterval(()=>setHeroSlide((heroIndex+1)%heroSlides.length), 5800);
-setHeroSlide(0);
+heroDots.forEach((dot,i)=>dot.addEventListener('click',()=>setHeroSlide(i, true)));
+setInterval(()=>setHeroSlide((heroIndex+1)%heroSlides.length), 5200);
+setHeroSlide(0, true);
 </script>
 <script>
 const categories=[
