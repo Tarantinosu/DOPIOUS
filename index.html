@@ -15554,6 +15554,349 @@ async function uploadImageToSupabase(file){
 </script>
 
 
+<!-- ══════════════════════════════════════════════════════
+     CROSS-PLATFORM COMPATIBILITY PATCH
+     รองรับ: iPhone Safari, Chrome iOS, Android, Desktop
+     ══════════════════════════════════════════════════════ -->
+<style id="cross-platform-patch-css">
+
+/* ── 1. iOS Safari: -webkit-backdrop-filter ── */
+nav,
+.detail-top,
+.how-top,
+.how-top.minimal,
+.site-page-top,
+.start-popup-card,
+.admin-login-card,
+.admin-panel-card {
+  -webkit-backdrop-filter: blur(16px);
+}
+#svcGrid .cat-slide-btn,
+#serviceGrid .cat-slide-btn {
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+/* ── 2. Prevent 300ms tap delay on interactive cards ── */
+.cat-slide-card,
+.svc-card,
+.mind-center,
+.mind-node,
+.method-card,
+.client-logo,
+.detail-box,
+.contact-choice,
+.team-card,
+.proc-item,
+.related-card {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  cursor: pointer;
+}
+
+/* ── 3. Smooth momentum scrolling on overlays (older iOS) ── */
+.project-detail,
+.site-page,
+.how-page,
+.start-popup,
+#mobilePanel,
+.admin-login-overlay,
+.admin-panel-overlay,
+.admin-panel-wide {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+
+/* ── 4. Prevent iOS font size auto-adjustment ── */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* ── 5. Safe area insets for iPhone notch / Dynamic Island ── */
+nav {
+  padding-left: max(32px, env(safe-area-inset-left)) !important;
+  padding-right: max(32px, env(safe-area-inset-right)) !important;
+}
+@media (max-width: 768px) {
+  nav {
+    padding-left: max(16px, env(safe-area-inset-left)) !important;
+    padding-right: max(16px, env(safe-area-inset-right)) !important;
+  }
+  .hero {
+    padding-top: max(92px, calc(env(safe-area-inset-top) + 80px)) !important;
+  }
+}
+.footer {
+  padding-bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
+}
+.contact {
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
+/* ── 6. position: sticky webkit prefix for all sticky elements ── */
+.detail-top,
+.how-top,
+.site-page-top,
+nav {
+  position: -webkit-sticky;
+  position: sticky;
+}
+/* nav is fixed not sticky, restore it */
+nav {
+  position: fixed !important;
+}
+
+/* ── 7. aspect-ratio fallback for Safari < 15 ── */
+@supports not (aspect-ratio: 16/9) {
+  .detail-wide-img {
+    padding-top: 56.25% !important;
+    height: 0 !important;
+  }
+  .cat-slide-card {
+    min-height: 190px !important;
+  }
+}
+
+/* ── 8. Fix overflow-x bleed on mobile ── */
+body, html {
+  overflow-x: hidden !important;
+  max-width: 100vw;
+}
+
+/* ── 9. Tap highlight removal on all buttons/links ── */
+a, button, [onclick] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+/* ── 10. Fix z-index stacking on iOS for project detail ── */
+.project-detail.on,
+.site-page.on,
+.how-page.on,
+.start-popup.on {
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  isolation: isolate;
+}
+
+/* ── 11. Ensure project detail scrolls independently on iOS ── */
+.project-detail {
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* ── 12. Fix sticky header inside scrolling detail panel ── */
+.project-detail .detail-top {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+}
+
+/* ── 13. Image rendering across platforms ── */
+img {
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  max-width: 100%;
+}
+
+/* ── 14. Fix min-height on iPhone for hero section ── */
+@media (max-width: 768px) {
+  .hero {
+    min-height: 100svh !important;
+    min-height: -webkit-fill-available !important;
+  }
+}
+
+/* ── 15. Fix .btn min touch target size (iOS HIG: 44×44px) ── */
+.btn,
+.detail-back,
+.how-back,
+.site-page-back {
+  min-height: 44px !important;
+  min-width: 44px !important;
+}
+
+/* ── 16. Fix caret color for inputs on iOS dark mode ── */
+input, textarea, select {
+  caret-color: #ff2a14;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+</style>
+
+<script id="cross-platform-patch-js">
+(function(){
+  'use strict';
+
+  /* ── A. iOS body scroll lock ──
+     On iPhone/iPad, setting overflow:hidden on body doesn't always stop scroll.
+     Fix: use position:fixed trick. */
+  var _scrollY = 0;
+  var _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || 
+               (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+  function lockBodyScroll() {
+    if (_isIOS) {
+      _scrollY = window.pageYOffset || window.scrollY || 0;
+      document.body.style.position = 'fixed';
+      document.body.style.top = '-' + _scrollY + 'px';
+      document.body.style.left = '0';
+      document.body.style.right = '0';
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'hidden';
+    }
+  }
+  function unlockBodyScroll() {
+    if (_isIOS) {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.left = '';
+      document.body.style.right = '';
+      document.body.style.overflow = '';
+      window.scrollTo(0, _scrollY);
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
+  /* Patch all open/close functions to use iOS-safe scroll lock */
+  function patchOpenClose(openFnName, closeFnName) {
+    var origOpen  = window[openFnName];
+    var origClose = window[closeFnName];
+    if (typeof origOpen === 'function' && !origOpen.__iosPatch) {
+      window[openFnName] = function() {
+        var r = origOpen.apply(this, arguments);
+        document.body.style.overflow = '';  // reset before our lock
+        lockBodyScroll();
+        return r;
+      };
+      window[openFnName].__iosPatch = true;
+    }
+    if (typeof origClose === 'function' && !origClose.__iosPatch) {
+      window[closeFnName] = function() {
+        var r = origClose.apply(this, arguments);
+        unlockBodyScroll();
+        return r;
+      };
+      window[closeFnName].__iosPatch = true;
+    }
+  }
+
+  function applyPatches() {
+    patchOpenClose('openStartPopup',   'closeStartPopup');
+    patchOpenClose('openWhoPage',      'closeWhoPage');
+    patchOpenClose('openContactPage',  'closeContactPage');
+    patchOpenClose('openHowPage',      'closeHowPage');
+    patchOpenClose('openCareerPage',   'closeCareerPage');
+
+    /* openProject / closeProject */
+    var origOpenProject = window.openProject;
+    if (typeof origOpenProject === 'function' && !origOpenProject.__iosPatch) {
+      window.openProject = function() {
+        var r = origOpenProject.apply(this, arguments);
+        document.body.style.overflow = '';
+        lockBodyScroll();
+        return r;
+      };
+      window.openProject.__iosPatch = true;
+    }
+    var origClose = window.closeProject;
+    if (typeof origClose === 'function' && !origClose.__iosPatch) {
+      window.closeProject = function() {
+        var r = origClose.apply(this, arguments);
+        unlockBodyScroll();
+        return r;
+      };
+      window.closeProject.__iosPatch = true;
+    }
+  }
+
+  /* ── B. iOS Video autoplay: ensure muted + playsinline on all videos ── */
+  function fixVideoAutoplay() {
+    document.querySelectorAll('video').forEach(function(v) {
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', '');
+      v.muted = true;
+      v.defaultMuted = true;
+      if (v.paused) {
+        try { var p = v.play(); if (p && p.catch) p.catch(function(){}); } catch(e) {}
+      }
+    });
+  }
+
+  /* ── C. Fix card clicks on iOS (ensure touchend doesn't prevent click) ── */
+  function fixCardClicks() {
+    var cards = document.querySelectorAll('.cat-slide-card, .svc-card');
+    cards.forEach(function(card) {
+      if (card.dataset.iosTouchFixed) return;
+      card.dataset.iosTouchFixed = '1';
+      /* Prevent ghost click delay by also listening on touchend */
+      card.addEventListener('touchend', function(e) {
+        /* Only fire if not scrolling and not on a nav button */
+        if (e.target.closest('.cat-slide-btn')) return;
+        /* The existing click listener will fire normally — just ensure tap highlight is clean */
+      }, {passive: true});
+    });
+  }
+
+  /* ── D. Fix mobile menu keyboard escape ── */
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      unlockBodyScroll();
+    }
+  });
+
+  /* ── E. On orientation change, recalculate viewport ── */
+  window.addEventListener('orientationchange', function() {
+    setTimeout(function() {
+      /* Force layout reflow */
+      document.documentElement.style.display = 'none';
+      // eslint-disable-next-line no-unused-expressions
+      document.documentElement.offsetHeight;
+      document.documentElement.style.display = '';
+    }, 100);
+  });
+
+  /* Boot */
+  function boot() {
+    applyPatches();
+    fixVideoAutoplay();
+    fixCardClicks();
+
+    /* Re-apply after dynamic render */
+    var origRender = window.renderSvcGrid;
+    if (typeof origRender === 'function' && !origRender.__iosPatchRender) {
+      window.renderSvcGrid = function() {
+        var r = origRender.apply(this, arguments);
+        setTimeout(function() { fixVideoAutoplay(); fixCardClicks(); }, 150);
+        return r;
+      };
+      window.renderSvcGrid.__iosPatchRender = true;
+    }
+
+    /* Video retry on user interaction (iOS requires user gesture for autoplay) */
+    var _videoFixed = false;
+    ['touchstart','click'].forEach(function(evt) {
+      document.addEventListener(evt, function() {
+        if (!_videoFixed) { _videoFixed = true; fixVideoAutoplay(); }
+      }, {once: true, passive: true});
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+  /* Also boot after a short delay to catch late-rendered elements */
+  setTimeout(boot, 600);
+  setTimeout(boot, 1500);
+})();
+</script>
+
 <!-- SEO: semantic content block (visually hidden, crawlable) -->
 <section id="seo-content" aria-label="About DOPIOUS+ Services" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;margin:-1px;padding:0;">
   <h1>DOPIOUS+ — Creative Design &amp; Production Agency Thailand</h1>
