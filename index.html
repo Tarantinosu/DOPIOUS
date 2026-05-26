@@ -236,12 +236,12 @@ async function firestoreSetPublished(payload) {
   /* Safety timeout: even if Firebase, CDN, or window.load is slow, the site remains clickable. */
   window.setTimeout(function(){
     if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
-  }, 1200);
+  }, 300);
 
   document.addEventListener('DOMContentLoaded', function(){
     window.setTimeout(function(){
       if(typeof window.hideSiteLoader === 'function') window.hideSiteLoader();
-    }, 350);
+    }, 80);
   });
 })();
 
@@ -258,7 +258,7 @@ async function firestoreSetPublished(payload) {
 
     const pub = await Promise.race([
       firestoreGetPublished(),
-      new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, 1500); })
+      new Promise(function(resolve){ setTimeout(function(){ resolve(null); }, 800); })
     ]);
     if (!pub) {
       console.info('[Dopious+] Firebase slow/no data — showing local cache first.');
@@ -15892,6 +15892,323 @@ if (document.readyState === 'loading') {
 /* Retry เผื่อ Firebase render ช้า */
 setTimeout(boot, 800);
 setTimeout(boot, 2000);
+})();
+</script>
+
+<!-- ══════════════════════════════════════════════════
+     iOS SPEED FIX — เจาะทุกต้นตอที่ทำให้ช้า
+     ══════════════════════════════════════════════════ -->
+<style id="ios-perf-css">
+
+/* ── 1. ปิด backdrop-filter ทุกจุด บน mobile (GPU หนักสุด) ── */
+@media (max-width: 1024px) {
+  nav,
+  .detail-top, .how-top, .how-top.minimal, .site-page-top,
+  .admin-login-card, .admin-panel-card,
+  #svcGrid .cat-slide-btn, #serviceGrid .cat-slide-btn {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+  nav { background: rgba(5,5,5,.97) !important; }
+  .detail-top, .how-top, .how-top.minimal, .site-page-top {
+    background: rgba(5,5,5,.98) !important;
+  }
+  #svcGrid .cat-slide-btn, #serviceGrid .cat-slide-btn {
+    background: rgba(60,60,60,.85) !important;
+  }
+}
+
+/* ── 2. ปิด mouse glow บน touch (ไม่มี mouse ก็ไม่ต้องวาด) ── */
+@media (hover: none), (pointer: coarse) {
+  #mouseGlow { display: none !important; }
+}
+
+/* ── 3. ลด transition ให้เบาลงบน mobile ── */
+@media (max-width: 768px) {
+  .cat-slide-layer   { transition: opacity .12s linear !important; }
+  .hero-content      { transition: opacity .1s, transform .1s !important; }
+  .project-detail, .site-page, .how-page,
+  .admin-login-overlay, .admin-panel-overlay {
+    transition: none !important;
+  }
+}
+
+/* ── 4. ปิด animation ที่ไม่จำเป็นตอน load ── */
+@media (prefers-reduced-motion: reduce) {
+  .marquee div, .popup-track { animation: none !important; }
+}
+
+/* ── 5. contain: layout — จำกัด reflow scope ── */
+.project-detail, .site-page, .how-page, .start-popup {
+  contain: layout style !important;
+}
+
+/* ── 6. ลด font weight ที่ใช้ (ลดขนาด font download) ── */
+@media (max-width: 768px) {
+  .hero h1, #heroTitle { font-size: 52px !important; }
+}
+
+/* ── 7. iOS: project-detail scroll ── */
+.project-detail {
+  -webkit-overflow-scrolling: touch !important;
+  overflow-y: scroll !important;
+  overflow-x: hidden !important;
+}
+.project-detail .detail-top {
+  position: -webkit-sticky !important;
+  position: sticky !important;
+  top: 0 !important;
+}
+
+/* ── 8. safe area insets ── */
+nav {
+  padding-left:  max(32px, env(safe-area-inset-left)) !important;
+  padding-right: max(32px, env(safe-area-inset-right)) !important;
+}
+@media (max-width: 768px) {
+  nav { padding-left: max(16px, env(safe-area-inset-left)) !important; padding-right: max(16px, env(safe-area-inset-right)) !important; }
+}
+.footer { padding-bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px)); }
+
+/* ── 9. tap ── */
+a, button, [onclick] {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  -webkit-text-size-adjust: 100%;
+}
+html { -webkit-text-size-adjust: 100%; }
+body, html { overflow-x: hidden !important; }
+
+/* ── 10. iOS tap button ทับการ์ด ── */
+.card-ios-tap {
+  position: absolute !important; inset: 0 !important; z-index: 4 !important;
+  width: 100% !important; height: 100% !important;
+  background: transparent !important; border: none !important; outline: none !important;
+  cursor: pointer !important; -webkit-appearance: none !important; appearance: none !important;
+  -webkit-tap-highlight-color: transparent !important; padding: 0 !important; margin: 0 !important;
+}
+input, textarea, select { -webkit-appearance: none; appearance: none; caret-color: #ff2a14; }
+.detail-back, .how-back, .site-page-back { min-height: 44px !important; }
+@supports not (aspect-ratio: 16/9) {
+  .cat-slide-card { min-height: 190px !important; }
+  .detail-wide-img { padding-top: 56.25% !important; height: 0 !important; }
+}
+</style>
+
+<script id="ios-perf-js">
+(function(){
+'use strict';
+
+var _touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+var _isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) ||
+             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+/* ══════════════════════════════════════════════════════
+   1. KILL setInterval(mobileUnlockOverlayScroll, 600)
+      และ setInterval(fixAdminUi, 1500) ทั้งคู่
+      รันอยู่ตลอดชีวิตหน้าเว็บ ทำให้ main thread ไม่ว่าง
+══════════════════════════════════════════════════════ */
+var _killIntervalFns = ['mobileUnlockOverlayScroll', 'fixAdminUi'];
+var _origSetInterval = window.setInterval;
+var _managedIntervals = {};
+
+window.setInterval = function(fn, delay) {
+  /* ตรวจ function name */
+  var fnStr = (fn && fn.name) ? fn.name : (fn ? fn.toString().slice(0, 60) : '');
+  for (var i = 0; i < _killIntervalFns.length; i++) {
+    if (fnStr.indexOf(_killIntervalFns[i]) !== -1) {
+      /* รันครั้งเดียว แล้วหยุด */
+      try { fn(); } catch(e) {}
+      return -1;
+    }
+  }
+  return _origSetInterval.apply(this, arguments);
+};
+
+/* ══════════════════════════════════════════════════════
+   2. ปิด mousemove RAF loop บน touch device
+      mouse glow ใช้ requestAnimationFrame ทุก frame
+══════════════════════════════════════════════════════ */
+if (_touch) {
+  var glow = document.getElementById('mouseGlow');
+  if (glow) glow.style.display = 'none';
+
+  /* intercept addEventListener เพื่อ block mousemove ก่อนที่ glow script จะ register */
+  var _docAddEvt = document.addEventListener;
+  document.addEventListener = function(type, fn, opts) {
+    if (type === 'mousemove' || type === 'mouseleave') return;
+    return _docAddEvt.apply(this, arguments);
+  };
+  /* Restore หลังจาก all scripts boot เสร็จ */
+  setTimeout(function() { document.addEventListener = _docAddEvt; }, 1000);
+}
+
+/* ══════════════════════════════════════════════════════
+   3. iOS SCROLL LOCK — ใช้ html/body height:100%
+      แทน position:fixed (ซึ่งทำให้ panel scroll ไม่ได้)
+══════════════════════════════════════════════════════ */
+var _savedSY = 0;
+function iosLock() {
+  if (_isIOS) {
+    _savedSY = window.pageYOffset || 0;
+    document.documentElement.style.cssText += ';overflow:hidden;height:100%';
+    document.body.style.cssText += ';overflow:hidden;height:100%';
+  } else {
+    document.body.style.overflow = 'hidden';
+  }
+}
+function iosUnlock() {
+  if (_isIOS) {
+    document.documentElement.style.overflow = '';
+    document.documentElement.style.height = '';
+    document.body.style.overflow = '';
+    document.body.style.height = '';
+    window.scrollTo(0, _savedSY);
+  } else {
+    document.body.style.overflow = '';
+  }
+}
+
+/* ══════════════════════════════════════════════════════
+   4. PATCH _showProjectDetail — scroll lock + panel fix
+══════════════════════════════════════════════════════ */
+function patchShowDetail() {
+  var base = window._showProjectDetail;
+  if (!base || base.__speedV4) return;
+  window._showProjectDetail = function(opts) {
+    var r = base.apply(this, arguments);
+    document.body.style.overflow = '';
+    document.body.style.height = '';
+    iosLock();
+    var panel = document.getElementById('projectDetail');
+    if (panel) { panel.style.overflowY = 'scroll'; panel.style.webkitOverflowScrolling = 'touch'; }
+    return r;
+  };
+  window._showProjectDetail.__speedV4 = true;
+}
+function patchClose(name) {
+  var base = window[name];
+  if (!base || base.__speedV4) return;
+  window[name] = function() { var r = base.apply(this, arguments); iosUnlock(); return r; };
+  window[name].__speedV4 = true;
+}
+function patchOpen(name) {
+  var base = window[name];
+  if (!base || base.__speedV4) return;
+  window[name] = function() {
+    var r = base.apply(this, arguments);
+    document.body.style.overflow = '';
+    document.body.style.height = '';
+    iosLock();
+    return r;
+  };
+  window[name].__speedV4 = true;
+}
+
+/* ══════════════════════════════════════════════════════
+   5. iOS TAP FIX — ใส่ <button> ทับการ์ดทุกใบ
+      iOS Safari ไม่ fire click บน <article> แน่นอน
+══════════════════════════════════════════════════════ */
+var _cardIdx = {};
+
+function _openCard(card) {
+  var slides = [];
+  try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(e) {}
+  if (!slides.length) return;
+  var s = slides[_cardIdx[card.id] || 0] || slides[0];
+  if (!s) return;
+  if (s.type === 'admin' && s.ai !== undefined && typeof window.openSavedAdminProject === 'function') {
+    window.openSavedAdminProject(s.ai);
+  } else if (typeof window.openProject === 'function') {
+    window.openProject(s.ci !== undefined ? s.ci : parseInt(card.getAttribute('data-ci') || '0', 10), s.pi || 0);
+  }
+}
+
+function injectTapBtns() {
+  document.querySelectorAll('.cat-slide-card').forEach(function(card) {
+    if (!_cardIdx[card.id]) _cardIdx[card.id] = 0;
+    if (card.querySelector('.card-ios-tap')) return;
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'card-ios-tap';
+    btn.setAttribute('aria-label', 'View project');
+    btn.onclick = function(e) { e.stopPropagation(); _openCard(card); };
+    card.insertBefore(btn, card.firstChild);
+
+    /* Sync ‹ › index กับ _cardIdx */
+    card.querySelectorAll('.cat-slide-btn').forEach(function(nb) {
+      nb.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var slides = [];
+        try { slides = JSON.parse(card.getAttribute('data-slides') || '[]'); } catch(ex) {}
+        var d = parseInt(nb.getAttribute('data-dir') || '1', 10);
+        _cardIdx[card.id] = ((_cardIdx[card.id] || 0) + d + slides.length) % slides.length;
+      }, false);
+    });
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   6. PATCH renderSvcGrid — inject tap btns หลัง render
+══════════════════════════════════════════════════════ */
+function patchRender() {
+  var base = window.renderSvcGrid;
+  if (!base || base.__speedV4) return;
+  window.renderSvcGrid = function() {
+    var r = base.apply(this, arguments);
+    setTimeout(injectTapBtns, 100);
+    return r;
+  };
+  window.renderSvcGrid.__speedV4 = true;
+}
+
+/* ══════════════════════════════════════════════════════
+   7. Video autoplay fix บน iOS
+══════════════════════════════════════════════════════ */
+function fixVid() {
+  document.querySelectorAll('video').forEach(function(v) {
+    v.setAttribute('playsinline', ''); v.setAttribute('webkit-playsinline', '');
+    v.muted = true; v.defaultMuted = true;
+    if (v.paused) { try { var p = v.play(); if (p && p.catch) p.catch(function(){}); } catch(e) {} }
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   8. Lazy load images ที่ยังไม่ visible
+══════════════════════════════════════════════════════ */
+function lazyImgs() {
+  document.querySelectorAll('img:not([loading])').forEach(function(img) {
+    if (img.getBoundingClientRect().top > window.innerHeight + 100) {
+      img.setAttribute('loading', 'lazy');
+    }
+  });
+}
+
+/* ══════════════════════════════════════════════════════
+   BOOT
+══════════════════════════════════════════════════════ */
+function boot() {
+  patchShowDetail();
+  patchClose('closeProject'); patchClose('closeWhoPage'); patchClose('closeContactPage');
+  patchClose('closeHowPage'); patchClose('closeCareerPage'); patchClose('closeStartPopup');
+  patchOpen('openWhoPage'); patchOpen('openContactPage');
+  patchOpen('openHowPage'); patchOpen('openCareerPage'); patchOpen('openStartPopup');
+  patchRender();
+  injectTapBtns();
+  fixVid();
+  lazyImgs();
+}
+
+if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', boot); }
+else { boot(); }
+
+/* Retry หลัง renderSvcGrid ทำงาน */
+setTimeout(boot, 400);
+setTimeout(boot, 1200);
+
+/* Video retry on first touch */
+document.addEventListener('touchstart', function() { fixVid(); }, {once: true, passive: true});
+
 })();
 </script>
 
