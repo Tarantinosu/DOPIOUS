@@ -369,3 +369,17 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
 .contact-office-box{border:1px solid rgba(255,255,255,.11);background:radial-gradient(circle at 80% 0%,rgba(255,42,20,.12),transparent 38%),#0d0d0d;border-radius:22px;padding:24px;min-height:220px}
 .contact-office-box small{display:block;color:var(--r);font-size:10px;letter-spacing:.22em;text-transform:uppercase;font-weight:900;margin-bottom:12px}.contact-office-box strong{display:block;color:#fff;font-size:28px;line-height:1.05;letter-spacing:-.04em}.contact-office-box p{color:rgba(255,255,255,.56);font-size:15px;line-height:1.55;margin:14px 0 20px}.contact-office-box a{display:inline-flex;border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:12px 16px;color:#fff;font-size:11px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
 @media(max-width:820px){.contact-main-grid{grid-template-columns:1fr}.contact-card-grid{grid-template-columns:1fr}.contact-intro h2{font-size:56px}.contact-intro p{font-size:16px}}
+
+/* How It Works: show Sub Heads in default state */
+.how-sub-group{width:100%;border-top:1px solid rgba(255,255,255,.08);padding:14px 0 4px}.how-sub-group:first-child{border-top:0;padding-top:0}.how-sub-group-title{font-size:11px;font-weight:950;letter-spacing:.18em;text-transform:uppercase;color:#fff;margin-bottom:10px}.how-sub-group-title em{color:var(--r);font-style:normal}.how-sub-group-chips{display:flex;flex-wrap:wrap;gap:8px}.how-sub-chip.has-work{border-color:rgba(255,42,20,.55)!important;color:#fff}.how-sub-chip.no-work{opacity:.45}@media(max-width:768px){.how-sub-group-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.how-sub-group-chips::-webkit-scrollbar{display:none}.how-sub-group-title{font-size:10px}}
+
+
+/* CONTACT PAGE: always show editable channel slots */
+@media(min-width:821px){
+  .contact-card-grid{grid-template-columns:repeat(3,minmax(0,1fr));}
+  .contact-office-box{min-height:100%;}
+}
+.contact-card.is-empty{opacity:.46;pointer-events:none;border-style:dashed;background:#0a0a0a;}
+.contact-card.is-empty .contact-ic{background:#181818!important;color:rgba(255,255,255,.42)!important;}
+.contact-card.is-empty b{color:rgba(255,255,255,.62)!important;}
+.contact-card.is-empty span+div span{color:rgba(255,255,255,.34)!important;}

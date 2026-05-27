@@ -1811,9 +1811,14 @@ function oAL(){ location.href='admin.html?admin=1'; }
     if(/^https?:\/\//i.test(v) || /^mailto:|^tel:/i.test(v)) return v;
     return 'https://'+v;
   }
-  function _channel(label,value,href,icon,cls){
-    value=_clean(value); href=_clean(href); if(!value && !href)return '';
-    return '<a class="contact-card '+(cls||'')+'" href="'+_esc(href||'#')+'" '+(href&&/^https?:/i.test(href)?'target="_blank" rel="noopener"':'')+'><span class="contact-ic">'+_esc(icon||label[0]||'+')+'</span><div><b>'+_esc(label)+'</b><span>'+_esc(value||href)+'</span></div></a>';
+  function _channel(label,value,href,icon,cls,force){
+    value=_clean(value); href=_clean(href);
+    var empty=!value && !href;
+    if(empty && !force)return '';
+    var show=value || 'Add in Admin';
+    var isExternal=href&&/^https?:/i.test(href);
+    var attrs=empty?'aria-disabled="true"':('href="'+_esc(href||'#')+'" '+(isExternal?'target="_blank" rel="noopener"':''));
+    return '<a class="contact-card '+(cls||'')+(empty?' is-empty':'')+'" '+attrs+'><span class="contact-ic">'+_esc(icon||label[0]||'+')+'</span><div><b>'+_esc(label)+'</b><span>'+_esc(show)+'</span></div></a>';
   }
   window.normContact=function(raw){
     raw=raw||{};
@@ -1848,16 +1853,16 @@ function oAL(){ location.href='admin.html?admin=1'; }
     var title=_clean(c.contactTitle||'CONTACT+');
     title=title.replace(/\+$/,'<span>+</span>');
     var cards='';
-    cards+=_channel('Line', c.line&&c.line.includes('@')?c.line:'@dopious', c.line, 'L','line');
-    cards+=_channel('WhatsApp', phone||wa, wa, 'W','whatsapp');
-    cards+=_channel('Email', email, email?'mailto:'+email:'', '@','email');
-    c.phones.forEach(function(p,i){cards+=_channel(i===0?'Tel':'Tel '+(i+1), p, 'tel:'+_phoneDigits(p), '☎','phone');});
-    cards+=_channel('Facebook', c.facebook?'Facebook Page':'', c.facebook, 'f','facebook');
-    cards+=_channel('Messenger', c.messenger?'Messenger':'', c.messenger, 'M','messenger');
-    cards+=_channel('Instagram', c.instagram?'Instagram':'', c.instagram, 'IG','instagram');
-    cards+=_channel('LinkedIn', c.linkedin?'LinkedIn':'', c.linkedin, 'in','linkedin');
-    cards+=_channel('Behance', c.behance?'Behance':'', c.behance, 'Be','behance');
-    cards+=_channel('Website', c.website?'Website':'', c.website, 'www','website');
+    cards+=_channel('Line', c.line&&c.line.includes('@')?c.line:'@dopious', c.line, 'L','line',true);
+    cards+=_channel('WhatsApp', phone||wa, wa, 'W','whatsapp',true);
+    cards+=_channel('Email', email, email?'mailto:'+email:'', '@','email',true);
+    c.phones.forEach(function(p,i){cards+=_channel(i===0?'Tel':'Tel '+(i+1), p, 'tel:'+_phoneDigits(p), '☎','phone',true);});
+    cards+=_channel('Facebook', c.facebook?'Facebook Page':c.facebook, c.facebook, 'f','facebook',true);
+    cards+=_channel('Messenger', c.messenger?'Messenger':c.messenger, c.messenger, 'M','messenger',true);
+    cards+=_channel('Instagram', c.instagram?'Instagram':c.instagram, c.instagram, 'IG','instagram',true);
+    cards+=_channel('LinkedIn', c.linkedin?'LinkedIn':c.linkedin, c.linkedin, 'in','linkedin',true);
+    cards+=_channel('Behance', c.behance?'Behance':c.behance, c.behance, 'Be','behance',true);
+    cards+=_channel('Website', c.website?'Website':c.website, c.website, 'www','website',true);
     return '<div class="contact-clean-page"><div class="contact-intro"><small>Dopious+ Contact</small><h2>'+title+'</h2><p>'+_esc(c.contactSubtitle)+'</p></div><div class="contact-main-grid"><div class="contact-card-grid">'+cards+'</div><div class="contact-office-box"><small>Office / Location</small><strong>'+_esc(c.office)+'</strong><p>'+_esc(c.address||c.office)+'</p>'+(c.mapUrl?'<a href="'+_esc(c.mapUrl)+'" target="_blank" rel="noopener">Open Map</a>':'')+'</div></div></div>';
   }
   window.applyCompanyContact=function(){
@@ -2006,4 +2011,95 @@ function oAL(){ location.href='admin.html?admin=1'; }
       });
     }
   };
+})();
+
+/* =========================================================
+   HOW IT WORKS SUBHEAD VISIBILITY FIX
+   - Center/default state must not be blank.
+   - Shows every Head with its Sub Head chips.
+   - Each Sub Head chip jumps by exact Head + Sub Head pair.
+   ========================================================= */
+(function(){
+  function _esc(v){
+    try{return typeof esc==='function'?esc(String(v||'')):String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+    catch(e){return String(v||'');}
+  }
+  function _clean(v){return String(v||'').replace(/\s+/g,' ').trim();}
+  function _key(v){return _clean(v).toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').replace(/\s+/g,' ').trim();}
+  function _plus(v){return _esc(String(v||'').replace(/\+$/,''))+'<em>+</em>';}
+  function _quote(v){return String(v||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+  function _getCats(){return Array.isArray(CATS)?CATS.filter(function(c){return c && (c.svc||c.cat) && Array.isArray(c.subs) && c.subs.length;}):[];}
+  function _metaFromKey(key){
+    if(!key || key==='dopious') return null;
+    var i=parseInt(String(key).replace(/\D/g,''),10)-1;
+    var list=_getCats();
+    return (!isNaN(i) && list[i]) ? list[i] : null;
+  }
+  function _projectService(p){
+    var raw=(p&&(_clean(p.service)||_clean(p.svc)||_clean(p.cat)||_clean(p.category)))||'';
+    try{if(typeof normSvc==='function') raw=normSvc(raw);}catch(e){}
+    return raw;
+  }
+  function _projectSub(p){
+    if(!p) return '';
+    if(_clean(p.subHead)) return _clean(p.subHead);
+    if(_clean(p.sub)) return _clean(p.sub);
+    if(Array.isArray(p.subHeads) && _clean(p.subHeads[0])) return _clean(p.subHeads[0]);
+    if(Array.isArray(p.subServices) && _clean(p.subServices[0])) return _clean(p.subServices[0]);
+    return _clean(p.subHeadline)||'General';
+  }
+  function _available(service,sub){
+    var s=_key(service), u=_key(sub), n=0;
+    try{(_P||[]).forEach(function(p){ if(_key(_projectService(p))===s && _key(_projectSub(p))===u) n++; });}catch(e){}
+    return n;
+  }
+  function _chip(service,sub){
+    var count=_available(service,sub);
+    var cls=count?' has-work':' no-work';
+    return '<button class="how-sub-chip'+cls+'" type="button" onclick="goHowSub(\''+_quote(service)+'\',\''+_quote(sub)+'\')">'+_esc(sub)+(count?' <small>'+count+'</small>':'')+'</button>';
+  }
+  function _renderAll(chips){
+    var html='';
+    _getCats().forEach(function(c){
+      html+='<div class="how-sub-group"><div class="how-sub-group-title">'+_plus(c.svc||c.cat||'')+'</div><div class="how-sub-group-chips">'+(c.subs||[]).map(function(s){return _chip(c.svc||c.cat,s);}).join('')+'</div></div>';
+    });
+    chips.innerHTML=html;
+  }
+  var _oldShow=window.showServiceSub;
+  window.showServiceSub=function(key){
+    var panel=document.getElementById('serviceSubPanel'); if(!panel)return;
+    var meta=_metaFromKey(key);
+    var kicker=document.getElementById('subKicker'), title=document.getElementById('subTitle'), desc=document.getElementById('subDesc'), chips=document.getElementById('subChips');
+    document.querySelectorAll('.mind-node').forEach(function(n){n.classList.remove('active');});
+    var node=document.querySelector('.mind-node.'+key); if(node)node.classList.add('active');
+    if(!meta){
+      if(kicker) kicker.textContent='DOPIOUS+ SERVICE HEADS';
+      if(title) title.innerHTML='All Heads & Sub Heads';
+      if(desc) desc.textContent='เลือก Sub Head ด้านล่างเพื่อเด้งไปที่การ์ด Works / Services ที่มี Head + Sub Head ตรงกัน';
+      if(chips) _renderAll(chips);
+      return;
+    }
+    if(kicker) kicker.textContent=meta.svc||meta.cat||'';
+    if(title) title.innerHTML=_plus(meta.svc||meta.cat||'');
+    if(desc) desc.textContent='Sub Head ของ '+String(meta.svc||meta.cat||'').replace(/\+$/,'')+' — คลิกเพื่อไปยัง Card ที่ตรงกับ Head + Sub Head นี้';
+    if(chips) chips.innerHTML=(meta.subs||[]).map(function(sub){return _chip(meta.svc||meta.cat,sub);}).join('');
+  };
+  function _refreshDefault(){
+    try{
+      var h=document.getElementById('hP');
+      var noActive=!document.querySelector('.mind-node.active');
+      if(h && h.classList.contains('on') && noActive) window.showServiceSub('dopious');
+      if(h && h.classList.contains('on')){
+        var chips=document.getElementById('subChips');
+        if(chips && !chips.children.length) window.showServiceSub('dopious');
+      }
+    }catch(e){}
+  }
+  try{
+    var oldOH=window.oH;
+    window.oH=function(){ if(typeof oldOH==='function') oldOH.apply(this,arguments); setTimeout(function(){window.showServiceSub('dopious');},80); };
+  }catch(e){}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){window.showServiceSub('dopious');},300);});
+  else setTimeout(function(){window.showServiceSub('dopious');},300);
+  setTimeout(_refreshDefault,900);
 })();
