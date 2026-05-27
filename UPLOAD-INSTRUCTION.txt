@@ -1,11 +1,9 @@
-DOPIOUS+ Fast iOS Full Old Admin Package
+DOPIOUS+ Fast iOS / UI Parity Package
 
-Upload all files in this folder to the root of your GitHub Pages/hosting.
+Upload all files in this folder to the website root and replace existing files.
+This version keeps the fast split-file structure, but restores old-style card grouping, video card preview, card captions, How Dopious Works mind-map interface, orange + styling, and visible Admin password input.
 
-Included:
-- Fast public page for iPhone Safari / Windows
-- Legacy Admin bridge: projects, image links, gallery captions, video links, client logos, team, company links, website text, theme, SEO, subtopics, custom categories, media library
-- Admin passwords accepted: dopious123 and dopious2026
-
-Important:
-After uploading, open Safari/Chrome in a new tab or clear cache if old files still show.
+Recommended after upload:
+1) Open https://www.dopiousdesign.com/?v=ui-parity-0527
+2) On iPhone Safari: close the old tab and reopen the site.
+3) Admin passwords supported: dopious123, dopious2026
