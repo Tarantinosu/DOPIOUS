@@ -1194,7 +1194,21 @@ function oAL(){ location.href='admin.html?admin=1'; }
     const svc=normSvc(oldService); const meta=metaByService(svc)||FINAL_TAXONOMY[0]; const subs=window.cardSubHeadsForProject(Object.assign({},p,np),svc);
     return Object.assign({},np,{svc,service:svc,headline:meta.head,projectHeadline:meta.head,subHeads:subs,subheads:subs,subServices:subs,selectedSubHeads:subs,sub:subs[0]||'',subHeadline:subs.join(' / '),projectSubHeadline:subs.join(' / ')});
   };
-  function groupKeyForProject(p){const svc=normSvc(p.service||p.svc||p.cat||'Other'); const subs=window.cardSubHeadsForProject(p,svc); return svc+'|'+subs.join(' / ');}
+  function canonicalSubKey(subs,meta){
+    const order=(meta&&meta.items)||[];
+    return uniqueLocal(subs).slice(0,3).sort((a,b)=>{
+      const ia=order.findIndex(x=>nrm(x)===nrm(a));
+      const ib=order.findIndex(x=>nrm(x)===nrm(b));
+      const aa=ia<0?999:ia, bb=ib<0?999:ib;
+      return aa-bb || String(a).localeCompare(String(b));
+    }).join(' / ');
+  }
+  function groupKeyForProject(p){
+    const svc=normSvc(p.service||p.svc||p.cat||'Other');
+    const meta=metaByService(svc)||{items:[]};
+    const subs=window.cardSubHeadsForProject(p,svc);
+    return svc+'|'+canonicalSubKey(subs,meta);
+  }
   function labelHTML(head,subs){return '<span class="card-head">'+htmlPlusLocal(head)+'</span><div class="card-sub-list">'+(subs||[]).slice(0,3).map(x=>'<em>'+esc(x)+'</em>').join('')+'</div>';}
   const ORDER=FINAL_TAXONOMY.map(x=>x.service);
   rSvc=function(){
