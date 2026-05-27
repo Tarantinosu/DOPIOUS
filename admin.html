@@ -6733,7 +6733,17 @@ function openRelatedCard(el){
 
       <button class="mind-node n11" onclick="showServiceSub('n11')">
         <b>2D–3D Motion</b>
-        <span>Fashion / Sculpture Design+</span>
+        <span>Graphic Design+</span>
+      </button>
+
+      <button class="mind-node n12" onclick="showServiceSub('n12')">
+        <b>Fashion</b>
+        <span>Design+</span>
+      </button>
+
+      <button class="mind-node n13" onclick="showServiceSub('n13')">
+        <b>Sculpture</b>
+        <span>Design+</span>
       </button>
 
       <button class="mind-node n7" onclick="showServiceSub('n7')">
@@ -15768,6 +15778,169 @@ async function uploadImageToSupabase(file){
 })();
 </script>
 
+
+
+<style id="split-subhead-admin-css">
+/* Split Motion / Fashion / Sculpture into independent How It Works nodes */
+.mind-node.n11{left:28%!important;top:74%!important;transform:translate(-50%,-50%)!important}
+.mind-node.n12{left:18%!important;top:62%!important;transform:translate(-50%,-50%)!important}
+.mind-node.n13{left:18%!important;top:46%!important;transform:translate(-50%,-50%)!important}
+@media(max-width:768px){.mind-node.n11,.mind-node.n12,.mind-node.n13{left:auto!important;top:auto!important;transform:none!important}}
+</style>
+<script id="split-subhead-admin-final-patch">
+(function(){
+  const SPLIT_SPECIAL_META=[
+    {key:'n11',service:'2D-3D Motion Graphic Design+',kicker:'2D-3D Motion Graphic Design+',title:'2D-3D Motion Graphic',desc:'2D/3D motion graphics, animation, storyboard and render for campaign, digital media, presentation and spatial content.',items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
+    {key:'n12',service:'Fashion Design+',kicker:'Fashion Design+',title:'Fashion Design',desc:'Fashion design, styling direction, campaign look, wardrobe concept and editorial direction for brand communication.',items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
+    {key:'n13',service:'Sculpture Design+',kicker:'Sculpture Design+',title:'Sculpture Design',desc:'Sculpture, 3D art, character, prototype and 3D print work for exhibitions, retail display and commercial art installation.',items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']}
+  ];
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const cplus=s=>esc(s).replace(/\+/g,'<em>+</em>');
+  const serviceMap={}; SPLIT_SPECIAL_META.forEach(m=>serviceMap[m.service]=m);
+  function isCombined(v){const t=String(v||'').toLowerCase().replace(/[–—]/g,'-'); return t.includes('motion')&&t.includes('fashion')&&t.includes('sculpture');}
+  function patchData(){
+    if(typeof serviceSubData==='object') SPLIT_SPECIAL_META.forEach(m=>{serviceSubData[m.key]={kicker:m.kicker,title:m.title,desc:m.desc,items:m.items};});
+    if(Array.isArray(window.DOPIOUS_EXACT_TAXONOMY)){
+      for(let i=window.DOPIOUS_EXACT_TAXONOMY.length-1;i>=0;i--){ if(serviceMap[window.DOPIOUS_EXACT_TAXONOMY[i].service]) window.DOPIOUS_EXACT_TAXONOMY.splice(i,1); }
+      SPLIT_SPECIAL_META.forEach(m=>window.DOPIOUS_EXACT_TAXONOMY.push(m));
+    }
+    document.querySelectorAll('.mind-node.n11 span').forEach(el=>el.innerHTML='Graphic Design+');
+  }
+  function rebuildServiceSelect(){
+    const svc=document.getElementById('admProjectService'); if(!svc)return;
+    const val=svc.value;
+    const html='<option value="">— Select service from How It Works —</option>'+ 
+      '<optgroup label="Brand Strategy / Corporate Identity / Design+"><option value="Brand Strategy Corporate Identity Design+">Brand Strategy Corporate Identity Design+</option></optgroup>'+ 
+      '<optgroup label="Keyvisual / Creative Ads / Graphic Design+"><option value="Keyvisual Creative Ads Design+">Keyvisual Creative Ads Design+</option><option value="Graphic Design+">Graphic Design+</option></optgroup>'+ 
+      '<optgroup label="Industrial / Prototype / Production+"><option value="Industrial Design+">Industrial Design+</option><option value="Prototype 3D Print Service">Prototype 3D Print Service</option><option value="Production Follow Up">Production Follow Up</option></optgroup>'+ 
+      '<optgroup label="Space / Build & Installation+"><option value="Space Design+">Space Design+</option><option value="Build & Installation+">Build &amp; Installation+</option></optgroup>'+ 
+      '<optgroup label="2D-3D Motion Graphic Design+"><option value="2D-3D Motion Graphic Design+">2D-3D Motion Graphic Design+</option></optgroup>'+ 
+      '<optgroup label="Fashion Design+"><option value="Fashion Design+">Fashion Design+</option></optgroup>'+ 
+      '<optgroup label="Sculpture Design+"><option value="Sculpture Design+">Sculpture Design+</option></optgroup>'+ 
+      '<optgroup label="Photo / Video / Ads / Marketing+"><option value="Photo / Video / Ads Design+">Photo / Video / Ads Design+</option><option value="Marketing">Marketing</option></optgroup>'+ 
+      '<optgroup label="Additional existing website categories"><option value="Packaging Design+">Packaging Design+</option><option value="Website UX-UI Design+">Website UX-UI Design+</option></optgroup>';
+    if(svc.innerHTML!==html) svc.innerHTML=html;
+    if(val){svc.value=val;if(!svc.value){const o=document.createElement('option');o.value=o.textContent=val;svc.appendChild(o);svc.value=val;}}
+  }
+  function metaForSelected(){const svc=document.getElementById('admProjectService')?.value||''; if(serviceMap[svc]) return serviceMap[svc]; if(Array.isArray(window.DOPIOUS_EXACT_TAXONOMY)){return window.DOPIOUS_EXACT_TAXONOMY.find(x=>x.service===svc)||window.DOPIOUS_EXACT_TAXONOMY[0];} return SPLIT_SPECIAL_META[0];}
+  function splitSync(){
+    patchData(); rebuildServiceSelect();
+    const meta=metaForSelected(); const subEl=document.getElementById('admProjectSub');
+    if(subEl){
+      const old=subEl.value;
+      subEl.innerHTML='<option value="">— Select sub-service from How It Works —</option>'+(meta.items||[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('')+'<option value="Other">Other</option>';
+      if(old&&!isCombined(old)){subEl.value=old;if(!subEl.value){const o=document.createElement('option');o.value=o.textContent=old;subEl.insertBefore(o,subEl.lastElementChild);subEl.value=old;}}
+    }
+    const subVal=(subEl&&subEl.value&&subEl.value!=='Other')?subEl.value:'';
+    const h=document.getElementById('admProjectHeadline'), sh=document.getElementById('admProjectSubHeadline');
+    if(h && (!h.dataset.manual || isCombined(h.value))) h.value=meta.title;
+    if(sh && (!sh.dataset.manual || isCombined(sh.value))) sh.value=subVal || meta.kicker;
+    const k=document.getElementById('admHowKicker'), t=document.getElementById('admHowTitle'), d=document.getElementById('admHowDesc'), chips=document.getElementById('admHowChips');
+    if(k)k.innerHTML=cplus(meta.kicker); if(t)t.innerHTML=cplus(meta.title); if(d)d.textContent=meta.desc||'';
+    if(chips){chips.innerHTML=(meta.items||[]).length?(meta.items||[]).map(x=>'<button type="button" data-chip="'+esc(x)+'">'+esc(x)+'</button>').join(''):'<span style="color:rgba(255,255,255,.38);font-size:12px;line-height:2.2;">No fixed chip on How It Works — use the main kicker as sub-head.</span>';chips.querySelectorAll('button[data-chip]').forEach(btn=>btn.onclick=function(){if(subEl){subEl.value=this.dataset.chip;} const sh=document.getElementById('admProjectSubHeadline'); if(sh&&!sh.dataset.manual)sh.value=this.dataset.chip; splitSync();});}
+  }
+  const oldShow=window.showServiceSub;
+  window.showServiceSub=function(key){patchData(); if(key==='n11'||key==='n12'||key==='n13'){const data=serviceSubData[key]||SPLIT_SPECIAL_META[0]; const panel=document.getElementById('serviceSubPanel'); if(panel){document.getElementById('subKicker').textContent=data.kicker;document.getElementById('subTitle').textContent=data.title;document.getElementById('subDesc').textContent=data.desc;document.getElementById('subChips').innerHTML=(data.items||[]).map(item=>'<button type="button" onclick="goService()">'+esc(item)+'</button>').join('');document.querySelectorAll('.mind-node').forEach(n=>n.classList.remove('active')); const node=document.querySelector('.mind-node.'+key); if(node)node.classList.add('active'); panel.scrollIntoView({behavior:'smooth',block:'nearest'}); return;}} if(typeof oldShow==='function') return oldShow(key);};
+  window.updateSubServices=function(){splitSync();};
+  window.syncHowAdminPanel=function(){splitSync();};
+  function boot(){patchData(); rebuildServiceSelect(); splitSync(); const svc=document.getElementById('admProjectService'); if(svc&&!svc.dataset.splitEvt){svc.addEventListener('change',splitSync);svc.dataset.splitEvt='1';} const sub=document.getElementById('admProjectSub'); if(sub&&!sub.dataset.splitEvt){sub.addEventListener('change',splitSync);sub.dataset.splitEvt='1';}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot); else boot();
+  setTimeout(boot,500); setTimeout(boot,1500); setTimeout(boot,3000);
+})();
+</script>
+
+
+
+<!-- FINAL PATCH — Admin selects 1 Head + 1-3 Sub Heads for each card -->
+<style id="admin-one-head-subheads-css">
+#admProjectSub[multiple]{min-height:138px!important;padding:8px 10px!important;border-color:rgba(255,42,20,.32)!important;background:#101010!important;}
+#admProjectSub[multiple] option{padding:8px 10px;border-radius:8px;margin:2px 0;}
+#admProjectSub[multiple] option:checked{background:#ff2a14!important;color:#fff!important;}
+.admin-subhead-helper{display:block;margin-top:6px;color:rgba(255,255,255,.45)!important;font-size:11px!important;line-height:1.4!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;}
+.admin-how-chip-row button.active{border-color:#ff2a14!important;color:#ff2a14!important;background:rgba(255,42,20,.13)!important;}
+</style>
+<script id="admin-one-head-subheads-js">
+(function(){
+  const TAX=[
+    {service:'Brand Strategy Corporate Identity Design+',head:'Brand Strategy Corporate Identity Design+',items:['Brand Strategy','Corporate Identity','Logo System','Brand Guideline']},
+    {service:'Industrial Design+',head:'Industrial Design+',items:['Product Design','CMF','Prototype Direction','Manufacturing Support']},
+    {service:'Space Design+',head:'Space Design+',items:['Space | Event','Space | Interior','Space | Exterior','Space | Kiosk','Space | Pop-up Store','Space | Exhibition Booth','Space | Retail']},
+    {service:'Keyvisual Creative Ads Design+',head:'Keyvisual Creative Ads Design+',items:['Keyvisual','Creative Ads','OOH','Social Visual','Campaign Visual']},
+    {service:'Graphic Design+',head:'Graphic Design+',items:['Graphic | Layout','Graphic | Poster','Graphic | Brochure','Graphic | Signage','Graphic | Deck','Graphic | Artwork']},
+    {service:'Packaging Design+',head:'Packaging Design+',items:['Packaging | Brand Extension','Packaging | Label System','Packaging | Mockup']},
+    {service:'Website UX-UI Design+',head:'Website UX-UI Design+',items:['Website UX-UI | Landing Page','Website UX-UI | Portfolio','Website UX-UI | System']},
+    {service:'Photo / Video / Ads Design+',head:'Photo / Video / Ads Design+',items:['Photo Direction','Video Production','Commercial Ads','Content Package']},
+    {service:'2D-3D Motion Graphic Design+',head:'2D-3D Motion Graphic Design+',items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
+    {service:'Fashion Design+',head:'Fashion Design+',items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
+    {service:'Sculpture Design+',head:'Sculpture Design+',items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']},
+    {service:'Prototype 3D Print Service',head:'Prototype 3D Print Service',items:['Prototype','3D Print','Scale Model','Mockup']},
+    {service:'Production Follow Up',head:'Production Follow Up',items:['Production','Supplier Coordination','Material Sourcing','QC','Delivery Follow-up']},
+    {service:'Build & Installation+',head:'Build & Installation+',items:['Build','Installation','Site Work','Fit-out']},
+    {service:'Marketing',head:'Marketing+',items:['Marketing | Campaign Planning','Marketing | Social Media','Marketing | Brand Communication','Marketing | Follow Up','Marketing | Media Buying']}
+  ];
+  window.DOPIOUS_CARD_TAXONOMY=TAX;
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const plus=s=>esc(s).replace(/\+/g,'<em>+</em>');
+  function norm(s){return String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9]+/g,'').trim();}
+  function meta(){const svc=$('admProjectService')?.value||'';return TAX.find(x=>x.service===svc)||TAX.find(x=>norm(x.service)===norm(svc))||TAX[0];}
+  function selectedSubs(){const sub=$('admProjectSub');if(!sub)return[];return Array.from(sub.selectedOptions||[]).map(o=>o.value).filter(v=>v&&v!=='Other'&&!v.includes('— Select')).slice(0,3);}
+  function setSubs(vals){const sub=$('admProjectSub');if(!sub)return;vals=(vals||[]).slice(0,3);Array.from(sub.options).forEach(o=>{o.selected=vals.includes(o.value)});}
+  function ensureOptions(keep){
+    const sub=$('admProjectSub'); if(!sub)return;
+    const m=meta(); const prev=Array.isArray(keep)?keep:selectedSubs();
+    sub.multiple=true; sub.size=Math.min(5,Math.max(3,(m.items||[]).length||3));
+    sub.innerHTML=(m.items||[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');
+    if(!sub.parentElement.querySelector('.admin-subhead-helper')){
+      sub.insertAdjacentHTML('afterend','<span class="admin-subhead-helper">เลือก Sub Head ได้ 1–3 อันเท่านั้น และต้องอยู่ในหมวด Head นี้ — จะแสดงบนการ์ดหน้าแรก</span>');
+    }
+    const valid=prev.filter(v=>(m.items||[]).some(x=>norm(x)===norm(v))).slice(0,3);
+    if(valid.length)setSubs(valid); else if((m.items||[]).length)setSubs([m.items[0]]);
+  }
+  function enforceMax(e){const vals=selectedSubs();if(vals.length>3){if(e&&e.target)e.target.selected=false; const keep=selectedSubs().slice(0,3); setSubs(keep); if(typeof adminStatus==='function')adminStatus('เลือก Sub Head ได้สูงสุด 3 อันต่อ 1 การ์ด','err');}}
+  function sync(){
+    const m=meta(); ensureOptions(selectedSubs()); enforceMax(); const subs=selectedSubs();
+    const h=$('admProjectHeadline'), sh=$('admProjectSubHeadline');
+    if(h)h.value=m.head; if(sh)sh.value=subs.join(' / ');
+    const k=$('admHowKicker'), t=$('admHowTitle'), d=$('admHowDesc'), chips=$('admHowChips');
+    if(k)k.innerHTML=plus(m.service); if(t)t.innerHTML=plus(m.head); if(d)d.textContent='เลือก 1 Head และเลือก Sub Head 1–3 อันในหมวดนี้ เพื่อแสดงบนการ์ดหน้าแรก';
+    if(chips){chips.innerHTML=(m.items||[]).map(x=>'<button type="button" class="'+(subs.includes(x)?'active':'')+'" data-chip="'+esc(x)+'">'+esc(x)+'</button>').join('');chips.querySelectorAll('button').forEach(b=>b.onclick=function(){let vals=selectedSubs();const v=this.dataset.chip;if(vals.includes(v))vals=vals.filter(x=>x!==v);else if(vals.length<3)vals.push(v);else{if(typeof adminStatus==='function')adminStatus('เลือก Sub Head ได้สูงสุด 3 อันต่อ 1 การ์ด','err');return;}setSubs(vals);sync();});}
+  }
+  window.updateSubServices=function(selected){ensureOptions(selected?[selected]:selectedSubs());sync();};
+  window.syncHowAdminPanel=function(){sync();};
+  function readProjects(){try{if(typeof adminGet==='function'&&typeof adminStoreKeys==='object')return adminGet(adminStoreKeys.projects,[]);}catch(e){}try{return JSON.parse(localStorage.getItem('dopiousAdminProjects')||'[]')}catch(e){return[]}}
+  function writeProjects(data){try{if(typeof adminSet==='function'&&typeof adminStoreKeys==='object')adminSet(adminStoreKeys.projects,data);}catch(e){}try{localStorage.setItem('dopiousAdminProjects',JSON.stringify(data));}catch(e){}try{if(typeof firestoreSet==='function')firestoreSet('dopiousAdminProjects',data);}catch(e){}}
+  function patchLatestProject(){
+    const data=readProjects(); if(!data.length)return;
+    const m=meta(), subs=selectedSubs(); const name=$('admProjectName')?.value.trim()||'';
+    let p=data[0]; if(name){const hit=data.find(x=>String(x.name||'')===name); if(hit)p=hit;}
+    p.headline=m.head; p.projectHeadline=m.head; p.subHeads=subs; p.subheads=subs; p.subServices=subs; p.selectedSubHeads=subs; p.sub=subs[0]||''; p.subHeadline=subs.join(' / '); p.projectSubHeadline=p.subHeadline; p.service=m.service;
+    writeProjects(data);
+    try{if(typeof renderAdminProjects==='function')renderAdminProjects();}catch(e){}
+    try{if(typeof renderCategoryCount==='function')renderCategoryCount();}catch(e){}
+  }
+  function patchSave(){
+    if(typeof window.saveAdminProject!=='function'||window.saveAdminProject.__oneHeadSubheads)return;
+    const base=window.saveAdminProject;
+    window.saveAdminProject=function(){sync(); const result=base.apply(this,arguments); setTimeout(patchLatestProject,120); setTimeout(patchLatestProject,520); return result;};
+    window.saveAdminProject.__oneHeadSubheads=true;
+  }
+  function patchEdit(){
+    ['editAdminProjectById','openSavedAdminProjectById','editAdminProject'].forEach(fn=>{
+      if(typeof window[fn]==='function'&&!window[fn].__oneHeadSubheads){const base=window[fn]; window[fn]=function(){const result=base.apply(this,arguments); setTimeout(()=>{const data=readProjects(); const id=arguments[0]; let p=data.find(x=>String(x.id)===String(id)); if(!p&&typeof id==='number')p=data[id]; const subs=(p&&(p.subHeads||p.subheads||p.subServices||p.selectedSubHeads))||((p&&p.sub)?[p.sub]:[]); ensureOptions(subs); setSubs(subs); sync();},120); return result;}; window[fn].__oneHeadSubheads=true;}
+    });
+  }
+  function boot(){
+    const svc=$('admProjectService'), sub=$('admProjectSub'); if(!svc||!sub)return;
+    ensureOptions(); sync(); patchSave(); patchEdit();
+    if(!svc.dataset.oneHeadSubheads){svc.addEventListener('change',()=>{ensureOptions([]);sync();});svc.dataset.oneHeadSubheads='1';}
+    if(!sub.dataset.oneHeadSubheads){sub.addEventListener('change',e=>{enforceMax(e);sync();});sub.dataset.oneHeadSubheads='1';}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  setTimeout(boot,400);setTimeout(boot,1200);setTimeout(boot,2500);setTimeout(boot,4200);
+})();
+</script>
+
 </body>
 </html>
 <!-- ═══════════════════════════════════════════════════
@@ -16110,3 +16283,56 @@ document.addEventListener('touchstart',function(){document.querySelectorAll('vid
 })();
 </script>
 
+
+<!-- FINAL OVERRIDE: split Motion / Fashion / Sculpture after all admin patches -->
+<style id="split-subhead-admin-final-css-2">
+.mind-node.n11{left:28%!important;top:74%!important;transform:translate(-50%,-50%)!important}
+.mind-node.n12{left:18%!important;top:62%!important;transform:translate(-50%,-50%)!important}
+.mind-node.n13{left:18%!important;top:46%!important;transform:translate(-50%,-50%)!important}
+@media(max-width:768px){.mind-node.n11,.mind-node.n12,.mind-node.n13{left:auto!important;top:auto!important;transform:none!important}}
+</style>
+<script id="split-subhead-admin-last-override">
+(function(){
+  const META=[
+    {key:'n11',service:'2D-3D Motion Graphic Design+',kicker:'2D-3D Motion Graphic Design+',title:'2D-3D Motion Graphic',desc:'2D/3D motion graphics, animation, storyboard and render for campaign, digital media, presentation and spatial content.',items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
+    {key:'n12',service:'Fashion Design+',kicker:'Fashion Design+',title:'Fashion Design',desc:'Fashion design, styling direction, campaign look, wardrobe concept and editorial direction for brand communication.',items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
+    {key:'n13',service:'Sculpture Design+',kicker:'Sculpture Design+',title:'Sculpture Design',desc:'Sculpture, 3D art, character, prototype and 3D print work for exhibitions, retail display and commercial art installation.',items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']}
+  ];
+  const map={}; META.forEach(m=>map[m.service]=m);
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const plus=s=>esc(s).replace(/\+/g,'<em>+</em>');
+  const isCombo=v=>{const t=String(v||'').toLowerCase().replace(/[–—]/g,'-');return t.includes('motion')&&t.includes('fashion')&&t.includes('sculpture');};
+  function patch(){
+    if(typeof serviceSubData==='object'){META.forEach(m=>serviceSubData[m.key]={kicker:m.kicker,title:m.title,desc:m.desc,items:m.items});}
+    document.querySelectorAll('.mind-node.n11 span').forEach(el=>el.innerHTML='Graphic Design+');
+    const svc=document.getElementById('admProjectService');
+    if(svc){
+      const val=svc.value;
+      svc.innerHTML='<option value="">— Select service from How It Works —</option>'+
+        '<optgroup label="Brand Strategy / Corporate Identity / Design+"><option value="Brand Strategy Corporate Identity Design+">Brand Strategy Corporate Identity Design+</option></optgroup>'+
+        '<optgroup label="Keyvisual / Creative Ads / Graphic Design+"><option value="Keyvisual Creative Ads Design+">Keyvisual Creative Ads Design+</option><option value="Graphic Design+">Graphic Design+</option></optgroup>'+
+        '<optgroup label="Industrial / Prototype / Production+"><option value="Industrial Design+">Industrial Design+</option><option value="Prototype 3D Print Service">Prototype 3D Print Service</option><option value="Production Follow Up">Production Follow Up</option></optgroup>'+
+        '<optgroup label="Space / Build & Installation+"><option value="Space Design+">Space Design+</option><option value="Build & Installation+">Build &amp; Installation+</option></optgroup>'+
+        '<optgroup label="2D-3D Motion Graphic Design+"><option value="2D-3D Motion Graphic Design+">2D-3D Motion Graphic Design+</option></optgroup>'+
+        '<optgroup label="Fashion Design+"><option value="Fashion Design+">Fashion Design+</option></optgroup>'+
+        '<optgroup label="Sculpture Design+"><option value="Sculpture Design+">Sculpture Design+</option></optgroup>'+
+        '<optgroup label="Photo / Video / Ads / Marketing+"><option value="Photo / Video / Ads Design+">Photo / Video / Ads Design+</option><option value="Marketing">Marketing</option></optgroup>'+
+        '<optgroup label="Additional existing website categories"><option value="Packaging Design+">Packaging Design+</option><option value="Website UX-UI Design+">Website UX-UI Design+</option></optgroup>';
+      if(val){svc.value=val;if(!svc.value){const o=document.createElement('option');o.value=o.textContent=val;svc.appendChild(o);svc.value=val;}}
+    }
+  }
+  function selectedMeta(){const v=document.getElementById('admProjectService')?.value||''; if(map[v])return map[v]; if(Array.isArray(window.DOPIOUS_EXACT_TAXONOMY))return window.DOPIOUS_EXACT_TAXONOMY.find(x=>x.service===v)||window.DOPIOUS_EXACT_TAXONOMY[0]||META[0]; return META[0];}
+  function sync(){
+    patch(); const meta=selectedMeta(); const sub=document.getElementById('admProjectSub');
+    if(sub){const old=isCombo(sub.value)?'':sub.value;sub.innerHTML='<option value="">— Select sub-service from How It Works —</option>'+(meta.items||[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('')+'<option value="Other">Other</option>'; if(old){sub.value=old;if(!sub.value){const o=document.createElement('option');o.value=o.textContent=old;sub.insertBefore(o,sub.lastElementChild);sub.value=old;}}}
+    const subVal=(sub&&sub.value&&sub.value!=='Other')?sub.value:''; const h=document.getElementById('admProjectHeadline'), sh=document.getElementById('admProjectSubHeadline');
+    if(h&&(!h.dataset.manual||isCombo(h.value)))h.value=meta.title; if(sh&&(!sh.dataset.manual||isCombo(sh.value)))sh.value=subVal||meta.kicker;
+    const k=document.getElementById('admHowKicker'),t=document.getElementById('admHowTitle'),d=document.getElementById('admHowDesc'),chips=document.getElementById('admHowChips');
+    if(k)k.innerHTML=plus(meta.kicker);if(t)t.innerHTML=plus(meta.title);if(d)d.textContent=meta.desc||'';if(chips){chips.innerHTML=(meta.items||[]).length?(meta.items||[]).map(x=>'<button type="button" data-chip="'+esc(x)+'">'+esc(x)+'</button>').join(''):'<span style="color:rgba(255,255,255,.38);font-size:12px;line-height:2.2;">No fixed chip on How It Works — use the main kicker as sub-head.</span>';chips.querySelectorAll('button').forEach(b=>b.onclick=function(){if(sub)sub.value=this.dataset.chip;const sh=document.getElementById('admProjectSubHeadline');if(sh&&!sh.dataset.manual)sh.value=this.dataset.chip;sync();});}
+  }
+  const baseShow=window.showServiceSub; window.showServiceSub=function(key){patch(); if(key==='n11'||key==='n12'||key==='n13'){const data=serviceSubData[key];const panel=document.getElementById('serviceSubPanel');if(panel&&data){document.getElementById('subKicker').textContent=data.kicker;document.getElementById('subTitle').textContent=data.title;document.getElementById('subDesc').textContent=data.desc;document.getElementById('subChips').innerHTML=(data.items||[]).map(item=>'<button type="button" onclick="goService()">'+esc(item)+'</button>').join('');document.querySelectorAll('.mind-node').forEach(n=>n.classList.remove('active'));const node=document.querySelector('.mind-node.'+key);if(node)node.classList.add('active');return;}} if(typeof baseShow==='function')return baseShow(key);};
+  window.updateSubServices=sync; window.syncHowAdminPanel=sync;
+  function boot(){patch();sync();const svc=document.getElementById('admProjectService');if(svc&&!svc.dataset.splitLast){svc.addEventListener('change',sync);svc.dataset.splitLast='1';}const sub=document.getElementById('admProjectSub');if(sub&&!sub.dataset.splitLast){sub.addEventListener('change',sync);sub.dataset.splitLast='1';}}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot(); setTimeout(boot,600); setTimeout(boot,1800); setTimeout(boot,3200);
+})();
+</script>
