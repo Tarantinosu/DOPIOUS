@@ -1262,3 +1262,47 @@ function oAL(){ location.href='admin.html?admin=1'; }
   }catch(e){}
   try{if(Array.isArray(_P)&&_P.length){_P=_P.map((p,i)=>normProject(p,i,p._legacy?'old':'new'));rSvc();}}catch(e){console.warn('[Dopious] final taxonomy render failed',e);}
 })();
+
+/* FINAL PATCH — Single Sub Head only per project/card */
+(function(){
+  'use strict';
+  function cleanOne(arr){
+    arr=Array.isArray(arr)?arr:[arr];
+    for(var i=0;i<arr.length;i++){
+      var v=String(arr[i]||'').replace(/\s+/g,' ').trim();
+      if(v && v!=='Other' && !/^—/.test(v) && v.toLowerCase()!=='creative') return [v];
+    }
+    return [];
+  }
+  if(typeof window.cardSubHeadsForProject==='function' && !window.cardSubHeadsForProject.__oneOnly){
+    var oldCardSubHeadsForProject=window.cardSubHeadsForProject;
+    window.cardSubHeadsForProject=function(p,svc){
+      var out=cleanOne(oldCardSubHeadsForProject.call(this,p,svc));
+      return out;
+    };
+    window.cardSubHeadsForProject.__oneOnly=true;
+  }
+  if(typeof window.projectSubLabel==='function'){
+    window.projectSubLabel=function(p,rawSub,svc){
+      return cleanOne(window.cardSubHeadsForProject(Object.assign({},p||{},{sub:(p&&p.sub)||rawSub}),svc)).join(' / ');
+    };
+  }
+  if(typeof normProject==='function' && !normProject.__oneSubOnly){
+    var oldNormProjectOne=normProject;
+    normProject=function(p,i,src){
+      var np=oldNormProjectOne.call(this,p,i,src);
+      var subs=cleanOne(np.subHeads||np.subheads||np.subServices||np.selectedSubHeads||np.subHeadline||np.sub||[]);
+      if(!subs.length && typeof window.cardSubHeadsForProject==='function') subs=cleanOne(window.cardSubHeadsForProject(np,np.service||np.svc));
+      np.subHeads=subs; np.subheads=subs; np.subServices=subs; np.selectedSubHeads=subs;
+      np.sub=subs[0]||''; np.subHeadline=subs.join(' / '); np.projectSubHeadline=np.subHeadline;
+      return np;
+    };
+    normProject.__oneSubOnly=true;
+  }
+  setTimeout(function(){
+    try{
+      if(Array.isArray(_P) && _P.length){ _P=_P.map(function(p,i){return typeof normProject==='function'?normProject(p,i,p&&p._legacy?'old':'new'):p;}); }
+      if(typeof rSvc==='function') rSvc();
+    }catch(e){ console.warn('[Dopious] one subhead render patch failed',e); }
+  },60);
+})();

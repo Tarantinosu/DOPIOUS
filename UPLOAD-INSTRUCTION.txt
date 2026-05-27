@@ -1,14 +1,8 @@
-DOPIOUS+ FAST iOS — Head/Sub Head Logic Updated
+DOPIOUS+ Fast iOS Package — Direct Admin Patch
 
-Update included:
-- 1 Project selects exactly 1 Service Head
-- 1 Project selects 1–3 Sub Heads within that Head only
-- Works/Services cards are grouped by exact Head + exact Sub Head set
-- Projects with the same Head and same Sub Heads share one card and slide inside it
-- Projects with different Sub Heads create separate cards
-- Packaging Design+ removed from main Head; packaging options are under Industrial Design+ and Graphic Design+
+Upload all files to GitHub Pages root.
 
-Upload all files in this folder to the website root and replace existing files.
-Test URLs:
-https://www.dopiousdesign.com/?v=head-sub-final-0527
-https://www.dopiousdesign.com/admin.html?admin=1&v=head-sub-final-0527
+Admin direct URL:
+https://www.dopiousdesign.com/admin.html?admin=1
+
+This opens the Admin CMS directly and hides the public website shell on admin.html.

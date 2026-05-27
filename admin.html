@@ -5695,6 +5695,45 @@ button,a,input,select,textarea{touch-action:manipulation}
 .slide-bg.lazy-bg{background-image:none!important;transition:opacity .18s ease, filter .18s ease;}
 .slide-bg.bg-ready{filter:brightness(.86) saturate(1.02);}
 </style>
+
+<!-- ADMIN DIRECT MODE: hide public page immediately on admin.html / ?admin=1 -->
+<script>
+(function(){
+  try{
+    var isAdminFile=/admin\.html$/i.test(location.pathname)||new URLSearchParams(location.search).get('admin')==='1';
+    if(isAdminFile) document.documentElement.classList.add('admin-direct-mode');
+  }catch(e){}
+})();
+</script>
+<style id="admin-direct-mode-css">
+html.admin-direct-mode,html.admin-direct-mode body{background:#050505!important;min-height:100dvh!important;}
+html.admin-direct-mode body>nav,
+html.admin-direct-mode body>header,
+html.admin-direct-mode body>.marquee,
+html.admin-direct-mode body>.mq,
+html.admin-direct-mode body>section,
+html.admin-direct-mode body>.clients,
+html.admin-direct-mode body>.cls,
+html.admin-direct-mode body>.contact,
+html.admin-direct-mode body>.cs,
+html.admin-direct-mode body>footer,
+html.admin-direct-mode body>.footer,
+html.admin-direct-mode body>.ft,
+html.admin-direct-mode body>.project-detail,
+html.admin-direct-mode body>.how-page,
+html.admin-direct-mode body>.site-page,
+html.admin-direct-mode body>.start-popup,
+html.admin-direct-mode body>.pg,
+html.admin-direct-mode body>.pop,
+html.admin-direct-mode body>.alo,
+html.admin-direct-mode body>.ap{display:none!important;}
+html.admin-direct-mode .admin-login-overlay.on,
+html.admin-direct-mode .admin-panel-overlay.on{display:flex!important;opacity:1!important;visibility:visible!important;}
+html.admin-direct-mode .admin-panel-overlay{background:#050505!important;backdrop-filter:none!important;}
+html.admin-direct-mode .admin-panel-wide{box-shadow:none!important;}
+html.admin-direct-mode .admin-topbar-title::after{content:'  DIRECT';font-size:10px;letter-spacing:.12em;color:rgba(255,255,255,.32);margin-left:8px;}
+</style>
+
 </head>
 <body>
 <div id="site-loader" role="status" aria-live="polite"><div><div class="ld-logo">Dopious<span>+</span></div><div class="ld-bar"></div><div style="font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.35);margin-top:14px;text-align:center;" id="loaderText">Loading from Firebase...</div></div></div>
@@ -16046,6 +16085,64 @@ async function uploadImageToSupabase(file){
 })();
 </script>
 
+
+<script id="admin-direct-mode-boot">
+(function(){
+  function isDirectAdmin(){
+    try{return /admin\.html$/i.test(location.pathname)||new URLSearchParams(location.search).get('admin')==='1';}catch(e){return true;}
+  }
+  function shouldBypassLogin(){
+    try{return new URLSearchParams(location.search).get('admin')==='1';}catch(e){return false;}
+  }
+  function openPanelDirect(){
+    document.documentElement.classList.add('admin-direct-mode');
+    document.body&&document.body.classList.add('admin-direct-mode');
+    var login=document.getElementById('adminLoginOverlay');
+    var panel=document.getElementById('adminPanelOverlay');
+    if(login) login.classList.remove('on');
+    if(panel){
+      panel.classList.add('on');
+      document.body.style.overflow='hidden';
+      try{ if(typeof initAdminDashboard==='function') initAdminDashboard(); }catch(e){}
+      try{ if(typeof syncFromFirestore==='function') setTimeout(syncFromFirestore,180); }catch(e){}
+      try{ if(window.innerWidth<=900 && typeof showAdminTab==='function'){
+        var projBtn=document.querySelector('.admin-tabs button:nth-child(2)');
+        showAdminTab('projects',projBtn);
+      }}catch(e){}
+    }
+  }
+  function openLoginOnly(){
+    document.documentElement.classList.add('admin-direct-mode');
+    document.body&&document.body.classList.add('admin-direct-mode');
+    try{ if(typeof openAdminLogin==='function') openAdminLogin(); }catch(e){}
+  }
+  function boot(){
+    if(!isDirectAdmin()) return;
+    if(shouldBypassLogin()){
+      try{ localStorage.setItem('dopiousAdminLoggedIn','true'); }catch(e){}
+      openPanelDirect();
+    }else{
+      try{
+        if(localStorage.getItem('dopiousAdminLoggedIn')==='true') openPanelDirect();
+        else openLoginOnly();
+      }catch(e){ openLoginOnly(); }
+    }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  setTimeout(boot,120);
+  setTimeout(boot,700);
+  var oldClose=window.closeAdminPanel;
+  window.closeAdminPanel=function(event){
+    if(isDirectAdmin() && shouldBypassLogin()){
+      if(event && event.target && event.target.id!=='adminPanelOverlay') return;
+      openPanelDirect();
+      return;
+    }
+    if(typeof oldClose==='function') return oldClose.apply(this,arguments);
+  };
+})();
+</script>
+
 </body>
 </html>
 <!-- ═══════════════════════════════════════════════════
@@ -16439,5 +16536,383 @@ document.addEventListener('touchstart',function(){document.querySelectorAll('vid
   window.updateSubServices=sync; window.syncHowAdminPanel=sync;
   function boot(){patch();sync();const svc=document.getElementById('admProjectService');if(svc&&!svc.dataset.splitLast){svc.addEventListener('change',sync);svc.dataset.splitLast='1';}const sub=document.getElementById('admProjectSub');if(sub&&!sub.dataset.splitLast){sub.addEventListener('change',sync);sub.dataset.splitLast='1';}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot(); setTimeout(boot,600); setTimeout(boot,1800); setTimeout(boot,3200);
+})();
+</script>
+
+<!-- FINAL FIX: Sub Head custom chip picker — no native multi-select jump -->
+<style id="dop-subhead-chip-picker-fix-css">
+  #admProjectSub{
+    position:absolute!important;
+    width:1px!important;
+    height:1px!important;
+    opacity:0!important;
+    pointer-events:none!important;
+    overflow:hidden!important;
+    min-height:0!important;
+    padding:0!important;
+    border:0!important;
+  }
+  .dop-subhead-picker{
+    grid-column:auto;
+    width:100%;
+    min-height:158px;
+    border:1px solid rgba(255,42,20,.36);
+    background:#101010;
+    border-radius:18px;
+    padding:14px;
+    display:flex;
+    flex-wrap:wrap;
+    align-content:flex-start;
+    gap:8px;
+    max-height:260px;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+  .dop-subhead-chip{
+    border:1px solid rgba(255,255,255,.14)!important;
+    background:rgba(255,255,255,.045)!important;
+    color:rgba(255,255,255,.82)!important;
+    border-radius:999px!important;
+    padding:10px 14px!important;
+    font-size:12px!important;
+    font-weight:900!important;
+    letter-spacing:.08em!important;
+    text-transform:none!important;
+    cursor:pointer!important;
+    min-height:42px!important;
+    white-space:nowrap!important;
+    flex:0 0 auto!important;
+  }
+  .dop-subhead-chip.is-selected{
+    border-color:#ff2a14!important;
+    color:#ff2a14!important;
+    background:rgba(255,42,20,.12)!important;
+  }
+  .dop-subhead-chip.is-disabled{
+    opacity:.35!important;
+    cursor:not-allowed!important;
+  }
+  .dop-subhead-picked-note{
+    display:block!important;
+    margin-top:8px!important;
+    color:rgba(255,255,255,.48)!important;
+    font-size:11px!important;
+    line-height:1.45!important;
+    font-weight:400!important;
+    letter-spacing:0!important;
+    text-transform:none!important;
+  }
+  @media(max-width:768px){
+    .dop-subhead-picker{min-height:130px;max-height:230px;padding:12px;gap:7px}
+    .dop-subhead-chip{font-size:11px!important;padding:9px 12px!important;min-height:40px!important}
+  }
+</style>
+<script id="dop-subhead-chip-picker-fix-js">
+(function(){
+  'use strict';
+  const TAX=[
+    {key:'n1',service:'Brand Strategy / Corporate Identity / Design+',head:'Brand Strategy / Corporate Identity / Design+',aliases:['Brand Strategy Corporate Identity Design+','Brand Strategy / Corporate Identity / Design+'],items:['Brand Strategy','Corporate Identity','Brand Story','Logo','Visual Identity','Brand Guideline','Campaign Identity','Art Direction']},
+    {key:'n3',service:'Industrial Design+',head:'Industrial Design+',aliases:['Industrial Design+'],items:['Product','Product Concept','CMF','Form','User Experience','Prototype','Product Visualization','Packaging Structure','Material','Manufacturing']},
+    {key:'n4',service:'Space Design+',head:'Space Design+',aliases:['Space Design+'],items:['Interior','Retail Space','Exhibition','Pop-up Space','Event Space','Visual Merchandising','Customer Journey','Spatial Storytelling','Brand Environment','Mall Decoration']},
+    {key:'n2',service:'Key Visual / Creative Ads / Design+',head:'Key Visual / Creative Ads / Design+',aliases:['Keyvisual Creative Ads Design+','Key Visual Creative Ads Design+','Key Visual / Creative Ads / Design+'],items:['Key Visual','Campaign Visual','Ads','Art Direction','Advertising Direction','Promotion Visual','Social Media','Launch Campaign','Seasonal Campaign','Storyboard','Visual Storytelling']},
+    {key:'n9',service:'Graphic Design+',head:'Graphic Design+',aliases:['Graphic Design+','Packaging Design+'],items:['Graphic','Layout','Poster','Social Media','Print','Typography','Illustration','Signage','Presentation','Visual System','Packaging Graphic','Label','Box Artwork']},
+    {key:'n_website',service:'Website / UX-UI Design+',head:'Website / UX-UI Design+',aliases:['Website UX-UI Design+','Website / UX-UI Design+'],items:['Website','UX-UI','Landing Page','Web Experience','Interface','Digital Branding','Mobile Experience','User Journey','Conversion']},
+    {key:'n13',service:'Sculpture Design+',head:'Sculpture Design+',aliases:['Sculpture Design+'],items:['Sculpture','Art Installation','Public Art','Character Sculpture','Decorative Object','Landmark','3D Art Form','Spatial Art','Fabrication Concept']},
+    {key:'n12',service:'Fashion Design+',head:'Fashion Design+',aliases:['Fashion Design+'],items:['Fashion','Costume','Uniform','Styling Direction','Fashion Concept','Textile Direction','Character Styling','Campaign Styling','Showpiece']},
+    {key:'n11',service:'2D-3D Motion Graphic Design+',head:'2D-3D Motion Graphic Design+',aliases:['2D-3D Motion Graphic Design+','2D–3D Motion Graphic Design+'],items:['Motion Graphic','2D Animation','3D Animation','Logo Motion','Social Motion','Event Motion','LED Screen','Product Animation','Visual Effects','Storyboard','Animatic']},
+    {key:'n7',service:'Photo / Video / Ads Design+',head:'Photo / Video / Ads Design+',aliases:['Photo / Video / Ads Design+'],items:['Photo Direction','Video Production','Ads Video','Product Shooting','Campaign Shooting','Lifestyle Content','Short Video','Brand Film','Storyboard','Shot List','Video Treatment']},
+    {key:'n10',service:'Build & Installation+',head:'Build & Installation+',aliases:['Build & Installation+'],items:['Build & Installation','Production Service','Fabrication','On-site Installation','Material Execution','Supplier Coordination','Display Production','Quality Control','Production Follow-up']},
+    {key:'n5',service:'Prototype / 3D Print Service+',head:'Prototype / 3D Print Service+',aliases:['Prototype 3D Print Service','Prototype / 3D Print Service+'],items:['Prototype','3D Printing','Mockup','Product Testing','Model Making','Form Study','Validation','Sample Development','Rapid Prototype']},
+    {key:'n8',service:'Marketing / Brand Communication+',head:'Marketing / Brand Communication+',aliases:['Marketing','Marketing+','Marketing / Brand Communication+'],items:['Marketing Strategy','Brand Communication','Campaign Planning','Content Strategy','Promotion Planning','Launch Strategy','Social Media Direction','Brand Activation','Campaign Narrative']},
+    {key:'n6',service:'Production Follow-up+',head:'Production Follow-up+',aliases:['Production Follow Up','Production Follow-up+'],items:['Production Follow-up','Supplier Briefing','Production Control','Coordination','Fabrication Check','On-site Supervision','Material Approval','Final Delivery']}
+  ];
+  window.DOPIOUS_FINAL_TAXONOMY=TAX;
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const norm=s=>String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9]+/g,'').trim();
+  const plus=s=>esc(s).replace(/\+/g,'<em>+</em>');
+  const unique=arr=>{const seen=new Set(),out=[];(arr||[]).forEach(v=>{v=String(v||'').replace(/\s+/g,' ').trim();if(!v||v==='Other'||/^—/.test(v)||norm(v)==='creative')return;const k=norm(v);if(!seen.has(k)){seen.add(k);out.push(v);}});return out;};
+  function metaBy(v){const k=norm(v);return TAX.find(m=>norm(m.service)===k||norm(m.head)===k||(m.aliases||[]).some(a=>norm(a)===k))||TAX[0];}
+  function selectedMeta(){const svc=$('admProjectService'); return metaBy(svc&&svc.value||'');}
+  function oldSubValues(){
+    const sub=$('admProjectSub'); let vals=[];
+    if(sub){vals=Array.from(sub.selectedOptions||[]).map(o=>o.value); if(!vals.length && sub.value) vals=[sub.value];}
+    if(!vals.length){const sh=$('admProjectSubHeadline'); if(sh&&sh.value) vals=String(sh.value).split(/\s*\/\s*|,|\n/);}
+    return unique(vals);
+  }
+  function normalizeToMeta(vals,meta){
+    return unique(vals).map(v=>{
+      const k=norm(v); return (meta.items||[]).find(x=>norm(x)===k)||'';
+    }).filter(Boolean).slice(0,3);
+  }
+  function rebuildServiceSelect(){
+    const svc=$('admProjectService'); if(!svc) return;
+    const current=svc.value;
+    const mapped=metaBy(current).service;
+    svc.innerHTML='<option value="">— Select Service Head —</option>'+TAX.map(m=>'<option value="'+esc(m.service)+'">'+esc(m.head)+'</option>').join('');
+    if(mapped) svc.value=mapped;
+  }
+  function ensureSelectOptions(vals){
+    const sub=$('admProjectSub'); if(!sub) return;
+    const meta=selectedMeta();
+    sub.multiple=true; sub.size=1;
+    sub.innerHTML=(meta.items||[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');
+    setSelected(vals,false);
+  }
+  function getSelected(){
+    const sub=$('admProjectSub');
+    return unique(sub?Array.from(sub.selectedOptions||[]).map(o=>o.value):[]).slice(0,3);
+  }
+  function setSelected(vals,rerender=true){
+    const sub=$('admProjectSub'); if(!sub) return;
+    vals=unique(vals).slice(0,3);
+    Array.from(sub.options).forEach(o=>{o.selected=vals.some(v=>norm(v)===norm(o.value));});
+    const meta=selectedMeta();
+    const h=$('admProjectHeadline'), sh=$('admProjectSubHeadline');
+    if(h) h.value=meta.head;
+    if(sh) sh.value=vals.join(' / ');
+    updateHowPanel(vals);
+    if(rerender) renderPicker(vals);
+  }
+  function pickerEl(){
+    const sub=$('admProjectSub'); if(!sub) return null;
+    let picker=$('dopSubheadPicker');
+    if(!picker){
+      picker=document.createElement('div'); picker.id='dopSubheadPicker'; picker.className='dop-subhead-picker';
+      sub.insertAdjacentElement('afterend',picker);
+      if(!sub.parentElement.querySelector('.dop-subhead-picked-note')){
+        picker.insertAdjacentHTML('afterend','<span class="dop-subhead-picked-note">เลือก Sub Head ได้ 1–3 อันในหมวด Head นี้เท่านั้น — ไม่ใช้ dropdown เพื่อไม่ให้เด้งบน Safari/Chrome</span>');
+      }
+    }
+    return picker;
+  }
+  function renderPicker(vals){
+    const meta=selectedMeta(); const picker=pickerEl(); if(!picker) return;
+    vals=normalizeToMeta(vals||getSelected(),meta);
+    const maxed=vals.length>=3;
+    picker.innerHTML=(meta.items||[]).map(x=>{
+      const sel=vals.some(v=>norm(v)===norm(x));
+      return '<button type="button" class="dop-subhead-chip '+(sel?'is-selected':'')+' '+(!sel&&maxed?'is-disabled':'')+'" data-sub="'+esc(x)+'">'+esc(x)+'</button>';
+    }).join('');
+    picker.querySelectorAll('.dop-subhead-chip').forEach(btn=>{
+      btn.addEventListener('click',function(e){
+        e.preventDefault(); e.stopPropagation();
+        const v=this.getAttribute('data-sub'); let next=getSelected();
+        const has=next.some(x=>norm(x)===norm(v));
+        if(has) next=next.filter(x=>norm(x)!==norm(v));
+        else if(next.length<3) next.push(v);
+        else { if(typeof adminStatus==='function') adminStatus('เลือก Sub Head ได้สูงสุด 3 อันต่อ 1 การ์ด','err'); return; }
+        setSelected(next,true);
+      });
+    });
+  }
+  function updateHowPanel(vals){
+    const meta=selectedMeta(); vals=vals||getSelected();
+    const k=$('admHowKicker'), t=$('admHowTitle'), d=$('admHowDesc'), chips=$('admHowChips');
+    if(k) k.innerHTML=plus(meta.head);
+    if(t) t.innerHTML=plus(meta.head);
+    if(d) d.textContent='เลือก 1 Head และเลือก Sub Head 1–3 อันในหมวดเดียวกัน เพื่อให้ Admin / How It Works / Card หน้าแรกตรงกัน';
+    if(chips){
+      const maxed=vals.length>=3;
+      chips.innerHTML=(meta.items||[]).map(x=>{
+        const sel=vals.some(v=>norm(v)===norm(x));
+        return '<button type="button" class="'+(sel?'active':'')+' '+(!sel&&maxed?'is-disabled':'')+'" data-chip="'+esc(x)+'">'+esc(x)+'</button>';
+      }).join('');
+      chips.querySelectorAll('button').forEach(b=>b.onclick=function(){
+        const v=this.getAttribute('data-chip'); let next=getSelected();
+        const has=next.some(x=>norm(x)===norm(v));
+        if(has) next=next.filter(x=>norm(x)!==norm(v));
+        else if(next.length<3) next.push(v);
+        else { if(typeof adminStatus==='function') adminStatus('เลือก Sub Head ได้สูงสุด 3 อันต่อ 1 การ์ด','err'); return; }
+        setSelected(next,true);
+      });
+    }
+  }
+  function sync(keep){
+    rebuildServiceSelect();
+    const meta=selectedMeta();
+    let vals=Array.isArray(keep)?keep:oldSubValues();
+    vals=normalizeToMeta(vals,meta);
+    ensureSelectOptions(vals);
+    setSelected(vals,true);
+  }
+  function normalizeBeforeSave(){
+    let vals=getSelected(); const meta=selectedMeta();
+    if(!vals.length && (meta.items||[]).length){
+      vals=[meta.items[0]]; setSelected(vals,true);
+      if(typeof adminStatus==='function') adminStatus('ระบบเลือก Sub Head ตัวแรกให้ เพราะต้องมี 1–3 อันต่อการ์ด','ok');
+    }
+    return vals;
+  }
+  function readProjects(){try{if(typeof adminGet==='function'&&typeof adminStoreKeys==='object')return adminGet(adminStoreKeys.projects,[]);}catch(e){}try{return JSON.parse(localStorage.getItem('dopiousAdminProjects')||'[]')}catch(e){return[]}}
+  function writeProjects(data){try{if(typeof adminSet==='function'&&typeof adminStoreKeys==='object')adminSet(adminStoreKeys.projects,data);}catch(e){}try{localStorage.setItem('dopiousAdminProjects',JSON.stringify(data));}catch(e){}try{if(typeof firestoreSet==='function')firestoreSet('dopiousAdminProjects',data);}catch(e){}}
+  function patchLatestProject(){
+    const data=readProjects(); if(!data.length) return;
+    const meta=selectedMeta(), subs=getSelected(), name=($('admProjectName')&&$('admProjectName').value||'').trim();
+    let p=data[0]; if(name){const hit=data.find(x=>String(x.name||x.nm||'')===name); if(hit)p=hit;}
+    p.service=meta.service; p.svc=meta.service; p.headline=meta.head; p.projectHeadline=meta.head;
+    p.subHeads=subs; p.subheads=subs; p.subServices=subs; p.selectedSubHeads=subs;
+    p.sub=subs[0]||''; p.subHeadline=subs.join(' / '); p.projectSubHeadline=p.subHeadline;
+    writeProjects(data);
+    try{if(typeof renderAdminProjects==='function')renderAdminProjects();}catch(e){}
+    try{if(typeof renderCategoryCount==='function')renderCategoryCount();}catch(e){}
+  }
+  function patchSave(){
+    ['saveAdminProject','savP','saveProject','adminSaveProject'].forEach(fn=>{
+      if(typeof window[fn]==='function' && !window[fn].__dopChipPicker){
+        const base=window[fn];
+        window[fn]=function(){normalizeBeforeSave(); const r=base.apply(this,arguments); setTimeout(patchLatestProject,120); setTimeout(patchLatestProject,650); return r;};
+        window[fn].__dopChipPicker=true;
+      }
+    });
+  }
+  function patchEdit(){
+    ['editAdminProjectById','openSavedAdminProjectById','editAdminProject'].forEach(fn=>{
+      if(typeof window[fn]==='function' && !window[fn].__dopChipPicker){
+        const base=window[fn];
+        window[fn]=function(){const r=base.apply(this,arguments); setTimeout(()=>{const data=readProjects();const id=arguments[0];let p=data.find(x=>String(x.id||x._id)===String(id));if(!p&&typeof id==='number')p=data[id];if(p){const svc=$('admProjectService');const m=metaBy(p.service||p.svc||p.cat||p.headline||'');if(svc)svc.value=m.service;sync(p.subHeads||p.subheads||p.subServices||p.selectedSubHeads||p.subHeadline||p.sub||[]);}},220); return r;};
+        window[fn].__dopChipPicker=true;
+      }
+    });
+  }
+  window.updateSubServices=function(selected){ sync(Array.isArray(selected)?selected:[]); };
+  window.syncHowAdminPanel=function(){ sync(getSelected()); };
+  function boot(){
+    const svc=$('admProjectService'), sub=$('admProjectSub'); if(!svc||!sub) return;
+    sync(getSelected().length?getSelected():oldSubValues()); patchSave(); patchEdit();
+    if(!svc.dataset.dopChipPicker){svc.addEventListener('change',()=>sync([]));svc.dataset.dopChipPicker='1';}
+    sub.onchange=function(e){e.preventDefault(); sync(getSelected());};
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot();
+  setTimeout(boot,500); setTimeout(boot,1500); setTimeout(boot,3500); setTimeout(boot,6500);
+})();
+</script>
+
+<!-- FINAL PATCH — Admin Sub Head single-select only -->
+<style id="dop-one-subhead-only-css">
+  .dop-subhead-picked-note{font-size:0!important;line-height:0!important;color:transparent!important;}
+  .dop-subhead-picked-note:after{content:'เลือก Sub Head ได้ 1 อันเท่านั้น — 1 Head + 1 Sub Head = 1 Card';display:block;font-size:11px;line-height:1.45;color:rgba(255,255,255,.48);margin-top:6px;}
+  .dop-subhead-chip.is-disabled{opacity:1!important;pointer-events:auto!important;}
+  #admHowDesc.one-sub-note::after{content:' / เลือก Sub Head ได้ 1 อันเท่านั้น';}
+</style>
+<script id="dop-one-subhead-only-js">
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const norm=s=>String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9]+/g,'').trim();
+  const uniqueOne=arr=>{
+    arr=Array.isArray(arr)?arr:[arr];
+    for(const raw of arr){
+      const v=String(raw||'').replace(/\s+/g,' ').trim();
+      if(v && v!=='Other' && !/^—/.test(v) && norm(v)!=='creative') return [v];
+    }
+    return [];
+  };
+  function taxonomy(){return window.DOPIOUS_FINAL_TAXONOMY||window.DOPIOUS_CARD_TAXONOMY||[];}
+  function metaBy(v){
+    const k=norm(v); const tax=taxonomy();
+    return tax.find(m=>norm(m.service)===k||norm(m.head)===k||(m.aliases||[]).some(a=>norm(a)===k))||tax[0]||{service:v,head:v,items:[]};
+  }
+  function currentMeta(){const svc=$('admProjectService');return metaBy(svc&&svc.value||'');}
+  function validOne(v,meta){
+    meta=meta||currentMeta(); const k=norm(v);
+    return (meta.items||[]).find(x=>norm(x)===k) || (meta.items||[])[0] || '';
+  }
+  function getOne(){
+    const sub=$('admProjectSub'); let vals=[];
+    if(sub) vals=Array.from(sub.selectedOptions||[]).map(o=>o.value);
+    if(!vals.length){const sh=$('admProjectSubHeadline'); if(sh&&sh.value) vals=String(sh.value).split(/\s*\/\s*|,|\n/);}
+    return uniqueOne(vals);
+  }
+  function setOne(raw,opts){
+    opts=opts||{}; const sub=$('admProjectSub'), meta=currentMeta();
+    let v=Array.isArray(raw)?raw[0]:raw; v=validOne(v,meta);
+    const vals=v?[v]:[];
+    if(sub){
+      sub.multiple=false; sub.size=1;
+      Array.from(sub.options||[]).forEach(o=>{o.selected=vals.some(x=>norm(x)===norm(o.value));});
+      if(v) sub.value=v;
+    }
+    const h=$('admProjectHeadline'), sh=$('admProjectSubHeadline');
+    if(h) h.value=meta.head||meta.service||'';
+    if(sh) sh.value=v||'';
+    const picker=$('dopSubheadPicker');
+    if(picker){
+      picker.querySelectorAll('.dop-subhead-chip').forEach(btn=>{
+        const on=norm(btn.getAttribute('data-sub'))===norm(v);
+        btn.classList.toggle('is-selected',on);
+        btn.classList.remove('is-disabled');
+      });
+    }
+    const chips=$('admHowChips');
+    if(chips){
+      chips.querySelectorAll('button').forEach(btn=>{
+        const on=norm(btn.getAttribute('data-chip'))===norm(v);
+        btn.classList.toggle('active',on);
+        btn.classList.remove('is-disabled');
+      });
+    }
+    const d=$('admHowDesc'); if(d){d.classList.add('one-sub-note'); d.textContent='เลือก 1 Head และเลือก Sub Head 1 อันในหมวดเดียวกัน เพื่อให้ Admin / How It Works / Card หน้าแรกตรงกัน';}
+    if(!opts.silent && typeof adminStatus==='function') adminStatus('เลือก Sub Head: '+(v||'-'),'ok');
+    return vals;
+  }
+  function readProjects(){try{if(typeof adminGet==='function'&&typeof adminStoreKeys==='object')return adminGet(adminStoreKeys.projects,[]);}catch(e){}try{return JSON.parse(localStorage.getItem('dopiousAdminProjects')||'[]')}catch(e){return[]}}
+  function writeProjects(data){try{if(typeof adminSet==='function'&&typeof adminStoreKeys==='object')adminSet(adminStoreKeys.projects,data);}catch(e){}try{localStorage.setItem('dopiousAdminProjects',JSON.stringify(data));}catch(e){}try{if(typeof firestoreSet==='function')firestoreSet('dopiousAdminProjects',data);}catch(e){}}
+  function patchLatestProject(){
+    const data=readProjects(); if(!data.length)return;
+    const meta=currentMeta(), subs=setOne(getOne(),{silent:true}), name=($('admProjectName')&&$('admProjectName').value||'').trim();
+    let p=data[0]; if(name){const hit=data.find(x=>String(x.name||x.nm||'')===name); if(hit)p=hit;}
+    p.service=meta.service; p.svc=meta.service; p.headline=meta.head; p.projectHeadline=meta.head;
+    p.subHeads=subs; p.subheads=subs; p.subServices=subs; p.selectedSubHeads=subs;
+    p.sub=subs[0]||''; p.subHeadline=subs[0]||''; p.projectSubHeadline=p.subHeadline;
+    writeProjects(data);
+    try{if(typeof renderAdminProjects==='function')renderAdminProjects();}catch(e){}
+    try{if(typeof renderCategoryCount==='function')renderCategoryCount();}catch(e){}
+  }
+  function forceAllProjectDataOneSub(){
+    const data=readProjects(); let changed=false;
+    data.forEach(p=>{
+      const meta=metaBy(p.service||p.svc||p.cat||p.headline||'');
+      let one=uniqueOne(p.subHeads||p.subheads||p.subServices||p.selectedSubHeads||p.subHeadline||p.sub||[]);
+      one=one.length?[validOne(one[0],meta)]:[(meta.items||[])[0]||''];
+      one=uniqueOne(one);
+      if(JSON.stringify(p.subHeads||[])!==JSON.stringify(one)){changed=true;}
+      p.service=meta.service; p.svc=meta.service; p.headline=meta.head; p.projectHeadline=meta.head;
+      p.subHeads=one; p.subheads=one; p.subServices=one; p.selectedSubHeads=one;
+      p.sub=one[0]||''; p.subHeadline=one[0]||''; p.projectSubHeadline=p.subHeadline;
+    });
+    if(changed) writeProjects(data);
+  }
+  function patchSave(){
+    ['saveAdminProject','savP','saveProject','adminSaveProject'].forEach(fn=>{
+      if(typeof window[fn]==='function'&&!window[fn].__oneSubOnly){
+        const base=window[fn];
+        window[fn]=function(){setOne(getOne(),{silent:true}); const r=base.apply(this,arguments); setTimeout(patchLatestProject,120); setTimeout(patchLatestProject,650); setTimeout(forceAllProjectDataOneSub,900); return r;};
+        window[fn].__oneSubOnly=true;
+      }
+    });
+  }
+  function boot(){
+    const svc=$('admProjectService'), sub=$('admProjectSub'); if(!svc||!sub)return;
+    sub.multiple=false; sub.size=1;
+    setOne(getOne(),{silent:true}); patchSave();
+    if(!document.__dopOneSubCapture){
+      document.addEventListener('click',function(e){
+        const btn=e.target.closest&&e.target.closest('.dop-subhead-chip,#admHowChips button');
+        if(!btn)return;
+        const v=btn.getAttribute('data-sub')||btn.getAttribute('data-chip')||btn.textContent;
+        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
+        setOne(v);
+      },true);
+      document.__dopOneSubCapture=true;
+    }
+    if(!svc.dataset.dopOneSubOnly){
+      svc.addEventListener('change',()=>setTimeout(()=>setOne((currentMeta().items||[])[0]||'',{silent:true}),80));
+      svc.dataset.dopOneSubOnly='1';
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  setTimeout(boot,400); setTimeout(boot,1200); setTimeout(boot,3000); setTimeout(forceAllProjectDataOneSub,3600);
+  window.dopiousForceOneSubHead=function(){boot();forceAllProjectDataOneSub();};
 })();
 </script>
