@@ -1,9 +1,14 @@
-DOPIOUS+ Fast iOS / UI Parity Package
+DOPIOUS+ Fast iOS + Full Legacy Admin Package
 
-Upload all files in this folder to the website root and replace existing files.
-This version keeps the fast split-file structure, but restores old-style card grouping, video card preview, card captions, How Dopious Works mind-map interface, orange + styling, and visible Admin password input.
+Upload all files to your website root.
 
-Recommended after upload:
-1) Open https://www.dopiousdesign.com/?v=ui-parity-0527
-2) On iPhone Safari: close the old tab and reopen the site.
-3) Admin passwords supported: dopious123, dopious2026
+Public site stays fast: index.html + style.css + app.js.
+Admin is now full old Admin CMS: admin.html.
+
+Admin button opens admin.html automatically.
+Password field is visible text, not dots.
+Supports the existing Admin password and the fast Admin password.
+
+After upload, test:
+https://www.dopiousdesign.com/?v=fast-full-admin-0527
+https://www.dopiousdesign.com/admin.html?admin=1

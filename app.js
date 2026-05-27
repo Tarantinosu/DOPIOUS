@@ -664,7 +664,7 @@ function oPD(ai){
 }
 
 function ensureLegacyAdminPanel(){
-  const tabs=document.querySelector('.ata');const body=document.querySelector('.ab');if(!tabs||!body||document.getElementById('txt'))return;
+  const tabs=document.querySelector('.ata');const body=document.querySelector('.ab');if(!tabs||!body||document.getElementById('ttxt'))return;
   tabs.insertAdjacentHTML('beforeend','<button class="at" onclick="sT(\'txt\',this);fillTextLinkForm()">Text / Links</button><button class="at" onclick="sT(\'legacy\',this);renderLegacyOverview()">Legacy</button>');
   body.insertAdjacentHTML('beforeend',`<div class="apn" id="ttxt"><div class="nt">ดึงข้อมูลจาก Admin เก่า: Company, Contact links, Website text, Theme/SEO และบันทึกกลับ Firebase ได้</div><div class="ast" id="txtM"></div><div class="af"><label class="fw">Company Name<input id="txCompany" placeholder="Dopious Partnership Limited"></label><label>Phone<input id="txPhone" placeholder="+66 ..."></label><label>Email<input id="txEmail" placeholder="info@..."></label><label class="fw">Line URL<input id="txLine" placeholder="https://line.me/..."></label><label class="fw">WhatsApp URL<input id="txWhatsapp" placeholder="https://wa.me/..."></label><label>Facebook<input id="txFacebook"></label><label>Behance<input id="txBehance"></label><label>LinkedIn<input id="txLinkedin"></label><label class="fw">CTA Label<input id="txCta"></label><label class="fw">Homepage Intro<textarea id="txHomeIntro" rows="3"></textarea></label><label class="fw">Service Description<textarea id="txServiceDesc" rows="3"></textarea></label><label class="fw">Career Text<textarea id="txCareer" rows="3"></textarea></label><label>Accent Color<input id="txAccent" placeholder="#ff2a14"></label><label>Background Color<input id="txBg" placeholder="#050505"></label><label class="fw">SEO Title<input id="txSeoTitle"></label><label class="fw">SEO Description<textarea id="txSeoDesc" rows="3"></textarea></label><label class="fw">OG Image URL<input id="txSeoImage"></label></div><div class="arow"><button class="asv" onclick="saveTextLinks()">✓ Save Text / Links</button><button class="asv ghost" onclick="fillTextLinkForm()">Reload from Old Data</button></div></div><div class="apn" id="tlegacy"><div class="nt"><strong>Legacy Data Bridge</strong><br>แสดงจำนวนข้อมูลเก่าที่เจอ และสามารถ Import เข้าระบบใหม่ทั้งหมด</div><div class="ast" id="lgM"></div><div id="legacyOverview"></div><div class="arow"><button class="asv" onclick="importAllLegacyData()">↧ Import Everything</button><button class="asv ghost" onclick="downloadLegacyJSON()">Download Legacy JSON</button></div></div>`);
 }
@@ -839,3 +839,7 @@ loadData=async function(){await _oldLoadDataForParity();try{applyCustomServiceCa
 if(typeof LEGACY_PASSWORDS!=='undefined'){['dopious123','dopious2026'].forEach(p=>{if(!LEGACY_PASSWORDS.includes(p))LEGACY_PASSWORDS.push(p)});}
 function oAL(){op('aLo');setTimeout(()=>{const el=document.getElementById('aPw');if(el){el.type='text';el.focus();}},80)}
 setTimeout(()=>{try{const el=document.getElementById('aPw');if(el)el.type='text';showServiceSub('dopious')}catch(e){}},250);
+
+
+/* Full legacy admin bridge — keep public fast, load complete old Admin separately */
+function oAL(){ location.href='admin.html?admin=1'; }
