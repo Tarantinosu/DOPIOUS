@@ -23,23 +23,25 @@ window._fbBoot=function(){
 
 /* Categories */
 const CATS=[
-  {cat:'BRAND STRATEGY / CORPORATE IDENTITY / DESIGN+',bg:'linear-gradient(90deg,rgba(35,8,0,.88),rgba(80,18,40,.35)),radial-gradient(circle at 62% 50%,#9024a0 0 18%,transparent 19%),linear-gradient(100deg,#2a0c08 0 28%,#a11ca7 29% 58%,#6c6c6c 59% 100%)',svc:'Brand Strategy Corporate Identity Design+'},
-  {cat:'INDUSTRIAL DESIGN+',bg:'linear-gradient(90deg,rgba(3,8,18,.9),rgba(0,0,0,.2)),linear-gradient(100deg,#0b0d13 0 30%,#1b2028 31% 62%,#bec4c8 63% 100%)',svc:'Industrial Design+'},
-  {cat:'SPACE DESIGN+',bg:'linear-gradient(90deg,rgba(0,18,10,.85),rgba(0,0,0,.2)),radial-gradient(ellipse at 62% 52%,rgba(255,255,255,.38),transparent 25%),linear-gradient(100deg,#06120c 0 25%,#223328 26% 70%,#0a0a0a 71% 100%)',svc:'Space Design+'},
-  {cat:'KEYVISUAL / CREATIVE ADS / DESIGN+',bg:'linear-gradient(90deg,rgba(40,5,5,.82),rgba(0,0,0,.12)),linear-gradient(100deg,#24100c 0 18%,#5d0d0a 19% 22%,#111 23% 72%,#7a1d12 73% 100%)',svc:'Keyvisual Creative Ads Design+'},
-  {cat:'GRAPHIC DESIGN+',bg:'linear-gradient(90deg,rgba(30,0,0,.84),rgba(255,42,20,.28)),radial-gradient(circle at 70% 48%,rgba(255,42,20,.62),transparent 18%),linear-gradient(100deg,#140606 0 40%,#2b1010 41% 72%,#ff2a14 73% 100%)',svc:'Graphic Design+'},
-  {cat:'PACKAGING DESIGN+',bg:'linear-gradient(90deg,rgba(70,12,28,.7),rgba(255,210,222,.35)),radial-gradient(circle at 72% 44%,#f0a6b6 0 13%,transparent 14%),linear-gradient(100deg,#2b0d16 0 38%,#efc6d2 39% 100%)',svc:'Packaging Design+'},
-  {cat:'WEBSITE / UX-UI DESIGN+',bg:'linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.15)),linear-gradient(100deg,#0b1020 0 38%,#242424 39% 100%)',svc:'Website UX-UI Design+'},
-  {cat:'SCULPTURE DESIGN+',bg:'linear-gradient(90deg,rgba(0,0,0,.78),rgba(255,255,255,.12)),radial-gradient(circle at 62% 52%,rgba(255,255,255,.62),transparent 20%),linear-gradient(100deg,#070707 0 45%,#3b3b3b 46% 100%)',svc:'Sculpture Design+'},
-  {cat:'FASHION DESIGN+',bg:'linear-gradient(90deg,rgba(180,0,0,.72),rgba(0,0,0,.1)),linear-gradient(100deg,#ff2115 0 36%,#111 37% 100%)',svc:'Fashion Design+'},
-  {cat:'2D-3D MOTION GRAPHIC DESIGN+',bg:'linear-gradient(90deg,rgba(0,68,92,.72),rgba(6,148,165,.25)),radial-gradient(circle at 55% 44%,#f4d36b 0 14%,transparent 15%),linear-gradient(100deg,#0b9aaa 0 44%,#077e8e 45% 100%)',svc:'2D-3D Motion Graphic Design+'},
-  {cat:'PHOTO / VIDEO / ADS DESIGN+',bg:'linear-gradient(90deg,rgba(120,12,3,.75),rgba(8,40,52,.25)),radial-gradient(circle at 42% 48%,#ff4a28 0 10%,transparent 11%),linear-gradient(100deg,#102e3c 0 36%,#9b1d10 37% 100%)',svc:'Photo / Video / Ads Design+'},
-  {cat:'BUILD & INSTALLATION+',bg:'linear-gradient(90deg,rgba(10,10,10,.88),rgba(60,30,10,.4)),linear-gradient(100deg,#0a0a08 0 38%,#2a1e0e 39% 100%)',svc:'Build & Installation+'},
-  {cat:'PROTOTYPE / 3D PRINT SERVICE',bg:'linear-gradient(90deg,rgba(35,20,8,.9),rgba(255,42,20,.18)),linear-gradient(100deg,#100b06 0 44%,#2a160a 45% 100%)',svc:'Prototype 3D Print Service'},
-  {cat:'PRODUCTION FOLLOW UP',bg:'linear-gradient(90deg,rgba(10,10,10,.9),rgba(80,50,20,.28)),linear-gradient(100deg,#070707 0 46%,#24180d 47% 100%)',svc:'Production Follow Up'},
-  {cat:'MARKETING+',bg:'linear-gradient(90deg,rgba(35,8,0,.86),rgba(255,42,20,.20)),linear-gradient(100deg,#0b0505 0 42%,#30100d 43% 100%)',svc:'Marketing'},
+  {cat:'SPACE DESIGN+',bg:'linear-gradient(90deg,rgba(0,18,10,.85),rgba(0,0,0,.2)),radial-gradient(ellipse at 62% 52%,rgba(255,255,255,.38),transparent 25%),linear-gradient(100deg,#06120c 0 25%,#223328 26% 70%,#0a0a0a 71% 100%)',svc:'Space Design+',subs:['Retail','Commercial','Residential','Office','Exhibition','Event','Kiosk','Pop-up Store','VM / Display','Window Display','Art Installation']},
+  {cat:'SCULPTURE DESIGN+',bg:'linear-gradient(90deg,rgba(0,0,0,.78),rgba(255,255,255,.12)),radial-gradient(circle at 62% 52%,rgba(255,255,255,.62),transparent 20%),linear-gradient(100deg,#070707 0 45%,#3b3b3b 46% 100%)',svc:'Sculpture Design+',subs:['Sculpture','Art Installation','Public Art','Character Sculpture','Decorative Object','Landmark','3D Art Form','Spatial Art','Fabrication Concept']},
+  {cat:'VISUAL PRODUCTION+',bg:'linear-gradient(90deg,rgba(0,68,92,.72),rgba(6,148,165,.25)),radial-gradient(circle at 55% 44%,#f4d36b 0 14%,transparent 15%),linear-gradient(100deg,#0b9aaa 0 44%,#077e8e 45% 100%)',svc:'Visual Production+',subs:['Storyboard','Animatic','Motion Graphic','2D Animation','3D Animation','2D Visualization','3D Visualization','3D Composite','Visual Effects','LED Screen','Product Animation','VDO Production','Photo Production','Ads Production','Post Production','Shot Direction','Brand Film']},
+  {cat:'GRAPHIC DESIGN+',bg:'linear-gradient(90deg,rgba(30,0,0,.84),rgba(255,42,20,.28)),radial-gradient(circle at 70% 48%,rgba(255,42,20,.62),transparent 18%),linear-gradient(100deg,#140606 0 40%,#2b1010 41% 72%,#ff2a14 73% 100%)',svc:'Graphic Design+',subs:['Graphic','Illustration','Layout','Poster','Social Media','Print','Typography','Signage','Presentation','Visual System','Packaging Graphic','Label','Box Artwork','Infographic','Icon','Character Graphic','Pattern','Menu','Brochure','Catalogue','Key Art']},
+  {cat:'BRANDING DESIGN+',bg:'linear-gradient(90deg,rgba(35,8,0,.88),rgba(80,18,40,.35)),radial-gradient(circle at 62% 50%,#9024a0 0 18%,transparent 19%),linear-gradient(100deg,#2a0c08 0 28%,#a11ca7 29% 58%,#6c6c6c 59% 100%)',svc:'Branding Design+',subs:['Brand Strategy','Brand Story','Logo','Visual Identity','Brand Guideline','Campaign Identity','Art Direction','Naming','Mood & Tone','Brand Communication']},
+  {cat:'KEY VISUAL DESIGN+',bg:'linear-gradient(90deg,rgba(40,5,5,.82),rgba(0,0,0,.12)),linear-gradient(100deg,#24100c 0 18%,#5d0d0a 19% 22%,#111 23% 72%,#7a1d12 73% 100%)',svc:'Key Visual Design+',subs:['Key Visual','Campaign Visual','Ads','Art Direction','Advertising Direction','Promotion Visual','Social Media','Launch Campaign','Seasonal Campaign','Storyboard','Visual Storytelling']},
+  {cat:'BUILD & INSTALL+',bg:'linear-gradient(90deg,rgba(10,10,10,.88),rgba(60,30,10,.4)),linear-gradient(100deg,#0a0a08 0 38%,#2a1e0e 39% 100%)',svc:'Build & Install+',subs:['Booth Production','Display Production','Event Production','Fabrication','On-site Installation','Site Supervision','Material Execution','Supplier Coordination','Quality Control','Final Delivery']},
+  {cat:'PRODUCTION SOURCING+',bg:'linear-gradient(90deg,rgba(10,10,10,.9),rgba(80,50,20,.28)),linear-gradient(100deg,#070707 0 46%,#24180d 47% 100%)',svc:'Production Sourcing+',subs:['Product Sourcing','Supplier Coordination','Factory Follow-up','Sample Development','Material Sourcing','Production Control','Quality Check','Final Delivery','Premium Gift','Merchandise','Corporate Gift']},
+  {cat:'INDUSTRIAL DESIGN+',bg:'linear-gradient(90deg,rgba(3,8,18,.9),rgba(0,0,0,.2)),linear-gradient(100deg,#0b0d13 0 30%,#1b2028 31% 62%,#bec4c8 63% 100%)',svc:'Industrial Design+',subs:['Product','Product Concept','CMF','Form','User Experience','Prototype','Product Visualization','Packaging Structure','Material','Manufacturing','Premium Product','Merchandise','Corporate Gift']},
+  {cat:'CORPORATE DESIGN+',bg:'linear-gradient(90deg,rgba(18,18,18,.88),rgba(255,42,20,.12)),linear-gradient(100deg,#090909 0 45%,#222 46% 100%)',svc:'Corporate Design+',subs:['Corporate Identity','Brand System','Company Profile','Presentation','Stationery','Corporate Graphic','Visual System','Office Collateral','Business Document']},
+  {cat:'DIGITAL DESIGN+',bg:'linear-gradient(90deg,rgba(0,0,0,.88),rgba(0,0,0,.15)),linear-gradient(100deg,#0b1020 0 38%,#242424 39% 100%)',svc:'Digital Design+',subs:['Website','UX-UI','Landing Page','Web Experience','Interface','Digital Branding','Mobile Experience','User Journey','Conversion','Portfolio Website','Service Website']},
+  {cat:'FASHION DESIGN+',bg:'linear-gradient(90deg,rgba(180,0,0,.72),rgba(0,0,0,.1)),linear-gradient(100deg,#ff2115 0 36%,#111 37% 100%)',svc:'Fashion Design+',subs:['Fashion','Costume','Uniform','Styling Direction','Fashion Concept','Textile Direction','Character Styling','Campaign Styling','Showpiece']},
+  {cat:'CREATIVE CONSULTATION+',bg:'linear-gradient(90deg,rgba(35,8,0,.86),rgba(255,42,20,.20)),linear-gradient(100deg,#0b0505 0 42%,#30100d 43% 100%)',svc:'Creative Consultation+',subs:['Creative Brief','Concept Direction','Design Direction','Budget Planning','Scope Planning','Material Consulting','Production Consulting','Supplier Consulting','Campaign Consulting','Brand Consulting','Space Consulting','Product Consulting']}
 ];
 const S2C={};CATS.forEach((c,i)=>S2C[c.svc]=i);
+const CAT_ALIAS={
+  'space design':'Space Design+','sculpture design':'Sculpture Design+','2d 3d motion graphic design':'Visual Production+','photo video ads design':'Visual Production+','motion design':'Visual Production+','visual production':'Visual Production+','graphic design':'Graphic Design+','packaging design':'Graphic Design+','brand strategy corporate identity design':'Branding Design+','branding design':'Branding Design+','keyvisual creative ads design':'Key Visual Design+','key visual creative ads design':'Key Visual Design+','build installation':'Build & Install+','build install':'Build & Install+','production follow up':'Production Sourcing+','production follow-up':'Production Sourcing+','production sourcing':'Production Sourcing+','industrial design':'Industrial Design+','prototype 3d print service':'Industrial Design+','corporate design':'Corporate Design+','website ux ui design':'Digital Design+','website ux-ui design':'Digital Design+','digital design':'Digital Design+','fashion design':'Fashion Design+','marketing':'Branding Design+','marketing brand communication':'Branding Design+','creative consultation':'Creative Consultation+'
+};
+
 
 /* Hero slides */
 const SLS=[
@@ -121,14 +123,11 @@ function getCovFull(p){return p.covUrl||p.cover||p.coverImage||p.coverThumb||'';
 
 /* Legacy Admin compatibility: old website stored Projects/Clients/Team inside
    dopious_cms/published or dopious_cms/dopiousAdminProjects as value arrays. */
-function normSvc(v){
-  v=String(v||'').trim();
-  if(!v)return'';
-  const direct=CATS.find(c=>c.svc===v);if(direct)return direct.svc;
-  const low=v.toLowerCase().replace(/[^a-z0-9]/g,'');
-  const hit=CATS.find(c=>c.svc.toLowerCase().replace(/[^a-z0-9]/g,'')===low||c.cat.toLowerCase().replace(/[^a-z0-9]/g,'')===low);
-  return hit?hit.svc:v;
-}
+function normKey(v){return String(v||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').replace(/\s+/g,' ').trim();}
+function normSvc(v){v=String(v||'').trim();if(!v)return'';const direct=CATS.find(c=>c.svc===v);if(direct)return direct.svc;const k=normKey(v);const ali=CAT_ALIAS[k];if(ali)return ali;const hit=CATS.find(c=>normKey(c.svc)===k||normKey(c.cat)===k);return hit?hit.svc:v;}
+function metaForSvc(svc){const ns=normSvc(svc);return CATS.find(c=>c.svc===ns)||CATS[0];}
+function matchSub(raw,svc){const meta=metaForSvc(svc),r=normKey(raw);if(!r||r==='creative')return meta.subs[0]||'General';return meta.subs.find(x=>normKey(x)===r)||meta.subs.find(x=>normKey(x).includes(r)||r.includes(normKey(x)))||meta.subs[0]||'General';}
+function firstSub(p,svc){let arr=[];if(p.subHead)arr=[p.subHead];else if(p.sub)arr=[p.sub];else if(p.subhead)arr=[p.subhead];else if(Array.isArray(p.subHeads))arr=p.subHeads;else if(Array.isArray(p.subheads))arr=p.subheads;else if(Array.isArray(p.subServices))arr=p.subServices;else if(p.subHeadline)arr=String(p.subHeadline).split(/\s+\/\s+|,|\n|\|\|\|/);for(const x of arr){const m=matchSub(x,svc);if(m)return m;}return matchSub('',svc);}
 function arrUrl(a){return (Array.isArray(a)?a:[]).map(x=>typeof x==='string'?x:(x&&(x.data||x.url||x.src)||'')).filter(x=>/^https?:\/\//i.test(String(x)));}
 function legacyKey(p,i){return String(p&&((p.id||p._id||'')+'|'+(p.name||p.nm||'')+'|'+(p.coverImage||p.cover||p.covUrl||''))||i).toLowerCase().replace(/\s+/g,' ').trim();}
 function normProject(p,i,src){
@@ -136,17 +135,21 @@ function normProject(p,i,src){
   const cover=p.covUrl||p.coverImage||p.cover||p.coverThumb||'';
   const gallery=arrUrl(p.galleryImages&&p.galleryImages.length?p.galleryImages:(p.gallery&&p.gallery.length?p.gallery:(p.images||[])));
   const name=p.name||p.nm||p.title||'Untitled';
-  const svc=normSvc(p.service||p.svc||p.cat||'');
+  const svc=normSvc(p.service||p.svc||p.cat||p.category||p.head||p.projectHeadline||'');
+  const sub=firstSub(p,svc);
+  const caps=Array.isArray(p.galleryCaptions)?p.galleryCaptions:(Array.isArray(p.captions)?p.captions:[]);
   return Object.assign({},p,{
     _id:p._id||p.id||(src+'_'+i),_legacy:src==='old',
     nm:name,name,cl:p.client||p.cl||'',client:p.client||p.cl||'',
     cr:p.credit||p.cr||'Dopious+',credit:p.credit||p.cr||'Dopious+',
-    svc,service:svc,sub:p.sub||'',yr:p.year||p.yr||'2026',year:p.year||p.yr||'2026',
-    ds:p.desc||p.ds||'',desc:p.desc||p.ds||'',
+    svc,service:svc,sub,subHead:sub,subHeads:[sub],subHeadline:sub,yr:p.year||p.yr||'2026',year:p.year||p.yr||'2026',
+    ds:p.desc||p.ds||'',desc:p.desc||p.ds||'',story:p.story||p.detail||p.fullDescription||'',
+    location:p.location||'',role:p.role||p.scope||'',layout:p.layout||'',
     covUrl:cover,cover,coverImage:cover,coverThumb:p.coverThumb||(cover&&isDr(cover)?dTh(cover,400):cover),
     lqip:p.lqip||(cover&&isDr(cover)?dTh(cover,20):''),
-    gallery,galleryImages:gallery,galleryCaptions:p.galleryCaptions||[],
-    vurl:p.vurl||p.videoUrl||'',videoUrl:p.videoUrl||p.vurl||'',driveFolderUrl:p.driveFolderUrl||''
+    gallery,galleryImages:gallery,galleryCaptions:caps,
+    cardMedia:p.cardMedia||p.cardMediaType||p.previewMedia||'image',cardMediaType:p.cardMedia||p.cardMediaType||p.previewMedia||'image',
+    vurl:p.vurl||p.videoUrl||'',videoUrl:p.videoUrl||p.vurl||'',driveFolderUrl:p.driveFolderUrl||p.folderUrl||p.referenceUrl||''
   });
 }
 function mergeProjects(newer,old){
@@ -211,7 +214,7 @@ async function loadData(){
     _OLDCLIENTS=(oldClients||[]).map((c,i)=>({_id:c._id||c.id||('old_client_'+i),_legacy:true,nm:c.name||c.nm||'',name:c.name||c.nm||'',url:c.url||c.logoUrl||c.logo||'',logoUrl:c.logoUrl||c.url||c.logo||''}));
     _CL=mergeClients(newClients,_OLDCLIENTS);
     const newTeam=ts.docs.map(d=>({_id:d.id,...d.data()}));
-    _OLDTEAM=(oldTeam||[]).map((m,i)=>({_id:m._id||m.id||('old_team_'+i),_legacy:true,nm:m.name||m.nm||'',name:m.name||m.nm||'',pos:m.position||m.pos||'',position:m.position||m.pos||'',ph:m.photo||m.ph||'',photo:m.photo||m.ph||''}));
+    _OLDTEAM=(oldTeam||[]).map((m,i)=>({_id:m._id||m.id||('old_team_'+i),_legacy:true,nm:m.name||m.nm||'',name:m.name||m.nm||'',pos:m.position||m.pos||'',position:m.position||m.pos||'',ph:m.photo||m.ph||'',photo:m.photo||m.ph||'',details:m.details||m.bio||m.desc||m.description||''}));
     _TM=mergePeople(newTeam,_OLDTEAM);
     rSvc();rCl();applyCompanyContact();updAdminStatus();
   }catch(e){
@@ -223,20 +226,29 @@ function mergeClients(a,b){const seen=new Set(),out=[];(a||[]).concat(b||[]).for
 function mergePeople(a,b){const seen=new Set(),out=[];(a||[]).concat(b||[]).forEach((m,i)=>{const k=String((m.name||m.nm||'')+'|'+(m.position||m.pos||'')).toLowerCase();if(seen.has(k))return;seen.add(k);out.push(m);});return out;}
 function updAdminStatus(){const el=document.getElementById('apSt');if(el)el.textContent='Live '+_P.length+' works'+(_OLDPROJECTS.length?' / old admin '+_OLDPROJECTS.length:'');}
 
+
+function isVideoUrl(u){return /\.(mp4|webm|ogg)(\?|#|$)/i.test(String(u||''));}
+function ytId(u){const m=String(u||'').match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);return m?m[1]:'';}
+function mediaThumb(u,fallback){const y=ytId(u);if(y)return 'https://img.youtube.com/vi/'+y+'/hqdefault.jpg';if(isDr(u))return dTh(u,600);return fallback||u||'';}
+function cardMediaUrl(p){return (String(p.cardMedia||p.cardMediaType||'image')==='video'&&(p.videoUrl||p.vurl))?(p.videoUrl||p.vurl):getCov(p);}
+function mediaLayer(s,active){const u=s.media||'';if(s.mediaType==='video'&&isVideoUrl(u)){return '<video class="card-video" src="'+esc(u)+'" muted loop playsinline preload="metadata" '+(active?'autoplay':'')+'></video>';}const img=s.mediaType==='video'?mediaThumb(u,s.img):s.img;return (s.lq?'<div class="lq" style="background-image:url(\''+s.lq+'\')"></div>':'')+(img?'<img '+(active?'src':'data-src')+'="'+iU(img,active?600:400)+'" alt="'+esc(s.ti)+'" loading="'+(active?'eager':'lazy')+'" decoding="async">':'');}
+function grpKey(svc,sub){return normKey(svc)+'|'+normKey(sub||'General');}
+
 /* Service grid */
 var _ac={},_tm2={};
 function rSvc(){
   const g=document.getElementById('sG');if(!g)return;
   Object.keys(_tm2).forEach(k=>clearInterval(_tm2[k]));_tm2={};
-  const gr={};
-  _P.forEach((p,ai)=>{const svc=String(p.service||p.svc||'').trim();const idx=S2C[svc];if(idx===undefined)return;if(!gr[idx])gr[idx]=[];gr[idx].push({p,ai});});
-  const html=CATS.map((cat,ci)=>{
-    const its=gr[ci]||[];if(!its.length)return'';
-    const sls=its.map(({p,ai})=>{const cu=getCov(p);return{ai,ti:p.name||p.nm||'Untitled',img:cu,lq:p.lqip||(cu&&isDr(cu)?dTh(cu,20):'')};});
-    const cnt=sls.length;const lb=cat.cat.split('/').map(s=>s.trim());
+  const map={};
+  _P.forEach((p,ai)=>{const svc=normSvc(p.service||p.svc||'');if(!S2C.hasOwnProperty(svc))return;const sub=p.subHead||p.sub||firstSub(p,svc)||'General';const k=grpKey(svc,sub);if(!map[k])map[k]={svc,sub,items:[],idx:S2C[svc]};map[k].items.push({p,ai});});
+  const groups=Object.values(map).sort((a,b)=>a.idx-b.idx||String(a.sub).localeCompare(String(b.sub)));
+  const html=groups.map((gr,ci)=>{
+    const cat=CATS[gr.idx]||CATS[0];
+    const sls=gr.items.map(({p,ai})=>{const cu=getCov(p);const mu=cardMediaUrl(p);const mt=(String(p.cardMedia||p.cardMediaType||'image')==='video'&&(p.videoUrl||p.vurl))?'video':'image';return{ai,ti:p.name||p.nm||'Untitled',img:cu,media:mu,mediaType:mt,lq:p.lqip||(cu&&isDr(cu)?dTh(cu,20):''),desc:p.desc||p.ds||''};});
+    const cnt=sls.length;
     const ctr=cnt>1?'<div class="sct2"><button class="snv" onclick="nC(event,'+ci+',-1)">‹</button><span class="scn">1/'+cnt+'</span><button class="snv" onclick="nC(event,'+ci+',1)">›</button></div>':'';
-    const layers=sls.map((s,li)=>'<div class="sl'+(li===0?' on':'')+'" data-li="'+li+'">'+(s.lq?'<div class="lq" style="background-image:url(\''+s.lq+'\')"></div>':'')+(s.img?'<img '+(li===0?'src':'data-src')+'="'+iU(s.img,li===0?600:400)+'" alt="'+esc(s.ti)+'" loading="'+(li===0?'eager':'lazy')+'" decoding="async">':'')+'</div>').join('');
-    return'<article class="sc" id="sc'+ci+'" data-ci="'+ci+'" data-sl=\''+JSON.stringify(sls.map(s=>({ai:s.ai,ti:s.ti})))+'\'>'+layers+'<div class="sov"></div><div class="sp"><div class="snm">'+esc(sls[0].ti)+'</div>'+ctr+'</div><div class="slb"><span>'+esc(lb[0]||'')+'</span>'+(lb.length>1?'<span>'+esc(lb.slice(1).join(' / '))+'</span>':'')+'</div><button class="stp" aria-label="View" onclick="oCd('+ci+')"></button></article>';
+    const layers=sls.map((s,li)=>'<div class="sl'+(li===0?' on':'')+'" data-li="'+li+'">'+mediaLayer(s,li===0)+'</div>').join('');
+    return'<article class="sc" id="sc'+ci+'" data-ci="'+ci+'" data-sl=\''+JSON.stringify(sls.map(s=>({ai:s.ai,ti:s.ti})))+'\'>'+layers+'<div class="sov"></div><div class="sp"><div class="snm">'+esc(sls[0].ti)+'</div>'+ctr+'</div><div class="slb"><span class="head">'+esc(gr.svc)+'</span><em>'+esc(gr.sub)+'</em></div><button class="stp" aria-label="View" onclick="oCd('+ci+')"></button></article>';
   }).join('');
   g.innerHTML=html||CATS.slice(0,8).map(c=>'<article class="sc sk"><div class="sl on" style="background:'+c.bg+'"></div><div class="sov"></div><div class="slb"><span style="opacity:.35">'+c.cat.split('/')[0].trim()+'</span></div></article>').join('');
   g.querySelectorAll('img[data-src]').forEach(img=>IO&&IO.observe(img));
@@ -247,7 +259,7 @@ function stC(ci,dir){
   const card=document.getElementById('sc'+ci);if(!card)return;
   const sl=JSON.parse(card.getAttribute('data-sl')||'[]');if(!sl.length)return;
   const nx=((_ac[ci]||0)+dir+sl.length)%sl.length;_ac[ci]=nx;
-  card.querySelectorAll('.sl').forEach((l,i)=>l.classList.toggle('on',i===nx));
+  card.querySelectorAll('.sl').forEach((l,i)=>{l.classList.toggle('on',i===nx);const v=l.querySelector('video');if(v){try{i===nx?v.play().catch(()=>{}):v.pause()}catch(e){}}});
   const nl=card.querySelector('.sl[data-li="'+nx+'"]');if(nl){const img=nl.querySelector('img[data-src]');if(img)ldI(img,img.dataset.src);}
   const ne=card.querySelector('.snm');if(ne)ne.textContent=sl[nx].ti||'';
   const nc=card.querySelector('.scn');if(nc)nc.textContent=(nx+1)+'/'+sl.length;
@@ -258,14 +270,15 @@ function oCd(ci){const card=document.getElementById('sc'+ci);if(!card)return;con
 /* Project detail */
 function oPD(ai){
   const p=_P[ai];if(!p)return;
-  const gls=p.gallery||p.galleryImages||[];const vE=mVE(p.vurl||p.videoUrl||'');const covFull=getCovFull(p);
+  const gls=p.gallery||p.galleryImages||[];const caps=p.galleryCaptions||[];const vE=mVE(p.vurl||p.videoUrl||'');const covFull=getCovFull(p);
   let gal='';
-  if(covFull){const lqS=isDr(covFull)?dTh(covFull,20):'';gal+='<div class="di"><div class="lq" style="background-image:url(\''+lqS+'\')"></div><img src="'+iU(covFull,1100)+'" alt="'+esc(p.name||p.nm||'')+'" loading="eager"></div>';}
-  gls.forEach((url,i)=>{gal+='<div class="di"><div class="lq" style="background-image:url(\''+( isDr(url)?dTh(url,20):'')+'\')"></div><img '+(i<1?'src':'data-src')+'="'+iU(url,1100)+'" alt="" loading="'+(i<1?'eager':'lazy')+'"></div>';});
+  if(covFull){const lqS=isDr(covFull)?dTh(covFull,20):'';gal+='<figure class="df"><div class="di"><div class="lq" style="background-image:url(\''+lqS+'\')"></div><img src="'+iU(covFull,1100)+'" alt="'+esc(p.name||p.nm||'')+'" loading="eager"></div></figure>';}
+  gls.forEach((url,i)=>{const cap=caps[i]||'';gal+='<figure class="df"><div class="di"><div class="lq" style="background-image:url(\''+( isDr(url)?dTh(url,20):'')+'\')"></div><img '+(i<1?'src':'data-src')+'="'+iU(url,1100)+'" alt="" loading="'+(i<1?'eager':'lazy')+'"></div>'+(cap?'<figcaption>'+esc(cap)+'</figcaption>':'')+'</figure>';});
   if(vE)gal+='<div class="dv">'+vE+'</div>';
   if(!gal){const bg=CATS.find(c=>c.svc===(p.service||p.svc));gal='<div class="di" style="background:'+(bg?bg.bg:'#111')+'"></div>';}
-  const svc=p.service||p.svc||'';const sub=p.sub||'';
-  document.getElementById('pdi').innerHTML='<div class="dh"><div class="dc">'+esc(svc)+(sub?' / '+esc(sub):'')+'</div><div class="dn">'+esc(p.name||p.nm||'')+'</div><div class="dm"><div class="db"><small>Client</small><b>'+esc(p.client||p.cl||'-')+'</b></div><div class="db"><small>Credit</small><b>'+esc(p.credit||p.cr||'Dopious+')+'</b></div><div class="db"><small>Year</small><b>'+esc(p.year||p.yr||'2026')+'</b></div></div></div>'+(p.desc||p.ds?'<div class="ds">'+esc(p.desc||p.ds)+'</div>':'')+'<div>'+gal+'</div><div class="dsc"><h3>Scope of Work</h3><p>'+esc(svc)+' — Concept, art direction, design, production.</p></div>';
+  const svc=normSvc(p.service||p.svc||'');const sub=p.subHead||p.sub||firstSub(p,svc)||'';
+  const story=p.story||p.detail||p.fullDescription||p.desc||p.ds||'';
+  document.getElementById('pdi').innerHTML='<div class="dh"><div class="dc">'+esc(svc)+(sub?' / '+esc(sub):'')+'</div><div class="dn">'+esc(p.name||p.nm||'')+'</div><div class="dm"><div class="db"><small>Client</small><b>'+esc(p.client||p.cl||'-')+'</b></div><div class="db"><small>Credit</small><b>'+esc(p.credit||p.cr||'Dopious+')+'</b></div><div class="db"><small>Year</small><b>'+esc(p.year||p.yr||'2026')+'</b></div></div></div>'+(p.desc||p.ds?'<div class="ds">'+esc(p.desc||p.ds)+'</div>':'')+'<div>'+gal+'</div><div class="dsc"><h3>Project Detail</h3><p>'+esc(story||svc+' — Concept, art direction, design, production.')+'</p></div>';
   document.querySelectorAll('#pdi img[data-src]').forEach(img=>IO&&IO.observe(img));
   document.querySelectorAll('#pdi .di').forEach(di=>{const img=di.querySelector('img');const lq=di.querySelector('.lq');if(img&&lq){const done=()=>lq.style.opacity='0';if(img.complete)done();else img.onload=done;}});
   op('pd');
@@ -277,7 +290,7 @@ function mVE(u){if(!u)return'';const yt=u.match(/(?:youtube\.com\/(?:watch\?[^\s
 function rCl(){const g=document.getElementById('cG');if(!g)return;g.innerHTML=_CL.map(c=>'<div class="cl">'+(c.url||c.logoUrl?'<img src="'+(c.url||c.logoUrl)+'" alt="'+esc(c.name||c.nm||'')+'" loading="lazy">':c.name||c.nm||'')+'</div>').join('');}
 
 /* Team */
-function rTm(){const g=document.getElementById('tG');if(!g)return;g.innerHTML=_TM.length?_TM.map(m=>'<div class="tm"><div class="tm-ph">'+(m.photo||m.ph?'<img src="'+(m.photo||m.ph)+'" alt="'+esc(m.name||m.nm||'')+'" loading="lazy">':'<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#080808)"></div>')+'</div><b>'+esc(m.name||m.nm||'')+'</b><span>'+esc(m.position||m.pos||'')+'</span></div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;letter-spacing:.08em">Team profiles coming soon.</p>';}
+function rTm(){const g=document.getElementById('tG');if(!g)return;g.innerHTML=_TM.length?_TM.map(m=>'<div class="tm"><div class="tm-ph">'+(m.photo||m.ph?'<img src="'+(m.photo||m.ph)+'" alt="'+esc(m.name||m.nm||'')+'" loading="lazy">':'<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#080808)"></div>')+'</div><b>'+esc(m.name||m.nm||'')+'</b><span>'+esc(m.position||m.pos||'')+'</span>'+((m.details||m.bio||m.desc)?'<p>'+esc(m.details||m.bio||m.desc)+'</p>':'')+'</div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;letter-spacing:.08em">Team profiles coming soon.</p>';}
 
 /* Admin login */
 function chkA(){
@@ -1451,4 +1464,41 @@ function oAL(){ location.href='admin.html?admin=1'; }
     const lab=card.querySelector('.cat-slide-label'); if(lab){lab.classList.add('tax-card-label'); lab.innerHTML=renderLabel(s);} const vb=card.querySelector('.video-badge'); if(vb)vb.remove();
   };
   try{if(Array.isArray(_P)&&_P.length){_P=_P.map((p,i)=>normProject(p,i,p&&p._legacy?'old':'new'));rSvc();}}catch(e){console.warn('[Dopious] data-entry final patch failed',e);}
+})();
+
+/* FINAL PATCH — media/card grouping/team captions/admin compatibility */
+(function(){
+  function fNormKey(v){return String(v||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').replace(/\s+/g,' ').trim();}
+  const AL={
+    'space design':'Space Design+','sculpture design':'Sculpture Design+','2d 3d motion graphic design':'Visual Production+','photo video ads design':'Visual Production+','motion design':'Visual Production+','visual production':'Visual Production+','graphic design':'Graphic Design+','packaging design':'Graphic Design+','brand strategy corporate identity design':'Branding Design+','branding design':'Branding Design+','brand strategy corporate identity':'Branding Design+','keyvisual creative ads design':'Key Visual Design+','key visual creative ads design':'Key Visual Design+','build installation':'Build & Install+','build install':'Build & Install+','production follow up':'Production Sourcing+','production follow-up':'Production Sourcing+','production sourcing':'Production Sourcing+','industrial design':'Industrial Design+','prototype 3d print service':'Industrial Design+','corporate design':'Corporate Design+','website ux ui design':'Digital Design+','website ux-ui design':'Digital Design+','digital design':'Digital Design+','fashion design':'Fashion Design+','marketing':'Branding Design+','marketing brand communication':'Branding Design+','creative consultation':'Creative Consultation+'
+  };
+  normSvc=function(v){v=String(v||'').trim();if(!v)return'';const direct=CATS.find(c=>c.svc===v);if(direct)return direct.svc;const k=fNormKey(v);if(AL[k])return AL[k];const hit=CATS.find(c=>fNormKey(c.svc)===k||fNormKey(c.cat)===k);return hit?hit.svc:v;};
+  function fMeta(svc){const s=normSvc(svc);return CATS.find(c=>c.svc===s)||CATS[0];}
+  function fSub(raw,svc){const meta=fMeta(svc),r=fNormKey(raw);if(!r||r==='creative')return meta.subs&&meta.subs[0]||'General';return (meta.subs||[]).find(x=>fNormKey(x)===r)||(meta.subs||[]).find(x=>fNormKey(x).includes(r)||r.includes(fNormKey(x)))||(meta.subs&&meta.subs[0])||'General';}
+  function fFirstSub(p,svc){let arr=[];if(p.subHead)arr=[p.subHead];else if(p.sub)arr=[p.sub];else if(p.subhead)arr=[p.subhead];else if(Array.isArray(p.subHeads))arr=p.subHeads;else if(Array.isArray(p.subheads))arr=p.subheads;else if(Array.isArray(p.subServices))arr=p.subServices;else if(p.subHeadline)arr=String(p.subHeadline).split(/\s+\/\s+|,|\n|\|\|\|/);for(const x of arr){const m=fSub(x,svc);if(m)return m;}return fSub('',svc);}
+  normProject=function(p,i,src){
+    p=p||{}; const imgData=(typeof getImgKeyData==='function'?getImgKeyData(p):null)||{};
+    const caps=Array.isArray(p.galleryCaptions)?p.galleryCaptions:(Array.isArray(p.captions)?p.captions:[]);
+    const objs=(typeof arrMediaObjects==='function'?arrMediaObjects(p.galleryImages&&p.galleryImages.length?p.galleryImages:(p.gallery&&p.gallery.length?p.gallery:(p.images&&p.images.length?p.images:(imgData.images||[]))),caps):[]);
+    const gallery=objs.length?objs.map(o=>o.data):arrUrl(p.galleryImages||p.gallery||p.images||[]);
+    const cover=(typeof firstMedia==='function'?firstMedia(p.covUrl,p.coverImage,p.cover,p.coverThumb,p.cardThumb,imgData.cover,imgData.thumb,gallery[0]):(p.covUrl||p.coverImage||p.cover||p.coverThumb||gallery[0]||''));
+    const vids=Array.isArray(imgData.videos)?imgData.videos.map(v=>typeof v==='string'?v:(v&&v.url)||'').filter(Boolean):[];
+    const video=p.videoUrl||p.vurl||p.video||vids[0]||'';
+    const name=p.name||p.nm||p.title||'Untitled'; const svc=normSvc(p.service||p.svc||p.cat||p.category||p.head||p.projectHeadline||''); const sub=fFirstSub(p,svc);
+    return Object.assign({},p,{_id:p._id||p.id||(src+'_'+i),_legacy:src==='old',legacySource:src==='old'?'oldAdmin':(p.legacySource||''),id:p.id||p._id||(src+'_'+i),nm:name,name,cl:p.client||p.cl||'',client:p.client||p.cl||'',credit:p.credit||p.cr||'Dopious+',cr:p.credit||p.cr||'Dopious+',svc,service:svc,sub,subHead:sub,subHeads:[sub],subHeadline:sub,yr:p.year||p.yr||'2026',year:p.year||p.yr||'2026',ds:p.desc||p.ds||p.description||'',desc:p.desc||p.ds||p.description||'',story:p.story||p.detail||p.fullDescription||'',location:p.location||'',role:p.role||p.scope||'',layout:p.layout||'stack',previewType:p.cardMedia||p.cardMediaType||p.previewMedia||p.previewType||p.cardPreviewType||'image',cardMedia:p.cardMedia||p.cardMediaType||p.previewMedia||p.previewType||p.cardPreviewType||'image',cardMediaType:p.cardMedia||p.cardMediaType||p.previewMedia||p.previewType||p.cardPreviewType||'image',covUrl:cover,cover,coverImage:cover,coverThumb:p.coverThumb||(cover&&isDr(cover)?dTh(cover,400):cover),cardThumb:p.cardThumb||p.coverThumb||cover,lqip:p.lqip||(cover&&isDr(cover)?dTh(cover,20):''),gallery,galleryImages:gallery,galleryCaptions:objs.length?objs.map((o,j)=>o.caption||caps[j]||''):caps,galleryObjects:objs,galleryCount:gallery.length,vurl:video,videoUrl:video,driveFolderUrl:p.driveFolderUrl||p.driveFolder||p.folderUrl||p.referenceUrl||'',imgKey:p.imgKey||''});
+  };
+  function fYt(u){const m=String(u||'').match(/(?:youtube\.com\/(?:watch\?[^#\s]*v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);return m?m[1]:'';}
+  function fDrive(u){const m=String(u||'').match(/[?&]id=([A-Za-z0-9_-]+)/)||String(u||'').match(/\/d\/([A-Za-z0-9_-]+)/);return m?m[1]:'';}
+  function fVideoUrl(u){return /\.(mp4|webm|ogg|mov)(\?|#|$)/i.test(String(u||''));}
+  function fPoster(u,fallback){const y=fYt(u);if(y)return 'https://i.ytimg.com/vi/'+y+'/hqdefault.jpg';const d=fDrive(u);if(d)return 'https://drive.google.com/thumbnail?id='+d+'&sz=s1000';return fallback||'';}
+  function fClean(s){return String(s||'').replace(/https?:\/\/\S+/g,'').replace(/\s+/g,' ').trim();}
+  function fGroupKey(svc,sub){return fNormKey(svc)+'|'+fNormKey(sub||'General');}
+  function fPlus(s){return esc(String(s||'').replace(/\+$/,''))+'<em>+</em>';}
+  function fLayer(s,li){let body='';if(s.isVideo&&s.video){if(fVideoUrl(s.video))body='<video muted loop playsinline preload="metadata" '+(li===0?'autoplay':'')+' src="'+esc(s.video)+'" poster="'+esc(fPoster(s.video,s.img))+'"></video>';else body='<div class="video-poster" style="background-image:url(\''+esc(fPoster(s.video,s.img))+'\')"></div>';}else if(s.img){body='<img '+(li===0?'src':'data-src')+'="'+iU(s.img,li===0?800:500)+'" alt="'+esc(s.title)+'" loading="'+(li===0?'eager':'lazy')+'" decoding="async">';}else{body='<div style="position:absolute;inset:0;background:'+s.bg+'"></div>';}return '<div class="cat-slide-layer'+(li===0?' is-on':'')+'" data-layer="'+li+'">'+body+'</div>';}
+  rSvc=function(){const g=document.getElementById('sG');if(!g)return;Object.keys(_tm2||{}).forEach(k=>clearInterval(_tm2[k]));_tm2={};_ac={};const map={};(_P||[]).forEach((p,ai)=>{const svc=normSvc(p.service||p.svc||'');if(!svc||S2C[svc]===undefined)return;const sub=p.subHead||p.sub||fFirstSub(p,svc)||'General';const k=fGroupKey(svc,sub);if(!map[k])map[k]={svc,sub,idx:S2C[svc],items:[]};map[k].items.push({p,ai});});const groups=Object.values(map).sort((a,b)=>a.idx-b.idx||String(a.sub).localeCompare(String(b.sub)));let html='';let last='';groups.forEach((gr,ci)=>{const cat=CATS[gr.idx]||CATS[0],bg=cat.bg||'#111';if(gr.svc!==last){html+='<div class="svc-cat-divider">'+esc(gr.svc)+'</div>';last=gr.svc;}const slides=gr.items.map(({p,ai})=>{const img=getCov(p),video=p.videoUrl||p.vurl||'',useVideo=!!video&&String(p.cardMedia||p.cardMediaType||p.previewType||'image').toLowerCase().includes('video');return{ai,title:p.name||p.nm||'Untitled',img,video,isVideo:useVideo,bg,desc:p.desc||p.ds||'',service:gr.svc,sub:gr.sub};});const id='work_'+String(gr.svc+'_'+gr.sub).replace(/[^a-zA-Z0-9]/g,'_').slice(0,64)+'_'+ci;const controls=slides.length>1?'<div class="cat-slide-controls"><button class="cat-slide-btn" data-dir="-1" type="button">‹</button><span class="cat-slide-count">1 / '+slides.length+'</span><button class="cat-slide-btn" data-dir="1" type="button">›</button></div>':'';const safe=JSON.stringify(slides.map(s=>({ai:s.ai,title:s.title,desc:s.desc,service:s.service,sub:s.sub,isVideo:s.isVideo,video:s.video}))).replace(/'/g,'&#39;');const firstDesc=fClean(slides[0]&&slides[0].desc);html+='<article class="cat-slide-card" id="'+id+'" data-service="'+esc(gr.svc)+'" data-sub="'+esc(gr.sub)+'" data-slides=\''+safe+'\'>'+slides.map(fLayer).join('')+'<div class="cat-slide-top"><div class="cat-slide-name">'+esc(slides[0].title)+'</div>'+controls+'</div><div class="cat-slide-label tax-card-label"><span class="card-head">'+fPlus(gr.svc)+'</span><span class="card-sub-one">'+esc(gr.sub)+'</span></div><div class="svc-desc" '+(firstDesc?'':'style="display:none"')+'><p>'+esc(firstDesc)+'</p></div><button class="stp" aria-label="View" onclick="oCardProject(event,\''+id+'\')"></button></article>';});g.innerHTML=html||CATS.slice(0,8).map(c=>'<article class="cat-slide-card sk"><div class="cat-slide-layer is-on" style="background:'+c.bg+'"></div><div class="cat-slide-label tax-card-label"><span class="card-head">'+fPlus(c.svc)+'</span></div></article>').join('');g.querySelectorAll('img[data-src]').forEach(img=>IO&&IO.observe(img));g.querySelectorAll('.cat-slide-card[id]').forEach(card=>{_ac[card.id]=0;card.querySelectorAll('.cat-slide-btn').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setCardSlide(card,parseInt(btn.dataset.dir||'1',10));clearInterval(_tm2[card.id]);const sl=cardSlides(card);if(sl.length>1)_tm2[card.id]=setInterval(()=>setCardSlide(card,1),4200);}));const sl=cardSlides(card);if(sl.length>1)_tm2[card.id]=setInterval(()=>setCardSlide(card,1),4200);});const el=document.getElementById('sCt');if(el){const t=(_P||[]).length;el.textContent=t?(t+' Project'+(t>1?'s':'')+' — Live'):'Upload projects from Admin';}};
+  cardSlides=function(card){try{return JSON.parse(card.getAttribute('data-slides')||'[]')}catch(e){return[]}};
+  setCardSlide=function(card,dir){if(!card)return;const sl=cardSlides(card);if(!sl.length)return;const nx=((_ac[card.id]||0)+dir+sl.length)%sl.length;_ac[card.id]=nx;card.querySelectorAll('.cat-slide-layer').forEach((l,i)=>{l.classList.toggle('is-on',i===nx);const v=l.querySelector('video');if(v){try{i===nx?v.play().catch(()=>{}):v.pause()}catch(e){}}});const layer=card.querySelector('.cat-slide-layer[data-layer="'+nx+'"]');if(layer){const img=layer.querySelector('img[data-src]');if(img)ldI(img,img.dataset.src);}const s=sl[nx]||{};const n=card.querySelector('.cat-slide-name');if(n)n.textContent=s.title||'';const c=card.querySelector('.cat-slide-count');if(c)c.textContent=(nx+1)+' / '+sl.length;const desc=card.querySelector('.svc-desc');if(desc){const t=fClean(s.desc);desc.style.display=t?'block':'none';desc.innerHTML='<p>'+esc(t)+'</p>';}};
+  oCardProject=function(e,id){if(e)e.stopPropagation();const card=document.getElementById(id);if(!card)return;const sl=cardSlides(card);const s=sl[_ac[id]||0]||sl[0];if(s&&s.ai!==undefined)oPD(s.ai);};
+  oPD=function(ai){const p=_P[ai];if(!p)return;const objs=p.galleryObjects&&p.galleryObjects.length?p.galleryObjects:(p.galleryImages||p.gallery||[]).map((u,i)=>({data:u,caption:(p.galleryCaptions||[])[i]||''}));const vE=mVE(p.vurl||p.videoUrl||'');const covFull=getCovFull(p);let gal='';if(covFull){gal+='<div class="di"><div class="lq" style="background-image:url(\''+(isDr(covFull)?dTh(covFull,20):'')+'\')"></div><img src="'+iU(covFull,1100)+'" alt="'+esc(p.name||p.nm||'')+'" loading="eager"></div>';}objs.forEach((o,i)=>{const url=typeof o==='string'?o:(o&&o.data)||'';if(!url||url===covFull)return;const cap=fClean((o&&o.caption)||'');gal+='<div class="di"><div class="lq" style="background-image:url(\''+(isDr(url)?dTh(url,20):'')+'\')"></div><img '+(i<1?'src':'data-src')+'="'+iU(url,1100)+'" alt="'+esc(cap)+'" loading="'+(i<1?'eager':'lazy')+'"></div>'+(cap?'<div class="detail-img-caption">'+esc(cap)+'</div>':'');});if(vE)gal+='<div class="dv">'+vE+'</div>';if(!gal){const bg=CATS.find(c=>c.svc===(p.service||p.svc));gal='<div class="di" style="background:'+(bg?bg.bg:'#111')+'"></div>';}const svc=normSvc(p.service||p.svc||''),sub=p.subHead||p.sub||fFirstSub(p,svc)||'';const folder=p.driveFolderUrl?'<a class="drive-link" href="'+esc(p.driveFolderUrl)+'" target="_blank" rel="noopener">Open Drive Folder</a>':'';const story=p.story||p.detail||p.fullDescription||'';document.getElementById('pdi').innerHTML='<div class="dh"><div class="dc">'+esc(svc)+(sub?' / '+esc(sub):'')+'</div><div class="dn">'+esc(p.name||p.nm||'')+'</div><div class="dm"><div class="db"><small>Client</small><b>'+esc(p.client||p.cl||'-')+'</b></div><div class="db"><small>Credit</small><b>'+esc(p.credit||p.cr||'Dopious+')+'</b></div><div class="db"><small>Year</small><b>'+esc(p.year||p.yr||'2026')+'</b></div></div></div>'+(p.desc||p.ds?'<div class="ds">'+esc(p.desc||p.ds).replace(/\n/g,'<br>')+folder+'</div>':'')+'<div>'+gal+'</div><div class="dsc"><h3>Project Detail</h3><p>'+esc(story||svc+' — '+sub+' — Concept, art direction, design and production.')+'</p></div>';document.querySelectorAll('#pdi img[data-src]').forEach(img=>IO&&IO.observe(img));document.querySelectorAll('#pdi .di').forEach(di=>{const img=di.querySelector('img');const lq=di.querySelector('.lq');if(img&&lq){const done=()=>lq.style.opacity='0';if(img.complete)done();else img.onload=done;}});op('pd');};
+  rTm=function(){const g=document.getElementById('tG');if(!g)return;g.innerHTML=_TM.length?_TM.map(m=>'<div class="tm"><div class="tm-ph">'+(m.photo||m.ph?'<img src="'+(m.photo||m.ph)+'" alt="'+esc(m.name||m.nm||'')+'" loading="lazy">':'<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#080808)"></div>')+'</div><b>'+esc(m.name||m.nm||'')+'</b><span>'+esc(m.position||m.pos||'')+'</span>'+((m.details||m.bio||m.desc||m.detail)?'<p>'+esc(m.details||m.bio||m.desc||m.detail)+'</p>':'')+'</div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;letter-spacing:.08em">Team profiles coming soon.</p>';};
 })();

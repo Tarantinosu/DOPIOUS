@@ -338,3 +338,12 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
 .card-sub-list em{display:block!important;border:0!important;background:transparent!important;padding:0!important;border-radius:0!important;backdrop-filter:none!important;color:rgba(255,255,255,.72)!important;font-style:normal!important;font-size:11px!important;font-weight:800!important;letter-spacing:.12em!important;text-transform:uppercase!important;line-height:1.25!important;}
 .card-sub-list em:first-child{border:0!important;color:rgba(255,255,255,.72)!important;background:transparent!important;}
 @media(max-width:768px){.cat-slide-label.tax-card-label .card-head{font-size:17px!important;}.card-sub-list em{font-size:8px!important;letter-spacing:.10em!important;}}
+
+/* Patch: card video, card subhead, gallery captions, team details */
+.sl video.card-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;background:#111}
+.slb .head{font-size:clamp(22px,3.1vw,36px);line-height:1;font-weight:950;letter-spacing:-.035em;color:#fff;text-transform:uppercase}
+.slb em{display:block;margin-top:6px;color:rgba(255,255,255,.72);font-style:normal;font-size:clamp(9px,1.1vw,12px);font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+.df{margin:0 0 8px}.df figcaption{padding:8px max(24px,env(safe-area-inset-left)) 18px;color:rgba(255,255,255,.58);font-size:13px;line-height:1.45}.tm p{font-size:10px;color:rgba(255,255,255,.42);line-height:1.45;margin-top:2px}
+@media(max-width:768px){.slb .head{font-size:18px}.slb em{font-size:8px;margin-top:4px}.df figcaption{font-size:12px;padding:7px 16px 14px}}
+.card-sub-one{display:block!important;margin-top:5px!important;color:rgba(255,255,255,.72)!important;font-style:normal!important;font-size:clamp(9px,1vw,12px)!important;font-weight:900!important;letter-spacing:.13em!important;text-transform:uppercase!important;line-height:1.25!important;}
+@media(max-width:768px){.card-sub-one{font-size:8px!important;margin-top:4px!important;}}
