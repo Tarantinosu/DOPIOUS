@@ -428,3 +428,16 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
   .how-contact-actions{display:grid;grid-template-columns:1fr;gap:8px}
   .how-contact-actions button{width:100%}
 }
+
+/* HOW IT WORKS — clearer service explanations */
+.how-explain-grid{display:grid;grid-template-columns:1fr;gap:12px;width:100%}
+.how-service-explain-card,.how-selected-explain{border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.035);border-radius:20px;padding:16px;overflow:hidden}
+.how-service-explain-title{display:block;background:transparent;border:0;color:#fff;font-size:15px;font-weight:950;letter-spacing:.02em;text-align:left;margin:0 0 8px;padding:0;cursor:pointer}
+.how-service-explain-title em,.how-selected-explain em{color:var(--r);font-style:normal}
+.how-service-explain-card p,.how-selected-copy p{color:rgba(255,255,255,.58);font-size:13px;line-height:1.55;margin:0 0 12px;max-width:920px}
+.how-selected-copy b,.how-sub-list-title{display:block;color:var(--r);font-size:10px;font-weight:950;letter-spacing:.18em;text-transform:uppercase;margin-bottom:8px}
+.how-selected-explain .how-sub-group-chips,.how-service-explain-card .how-sub-group-chips{gap:7px}
+.how-sub-chip.explain-chip{display:inline-flex;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.04);color:rgba(255,255,255,.78);border-radius:999px;padding:8px 11px;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap}
+.how-sub-chip.explain-chip:hover{border-color:rgba(255,42,20,.55);color:#fff}
+@media(min-width:900px){.how-explain-grid.all{grid-template-columns:1fr 1fr}.how-service-explain-card{min-height:160px}.how-service-explain-title{font-size:16px}}
+@media(max-width:768px){.how-service-explain-card,.how-selected-explain{padding:14px;border-radius:18px}.how-service-explain-card p,.how-selected-copy p{font-size:12px}.how-selected-explain .how-sub-group-chips,.how-service-explain-card .how-sub-group-chips{display:flex;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.how-selected-explain .how-sub-group-chips::-webkit-scrollbar,.how-service-explain-card .how-sub-group-chips::-webkit-scrollbar{display:none}.how-sub-chip.explain-chip{flex-shrink:0;font-size:9px;padding:7px 10px}}

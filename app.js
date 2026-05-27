@@ -2160,3 +2160,89 @@ function oAL(){ location.href='admin.html?admin=1'; }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(bootHow,250);});
   else setTimeout(bootHow,250);
 })();
+
+/* =========================================================
+   HOW IT WORKS — Head explanation panel
+   - Clicking each Service Head now explains what that head includes.
+   - Sub Heads remain informational only; no jump/link to Works cards.
+   - Keeps only Start a Project CTA.
+   ========================================================= */
+(function(){
+  function e(v){
+    try{return typeof esc==='function'?esc(String(v||'')):String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+    catch(err){return String(v||'');}
+  }
+  function plus(v){return e(String(v||'').replace(/\+$/,''))+'<em>+</em>';}
+  function clean(v){return String(v||'').replace(/\+$/,'').trim();}
+  function cats(){return Array.isArray(CATS)?CATS.filter(function(c){return c && (c.svc||c.cat) && Array.isArray(c.subs);}):[];}
+  var SERVICE_EXPLAINS={
+    'Space Design+':'ออกแบบพื้นที่เชิงพาณิชย์และประสบการณ์ในสถานที่จริง เช่น ร้านค้า บูธ อีเวนต์ คีออสก์ ป๊อปอัพ VM / Display และงานตกแต่งพื้นที่ ให้พร้อมต่อยอดสู่แบบผลิตและติดตั้ง',
+    'Sculpture Design+':'ออกแบบงานประติมากรรม งานศิลปะติดตั้ง แลนด์มาร์ก คาแรกเตอร์ และ decorative object ตั้งแต่คอนเซปต์ รูปทรง วัสดุ ไปจนถึงแนวทางผลิตจริง',
+    'Visual Production+':'งานภาพนิ่ง ภาพเคลื่อนไหว วิดีโอ เรนเดอร์ 2D/3D, motion graphic, storyboard, LED screen และ post-production สำหรับใช้สื่อสารแบรนด์หรือโปรเจกต์',
+    'Graphic Design+':'งานออกแบบกราฟิกทุกชนิด เช่น layout, poster, social media, signage, presentation, packaging graphic, label, menu, brochure และ visual system',
+    'Branding Design+':'วางทิศทางแบรนด์ ตั้งแต่ brand strategy, story, logo, visual identity, guideline, naming, mood & tone และ art direction ให้แบรนด์สื่อสารชัดเจน',
+    'Key Visual Design+':'ออกแบบภาพหลักของแคมเปญและสื่อโฆษณา เช่น key visual, campaign visual, launch campaign, seasonal campaign, promotion visual และ visual storytelling',
+    'Build & Install+':'ดูแลงานผลิตและติดตั้งจริง เช่น booth, display, event production, fabrication, on-site installation, material execution, supplier coordination และ quality control',
+    'Production Sourcing+':'ช่วยหาแหล่งผลิต ประสาน supplier / factory ติดตาม sample, material, production control, quality check รวมถึง premium gift, merchandise และ corporate gift',
+    'Industrial Design+':'ออกแบบผลิตภัณฑ์และงานที่เกี่ยวข้องกับการผลิต เช่น product concept, CMF, form, UX, prototype, product visualization, packaging structure, material และ manufacturing',
+    'Corporate Design+':'ออกแบบระบบภาพลักษณ์องค์กร เช่น corporate identity, company profile, presentation, stationery, office collateral, business document และ corporate graphic',
+    'Digital Design+':'ออกแบบประสบการณ์ดิจิทัล เช่น website, UX-UI, landing page, interface, digital branding, mobile experience, user journey และ conversion-focused design',
+    'Fashion Design+':'งานออกแบบแฟชั่น คอสตูม ยูนิฟอร์ม styling direction, textile direction, character styling, campaign styling และ showpiece',
+    'Creative Consultation+':'ให้คำปรึกษาด้าน creative brief, concept direction, design direction, budget, scope, material, production, supplier, campaign, brand, space และ product direction'
+  };
+  function keyToMeta(key){
+    if(!key || key==='dopious') return null;
+    var i=parseInt(String(key).replace(/\D/g,''),10)-1;
+    var list=cats();
+    return (!isNaN(i)&&list[i])?list[i]:null;
+  }
+  function subChip(sub){
+    return '<span class="how-sub-chip static explain-chip">'+e(sub)+'</span>';
+  }
+  function serviceBlock(c){
+    var name=c.svc||c.cat||'';
+    var desc=SERVICE_EXPLAINS[name]||'บริการในหมวด '+clean(name)+' พร้อมรายการงานย่อยที่สามารถเลือกใช้ตามประเภทโปรเจกต์ได้';
+    return '<div class="how-service-explain-card">'+
+      '<button type="button" class="how-service-explain-title" onclick="showServiceSub(\'n'+(cats().indexOf(c)+1)+'\')">'+plus(name)+'</button>'+
+      '<p>'+e(desc)+'</p>'+
+      '<div class="how-sub-group-chips">'+(c.subs||[]).map(subChip).join('')+'</div>'+ 
+    '</div>';
+  }
+  function renderAll(chips){
+    var html='<div class="how-explain-grid all">'+cats().map(serviceBlock).join('')+'</div>';
+    chips.innerHTML=html;
+  }
+  function renderOne(chips,meta){
+    var name=meta.svc||meta.cat||'';
+    var desc=SERVICE_EXPLAINS[name]||'บริการในหมวด '+clean(name)+' พร้อมรายการงานย่อยที่สามารถเลือกใช้ตามประเภทโปรเจกต์ได้';
+    chips.innerHTML='<div class="how-selected-explain">'+
+      '<div class="how-selected-copy"><b>What this includes</b><p>'+e(desc)+'</p></div>'+ 
+      '<div class="how-sub-list-title">Sub Heads / Service Details</div>'+ 
+      '<div class="how-sub-group-chips">'+(meta.subs||[]).map(subChip).join('')+'</div>'+ 
+    '</div>';
+  }
+  window.goHowSub=function(){return false;};
+  window.goServicesFromHow=function(){try{if(typeof oSt==='function')oSt();}catch(err){}};
+  window.showServiceSub=function(key){
+    var panel=document.getElementById('serviceSubPanel'); if(!panel) return;
+    var meta=keyToMeta(key);
+    var kicker=document.getElementById('subKicker'), title=document.getElementById('subTitle'), desc=document.getElementById('subDesc'), chips=document.getElementById('subChips');
+    document.querySelectorAll('.mind-node').forEach(function(n){n.classList.remove('active');});
+    var node=document.querySelector('.mind-node.'+key); if(node) node.classList.add('active');
+    if(!meta){
+      if(kicker) kicker.textContent='DOPIOUS+ SERVICE HEADS';
+      if(title) title.innerHTML='All Services & Sub Heads';
+      if(desc) desc.textContent='คลิก Service Head เพื่อดูคำอธิบายของหมวดนั้น หรือดูรายการ Sub Head ทั้งหมดด้านล่าง';
+      if(chips) renderAll(chips);
+      return;
+    }
+    var name=meta.svc||meta.cat||'';
+    if(kicker) kicker.textContent='SERVICE HEAD';
+    if(title) title.innerHTML=plus(name);
+    if(desc) desc.textContent='คำอธิบายสั้น ๆ ว่าหมวดนี้ทำอะไร และมี Sub Head อะไรบ้าง';
+    if(chips) renderOne(chips,meta);
+  };
+  function boot(){try{window.showServiceSub('dopious');}catch(err){}}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,250);});
+  else setTimeout(boot,250);
+})();
