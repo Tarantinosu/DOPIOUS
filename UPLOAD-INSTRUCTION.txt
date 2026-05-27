@@ -1,16 +1,11 @@
-DOPIOUS FAST IOS PACKAGE
+DOPIOUS+ Fast iOS Full Old Admin Package
 
-Upload these files to the root of your GitHub Pages / hosting project:
-- index.html
-- style.css
-- app.js
-- favicon.png
-- robots.txt
-- sitemap.xml
-- CNAME
+Upload all files in this folder to the root of your GitHub Pages/hosting.
+
+Included:
+- Fast public page for iPhone Safari / Windows
+- Legacy Admin bridge: projects, image links, gallery captions, video links, client logos, team, company links, website text, theme, SEO, subtopics, custom categories, media library
+- Admin passwords accepted: dopious123 and dopious2026
 
 Important:
-1) Replace the old index.html with this index.html.
-2) Put style.css and app.js in the same folder as index.html.
-3) Keep CNAME if this site uses www.dopiousdesign.com.
-4) After uploading, hard refresh iPhone Safari: close tab, open a new tab, then visit www.dopiousdesign.com.
+After uploading, open Safari/Chrome in a new tab or clear cache if old files still show.

@@ -442,3 +442,289 @@ async function delTm(id){
 
 /* FAST PATCH: never leave first screen blocked */
 setTimeout(function(){var l=document.getElementById('ld');if(l){l.classList.add('out');setTimeout(function(){try{l.remove()}catch(e){}},300);}},900);
+
+
+
+/* ════════════════════════════════════════════════════════════════
+   FULL LEGACY ADMIN BRIDGE — carries old Admin links/text/settings
+   - Reads Firestore docs and same-domain localStorage keys from old Admin
+   - Accepts old + new admin passwords
+   - Keeps public page fast: only applies lightweight settings
+════════════════════════════════════════════════════════════════ */
+const LEGACY_PASSWORDS=['dopious123','dopious2026'];
+const LEGACY_KEYS=['dopiousAdminProjects','dopiousClients','dopiousClientSection','dopiousClientSectionSettings','dopiousAdminTeam','dopiousAdminHome','dopiousAdminLogos','dopiousAdminCompany','dopiousAdminWebsite','dopiousTheme','dopiousSEO','dopiousAdminSubtopics','dopiousCustomServiceCategories','dopiousHiddenCategories','dopiousMediaLibrary','dopiousPublished'];
+var _OLDSETTINGS={};
+var _LEGACYDOCS={};
+var _CLIENT_SECTION={};
+var _SEO={};
+var _THEME={};
+var _WEBSITE={};
+var _HOME=[];
+var _CUSTOM_CATS=[];
+var _SUBTOPICS=[];
+var _MEDIA_LIBRARY=[];
+
+function safeJSON(v,f){try{return JSON.parse(v)}catch(e){return f}}
+function lsGet(k,f){try{const v=localStorage.getItem(k);return v==null?f:safeJSON(v,f)}catch(e){return f}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function isMediaString(v){v=String(v||'');return /^https?:\/\//i.test(v)||/^data:image\//i.test(v)}
+function arrMedia(a){
+  return (Array.isArray(a)?a:[]).map(x=>{
+    if(typeof x==='string')return x;
+    if(!x)return'';
+    return x.data||x.url||x.src||x.image||x.cover||x.thumb||'';
+  }).filter(isMediaString);
+}
+function arrMediaObjects(a,caps){
+  caps=Array.isArray(caps)?caps:[];
+  return (Array.isArray(a)?a:[]).map((x,i)=>{
+    if(typeof x==='string')return {data:x,caption:caps[i]||'',name:'image'};
+    if(!x)return null;
+    return {data:x.data||x.url||x.src||x.image||x.cover||x.thumb||'',caption:x.caption||caps[i]||'',name:x.name||'image'};
+  }).filter(o=>o&&isMediaString(o.data));
+}
+function getImgKeyData(p){
+  if(!p||!p.imgKey)return null;
+  try{return JSON.parse(localStorage.getItem(p.imgKey)||'null')}catch(e){return null}
+}
+function firstMedia(){for(let i=0;i<arguments.length;i++){if(isMediaString(arguments[i]))return arguments[i];}return'';}
+function normSvc(v){
+  v=String(v||'').trim();
+  if(!v)return'';
+  const low=v.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const hit=CATS.find(c=>c.svc.toLowerCase().replace(/[^a-z0-9]/g,'')===low||c.cat.toLowerCase().replace(/[^a-z0-9]/g,'')===low||c.svc.toLowerCase().includes(low)||low.includes(c.svc.toLowerCase().replace(/[^a-z0-9]/g,'')));
+  return hit?hit.svc:v;
+}
+function legacyKey(p,i){
+  const d=getImgKeyData(p)||{};
+  return String((p&&((p.id||p._id||p.legacyId||'')+'|'+(p.name||p.nm||p.title||'')+'|'+(p.coverImage||p.cover||p.covUrl||p.coverThumb||p.cardThumb||d.cover||d.thumb||'')))||i).toLowerCase().replace(/\s+/g,' ').trim();
+}
+function normProject(p,i,src){
+  p=p||{};
+  const imgData=getImgKeyData(p)||{};
+  const caps=Array.isArray(p.galleryCaptions)?p.galleryCaptions:[];
+  const imgObjects = arrMediaObjects(p.galleryImages&&p.galleryImages.length?p.galleryImages:(p.gallery&&p.gallery.length?p.gallery:(p.images&&p.images.length?p.images:(imgData.images||[]))),caps);
+  const gallery = imgObjects.map(o=>o.data);
+  const cover=firstMedia(p.covUrl,p.coverImage,p.cover,p.coverThumb,p.cardThumb,imgData.cover,imgData.thumb,gallery[0]);
+  const vids = Array.isArray(imgData.videos)?imgData.videos.map(v=>typeof v==='string'?v:(v&&v.url)||'').filter(Boolean):[];
+  const video = p.videoUrl||p.vurl||p.video||vids[0]||'';
+  const name=p.name||p.nm||p.title||'Untitled';
+  const svc=normSvc(p.service||p.svc||p.cat||p.category||'');
+  const out=Object.assign({},p,{
+    _id:p._id||p.id||(src+'_'+i), _legacy:src==='old', legacySource:src==='old'?'oldAdmin':(p.legacySource||''),
+    id:p.id||p._id||(src+'_'+i), nm:name, name:name,
+    cl:p.client||p.cl||'', client:p.client||p.cl||'',
+    credit:p.credit||p.cr||'', cr:p.credit||p.cr||'',
+    svc:svc, service:svc, sub:p.sub||p.subService||'',
+    yr:p.year||p.yr||'2026', year:p.year||p.yr||'2026',
+    ds:p.desc||p.ds||p.description||'', desc:p.desc||p.ds||p.description||'',
+    layout:p.layout||'stack', previewType:p.previewType||p.cardPreviewType||'image',
+    covUrl:cover, cover:cover, coverImage:cover, coverThumb:p.coverThumb||(cover&&isDr(cover)?dTh(cover,400):cover), cardThumb:p.cardThumb||p.coverThumb||cover,
+    lqip:p.lqip||(cover&&isDr(cover)?dTh(cover,20):''),
+    gallery:gallery, galleryImages:gallery, galleryCaptions:imgObjects.map((o,j)=>o.caption||caps[j]||''), galleryObjects:imgObjects,
+    galleryCount:gallery.length, vurl:video, videoUrl:video, driveFolderUrl:p.driveFolderUrl||p.driveFolder||'', imgKey:p.imgKey||''
+  });
+  return out;
+}
+function mergeProjects(newer,old){const seen=new Set(),out=[];(newer||[]).concat(old||[]).forEach((p,i)=>{const k=legacyKey(p,i);if(!k||seen.has(k))return;seen.add(k);out.push(p)});return out;}
+function mergeClients(a,b){const seen=new Set(),out=[];(a||[]).concat(b||[]).forEach((c,i)=>{const k=String((c.name||c.nm||'')+'|'+(c.url||c.logoUrl||c.logo||'')).toLowerCase();if(seen.has(k))return;seen.add(k);out.push(c)});return out;}
+function mergePeople(a,b){const seen=new Set(),out=[];(a||[]).concat(b||[]).forEach((m,i)=>{const k=String((m.name||m.nm||'')+'|'+(m.position||m.pos||'')+'|'+(m.photo||m.ph||'')).toLowerCase();if(seen.has(k))return;seen.add(k);out.push(m)});return out;}
+function normContact(raw){
+  raw=raw||{};return {
+    name:raw.name||raw.company||'Dopious Partnership Limited', office:raw.office||raw.location||'Bangkok Office / Thailand', phone:raw.phone||'+66 93-691-6592', email:raw.email||'info.dopiousth@gmail.com',
+    line:raw.line||raw.lineUrl||raw.lineURL||'https://line.me/R/ti/p/@dopious', whatsapp:raw.whatsapp||raw.whatsappUrl||raw.whatsappURL||'https://wa.me/66936916592', facebook:raw.facebook||'', behance:raw.behance||'', linkedin:raw.linkedin||''
+  };
+}
+function docVal(d){return d&&d.value!==undefined?d.value:d;}
+async function getDocValue(id){try{const s=await db.collection(COL).doc(id).get();return s.exists?s.data():null}catch(e){return null}}
+async function loadLegacyDocs(){
+  const out={};
+  if(!db)return out;
+  const docs=await Promise.all(LEGACY_KEYS.filter(k=>k!=='dopiousPublished').map(k=>getDocValue(k).then(v=>[k,docVal(v)])));
+  docs.forEach(([k,v])=>{if(v!==null&&v!==undefined)out[k]=v});
+  return out;
+}
+function mergeLegacySources(pub,docs){
+  const local={};LEGACY_KEYS.forEach(k=>{const v=lsGet(k,undefined);if(v!==undefined)local[k]=v});
+  const p=pub||{};
+  const all=Object.assign({},docs||{},local||{});
+  all.dopiousAdminProjects=p.projects||all.dopiousAdminProjects||[];
+  all.dopiousClients=p.clients||all.dopiousClients||[];
+  all.dopiousClientSection=p.clientSection||all.dopiousClientSection||all.dopiousClientSectionSettings||{};
+  all.dopiousAdminTeam=p.team||all.dopiousAdminTeam||[];
+  all.dopiousAdminHome=p.home||all.dopiousAdminHome||[];
+  all.dopiousAdminLogos=p.logos||all.dopiousAdminLogos||[];
+  all.dopiousAdminCompany=p.company||all.dopiousAdminCompany||{};
+  all.dopiousAdminWebsite=p.website||all.dopiousAdminWebsite||{};
+  all.dopiousTheme=p.theme||all.dopiousTheme||{};
+  all.dopiousSEO=p.seo||all.dopiousSEO||{};
+  return all;
+}
+function applyThemeFromLegacy(){
+  const t=_THEME||{};
+  const r=t.accent||t.accentColor||t.primary||t.primaryColor||t.themeAccentColor||t.r;
+  const bg=t.bg||t.background||t.backgroundColor||t.themeBgColor;
+  const text=t.text||t.textColor||t.themeTextColor;
+  const root=document.documentElement;
+  if(r)root.style.setProperty('--r',r);
+  if(bg){root.style.setProperty('--bg',bg);document.body.style.background=bg;}
+  if(text)document.body.style.color=text;
+}
+function setMeta(name,content,prop){if(!content)return;let sel=prop?'meta[property="'+name+'"]':'meta[name="'+name+'"]';let el=document.querySelector(sel);if(!el){el=document.createElement('meta');if(prop)el.setAttribute('property',name);else el.setAttribute('name',name);document.head.appendChild(el)}el.setAttribute('content',content)}
+function applySEOFromLegacy(){
+  const s=_SEO||{};
+  if(s.title)document.title=s.title;
+  setMeta('description',s.desc||s.description||'');setMeta('keywords',s.keywords||'');
+  setMeta('og:title',s.title||'',true);setMeta('og:description',s.desc||s.description||'',true);setMeta('og:image',s.ogImage||'',true);
+  setMeta('twitter:title',s.title||'');setMeta('twitter:description',s.desc||s.description||'');setMeta('twitter:image',s.ogImage||'');
+  if(s.canonical){let l=document.querySelector('link[rel="canonical"]');if(!l){l=document.createElement('link');l.rel='canonical';document.head.appendChild(l)}l.href=s.canonical;}
+}
+function applyCompanyContact(){
+  const c=normContact(_CO);
+  const tel='tel:'+String(c.phone).replace(/[^+0-9]/g,'');
+  document.querySelectorAll('a[href^="https://line.me"],button[onclick*="line.me"]').forEach(a=>{if(a.tagName==='A')a.href=c.line;else a.setAttribute('onclick',"window.open('"+c.line+"','_blank')")});
+  document.querySelectorAll('a[href^="https://wa.me"],button[onclick*="wa.me"]').forEach(a=>{if(a.tagName==='A')a.href=c.whatsapp;else a.setAttribute('onclick',"window.open('"+c.whatsapp+"','_blank')")});
+  document.querySelectorAll('a[href^="mailto:"]').forEach(a=>a.href='mailto:'+c.email);
+  document.querySelectorAll('a[href^="tel:"]').forEach(a=>a.href=tel);
+  document.querySelectorAll('.of').forEach(of=>{const t=of.textContent.toLowerCase();if(t.includes('office'))of.innerHTML='<b>Office</b><br>'+esc(c.office);if(t.includes('phone'))of.innerHTML='<b>Phone</b><br>'+esc(c.phone);if(t.includes('email'))of.innerHTML='<b>Email</b><br>'+esc(c.email)});
+  document.querySelectorAll('.poi div').forEach((d,i)=>{if(i===0)d.innerHTML='<b>'+esc(c.name)+'</b>';if(i===1)d.innerHTML='<b>'+esc(c.phone)+'</b>';if(i===2)d.innerHTML='<b>'+esc(c.email)+'</b>'});
+  document.querySelectorAll('.cont-a').forEach(a=>{const txt=a.textContent.toLowerCase();if(txt.includes('line'))a.href=c.line;if(txt.includes('whatsapp'))a.href=c.whatsapp;if(txt.includes('email')){a.href='mailto:'+c.email;const sp=a.querySelector('span+div span');if(sp)sp.textContent=c.email}if(txt.includes('phone')){a.href=tel;const sp=a.querySelector('span+div span');if(sp)sp.textContent=c.phone}});
+}
+function applyWebsiteText(){
+  const w=_WEBSITE||{};
+  if(w.cta)document.querySelectorAll('.btn.br,.nbs').forEach(el=>{if(/start|create|project/i.test(el.textContent))el.textContent=w.cta});
+  if(w.howTitle){const h=document.querySelector('#hP .how-hero h2'); if(h)h.innerHTML=esc(w.howTitle).replace(/\n/g,'<br>')+'<span style="color:var(--r)">+</span>';}
+  if(w.career){const wh=document.querySelector('#wP .who-hero p'); if(wh)wh.textContent=w.career;}
+}
+function applyClientSection(){
+  const c=_CLIENT_SECTION||{};
+  const title=document.querySelector('.cls-t'); const sub=document.querySelector('.cls-s'); const grid=document.querySelector('.cg'); const sec=document.querySelector('.cls');
+  if(title&&c.title)title.innerHTML=c.title;
+  if(sub&&c.sub)sub.innerHTML=c.sub;
+  if(grid){if(c.cols)grid.style.gridTemplateColumns='repeat('+parseInt(c.cols||6,10)+',1fr)';if(c.gap)grid.style.gap=parseInt(c.gap,10)+'px';if(c.width)grid.style.maxWidth=parseInt(c.width,10)+'px';}
+  if(sec&&c.bg)sec.style.background=c.bg;
+  document.querySelectorAll('.cl').forEach(el=>{if(c.cardHeight)el.style.height=parseInt(c.cardHeight,10)+'px';if(c.cardBg)el.style.background=c.cardBg;if(c.borderColor)el.style.borderColor=c.borderColor;if(c.textColor)el.style.color=c.textColor});
+}
+function applyHomeSlides(){
+  const slides=Array.isArray(_HOME)?_HOME:[];
+  if(!slides.length)return;
+  const mapped=slides.slice(0,5).map(s=>({ey:s.eyebrow||s.ey||'Dopious+',ti:(s.title||'Creative work').replace(/\n/g,'<br>'),st:s.desc||s.description||'',de:'',tg:['Dopious+','Creative','Design'],bg:false}));
+  if(mapped.length){SLS.splice(0,SLS.length,...mapped);try{clearInterval(_ht);document.getElementById('hD').innerHTML='';initHero()}catch(e){}}
+}
+function applyAllLegacySettings(){applyThemeFromLegacy();applySEOFromLegacy();applyCompanyContact();applyWebsiteText();applyClientSection();applyHomeSlides();}
+
+async function loadData(){
+  if(!db)return;
+  try{
+    const [ps,cs,ts,pubDoc,legacyDocs]=await Promise.all([
+      db.collection(COL).orderBy('ts','desc').get().catch(()=>({docs:[]})),
+      db.collection(COL_CL).orderBy('ts','asc').get().catch(()=>({docs:[]})),
+      db.collection(COL_TM).orderBy('ts','asc').get().catch(()=>({docs:[]})),
+      getDocValue('published'),loadLegacyDocs()
+    ]);
+    const pub=pubDoc||{};_OLDPUB=pub;_LEGACYDOCS=legacyDocs||{};_OLDSETTINGS=mergeLegacySources(pub,legacyDocs);
+    _CLIENT_SECTION=_OLDSETTINGS.dopiousClientSection||_OLDSETTINGS.dopiousClientSectionSettings||{};
+    _CO=_OLDSETTINGS.dopiousAdminCompany||{};_SEO=_OLDSETTINGS.dopiousSEO||{};_THEME=_OLDSETTINGS.dopiousTheme||{};_WEBSITE=_OLDSETTINGS.dopiousAdminWebsite||{};
+    _HOME=Array.isArray(_OLDSETTINGS.dopiousAdminHome)?_OLDSETTINGS.dopiousAdminHome:[];
+    _CUSTOM_CATS=Array.isArray(_OLDSETTINGS.dopiousCustomServiceCategories)?_OLDSETTINGS.dopiousCustomServiceCategories:[];
+    _SUBTOPICS=Array.isArray(_OLDSETTINGS.dopiousAdminSubtopics)?_OLDSETTINGS.dopiousAdminSubtopics:[];
+    _MEDIA_LIBRARY=Array.isArray(_OLDSETTINGS.dopiousMediaLibrary)?_OLDSETTINGS.dopiousMediaLibrary:[];
+    const newProjects=ps.docs.filter(d=>!LEGACY_KEYS.includes(d.id)&&d.id!=='published').map((d,i)=>normProject({_id:d.id,...d.data()},i,'new'));
+    const oldProjects=Array.isArray(_OLDSETTINGS.dopiousAdminProjects)?_OLDSETTINGS.dopiousAdminProjects:[];
+    _OLDPROJECTS=oldProjects.map((p,i)=>normProject(p,i,'old'));
+    _P=mergeProjects(newProjects,_OLDPROJECTS);
+    const newClients=cs.docs.map(d=>({_id:d.id,...d.data()}));
+    const oldClients=Array.isArray(_OLDSETTINGS.dopiousClients)?_OLDSETTINGS.dopiousClients:[];
+    _OLDCLIENTS=oldClients.map((c,i)=>({_id:c._id||c.id||('old_client_'+i),_legacy:true,nm:c.name||c.nm||'',name:c.name||c.nm||'',url:c.url||c.logoUrl||c.logo||c.image||'',logoUrl:c.logoUrl||c.url||c.logo||c.image||''}));
+    _CL=mergeClients(newClients,_OLDCLIENTS);
+    const newTeam=ts.docs.map(d=>({_id:d.id,...d.data()}));
+    const oldTeam=Array.isArray(_OLDSETTINGS.dopiousAdminTeam)?_OLDSETTINGS.dopiousAdminTeam:[];
+    _OLDTEAM=oldTeam.map((m,i)=>({_id:m._id||m.id||('old_team_'+i),_legacy:true,nm:m.name||m.nm||'',name:m.name||m.nm||'',pos:m.position||m.pos||'',position:m.position||m.pos||'',department:m.department||'',detail:m.detail||'',ph:m.photo||m.ph||'',photo:m.photo||m.ph||''}));
+    _TM=mergePeople(newTeam,_OLDTEAM);
+    rSvc();rCl();applyAllLegacySettings();updAdminStatus();
+  }catch(e){console.warn('loadData full legacy:',e);const el=document.getElementById('sCt');if(el)el.textContent='Error loading';}
+}
+
+function buildGalleryItem(url,cap,i){
+  const lq=isDr(url)?dTh(url,20):'';
+  return '<figure class="di">'+(lq?'<div class="lq" style="background-image:url(\''+lq+'\')"></div>':'')+'<img '+(i<1?'src':'data-src')+'="'+iU(url,1100)+'" alt="" loading="'+(i<1?'eager':'lazy')+'">'+(cap?'<figcaption class="fcap">'+esc(cap)+'</figcaption>':'')+'</figure>';
+}
+function oPD(ai){
+  const p=_P[ai];if(!p)return;
+  const gls=p.gallery||p.galleryImages||[];const caps=p.galleryCaptions||[];const vE=mVE(p.vurl||p.videoUrl||'');const covFull=getCovFull(p);let gal='';
+  if(covFull)gal+=buildGalleryItem(covFull,'',0);
+  gls.forEach((url,i)=>{if(url!==covFull)gal+=buildGalleryItem(url,caps[i]||'',i+1)});
+  if(vE)gal+='<div class="dv">'+vE+'</div>';
+  if(!gal){const bg=CATS.find(c=>c.svc===(p.service||p.svc));gal='<div class="di" style="background:'+(bg?bg.bg:'#111')+'"></div>';}
+  const svc=p.service||p.svc||'';const sub=p.sub||'';const folder=p.driveFolderUrl?'<a class="drive-link" href="'+esc(p.driveFolderUrl)+'" target="_blank" rel="noopener">Open Drive Folder</a>':'';
+  document.getElementById('pdi').innerHTML='<div class="dh"><div class="dc">'+esc(svc)+(sub?' / '+esc(sub):'')+'</div><div class="dn">'+esc(p.name||p.nm||'')+'</div><div class="dm"><div class="db"><small>Client</small><b>'+esc(p.client||p.cl||'-')+'</b></div><div class="db"><small>Credit</small><b>'+esc(p.credit||p.cr||'Dopious+')+'</b></div><div class="db"><small>Year</small><b>'+esc(p.year||p.yr||'2026')+'</b></div></div></div>'+(p.desc||p.ds?'<div class="ds">'+esc(p.desc||p.ds).replace(/\n/g,'<br>')+folder+'</div>':'')+'<div class="gallery-layout layout-'+esc(p.layout||'stack')+'">'+gal+'</div><div class="dsc"><h3>Scope of Work</h3><p>'+esc(svc)+(sub?' — '+esc(sub):'')+' — Concept, art direction, design and production.</p></div>';
+  document.querySelectorAll('#pdi img[data-src]').forEach(img=>IO&&IO.observe(img));
+  document.querySelectorAll('#pdi .di').forEach(di=>{const img=di.querySelector('img');const lq=di.querySelector('.lq');if(img&&lq){const done=()=>lq.style.opacity='0';if(img.complete)done();else img.onload=done;}});
+  op('pd');
+}
+
+function ensureLegacyAdminPanel(){
+  const tabs=document.querySelector('.ata');const body=document.querySelector('.ab');if(!tabs||!body||document.getElementById('txt'))return;
+  tabs.insertAdjacentHTML('beforeend','<button class="at" onclick="sT(\'txt\',this);fillTextLinkForm()">Text / Links</button><button class="at" onclick="sT(\'legacy\',this);renderLegacyOverview()">Legacy</button>');
+  body.insertAdjacentHTML('beforeend',`<div class="apn" id="ttxt"><div class="nt">ดึงข้อมูลจาก Admin เก่า: Company, Contact links, Website text, Theme/SEO และบันทึกกลับ Firebase ได้</div><div class="ast" id="txtM"></div><div class="af"><label class="fw">Company Name<input id="txCompany" placeholder="Dopious Partnership Limited"></label><label>Phone<input id="txPhone" placeholder="+66 ..."></label><label>Email<input id="txEmail" placeholder="info@..."></label><label class="fw">Line URL<input id="txLine" placeholder="https://line.me/..."></label><label class="fw">WhatsApp URL<input id="txWhatsapp" placeholder="https://wa.me/..."></label><label>Facebook<input id="txFacebook"></label><label>Behance<input id="txBehance"></label><label>LinkedIn<input id="txLinkedin"></label><label class="fw">CTA Label<input id="txCta"></label><label class="fw">Homepage Intro<textarea id="txHomeIntro" rows="3"></textarea></label><label class="fw">Service Description<textarea id="txServiceDesc" rows="3"></textarea></label><label class="fw">Career Text<textarea id="txCareer" rows="3"></textarea></label><label>Accent Color<input id="txAccent" placeholder="#ff2a14"></label><label>Background Color<input id="txBg" placeholder="#050505"></label><label class="fw">SEO Title<input id="txSeoTitle"></label><label class="fw">SEO Description<textarea id="txSeoDesc" rows="3"></textarea></label><label class="fw">OG Image URL<input id="txSeoImage"></label></div><div class="arow"><button class="asv" onclick="saveTextLinks()">✓ Save Text / Links</button><button class="asv ghost" onclick="fillTextLinkForm()">Reload from Old Data</button></div></div><div class="apn" id="tlegacy"><div class="nt"><strong>Legacy Data Bridge</strong><br>แสดงจำนวนข้อมูลเก่าที่เจอ และสามารถ Import เข้าระบบใหม่ทั้งหมด</div><div class="ast" id="lgM"></div><div id="legacyOverview"></div><div class="arow"><button class="asv" onclick="importAllLegacyData()">↧ Import Everything</button><button class="asv ghost" onclick="downloadLegacyJSON()">Download Legacy JSON</button></div></div>`);
+}
+function fillTextLinkForm(){
+  const c=normContact(_CO||{}),w=_WEBSITE||{},t=_THEME||{},s=_SEO||{};
+  const set=(id,v)=>{const el=document.getElementById(id);if(el)el.value=v||''};
+  set('txCompany',c.name);set('txPhone',c.phone);set('txEmail',c.email);set('txLine',c.line);set('txWhatsapp',c.whatsapp);set('txFacebook',c.facebook);set('txBehance',c.behance);set('txLinkedin',c.linkedin);
+  set('txCta',w.cta||'');set('txHomeIntro',w.homeIntro||'');set('txServiceDesc',w.serviceDesc||'');set('txCareer',w.career||'');
+  set('txAccent',t.accent||t.accentColor||t.primary||t.primaryColor||'');set('txBg',t.bg||t.background||t.backgroundColor||'');
+  set('txSeoTitle',s.title||'');set('txSeoDesc',s.desc||s.description||'');set('txSeoImage',s.ogImage||'');
+}
+async function saveTextLinks(){
+  if(!db){stM('txtM','Firebase ยังไม่พร้อม','err');return;}
+  _CO={name:txCompany.value,company:txCompany.value,phone:txPhone.value,email:txEmail.value,line:txLine.value,whatsapp:txWhatsapp.value,facebook:txFacebook.value,behance:txBehance.value,linkedin:txLinkedin.value,office:(_CO&&_CO.office)||'Bangkok Office / Thailand'};
+  _WEBSITE=Object.assign({},_WEBSITE,{cta:txCta.value,homeIntro:txHomeIntro.value,serviceDesc:txServiceDesc.value,career:txCareer.value});
+  _THEME=Object.assign({},_THEME,{accent:txAccent.value,bg:txBg.value});
+  _SEO=Object.assign({},_SEO,{title:txSeoTitle.value,desc:txSeoDesc.value,ogImage:txSeoImage.value});
+  try{
+    await Promise.all([db.collection(COL).doc('dopiousAdminCompany').set({value:_CO,updatedAt:new Date().toISOString()},{merge:true}),db.collection(COL).doc('dopiousAdminWebsite').set({value:_WEBSITE,updatedAt:new Date().toISOString()},{merge:true}),db.collection(COL).doc('dopiousTheme').set({value:_THEME,updatedAt:new Date().toISOString()},{merge:true}),db.collection(COL).doc('dopiousSEO').set({value:_SEO,updatedAt:new Date().toISOString()},{merge:true})]);
+    applyAllLegacySettings();stM('txtM','✓ Saved text / links / SEO / theme','ok');
+  }catch(e){stM('txtM','Error: '+e.message,'err')}
+}
+function renderLegacyOverview(){
+  const el=document.getElementById('legacyOverview');if(!el)return;
+  const counts=[['Projects',_OLDPROJECTS.length],['Clients',_OLDCLIENTS.length],['Team',_OLDTEAM.length],['Home slides',Array.isArray(_HOME)?_HOME.length:0],['Logos',Array.isArray(_OLDSETTINGS.dopiousAdminLogos)?_OLDSETTINGS.dopiousAdminLogos.length:0],['Subtopics',Array.isArray(_SUBTOPICS)?_SUBTOPICS.length:0],['Custom categories',Array.isArray(_CUSTOM_CATS)?_CUSTOM_CATS.length:0],['Media library',Array.isArray(_MEDIA_LIBRARY)?_MEDIA_LIBRARY.length:0],['SEO',Object.keys(_SEO||{}).length],['Theme',Object.keys(_THEME||{}).length],['Website text',Object.keys(_WEBSITE||{}).length],['Company links',Object.keys(_CO||{}).length]];
+  el.innerHTML='<div class="legacy-grid">'+counts.map(x=>'<div class="legacy-card"><b>'+x[1]+'</b><span>'+x[0]+'</span></div>').join('')+'</div><div class="nt">รหัส Admin ที่ใช้ได้: <strong>dopious123</strong> และ <strong>dopious2026</strong></div>';
+}
+function downloadLegacyJSON(){
+  const blob=new Blob([JSON.stringify(_OLDSETTINGS,null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='Dopious_Legacy_Admin_All_Data.json';a.click();URL.revokeObjectURL(a.href);
+}
+async function importAllLegacyData(){
+  if(!db){stM('lgM','Firebase ยังไม่พร้อม','err');return;}
+  if(!confirm('Import ข้อมูลเก่าทั้งหมดเข้า Firebase docs ใหม่?'))return;
+  try{
+    const batch=db.batch();let n=0;
+    _OLDPROJECTS.forEach((p,i)=>{const id='legacy_project_'+String(p.id||p.name||i).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80)+'_'+i;const q=Object.assign({},p,{_legacy:false,legacySource:'oldAdmin',ts:firebase.firestore.FieldValue.serverTimestamp()});delete q._id;batch.set(db.collection(COL).doc(id),q,{merge:true});n++;});
+    _OLDCLIENTS.forEach((c,i)=>{const id='legacy_client_'+String(c.name||c.nm||i).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80)+'_'+i;const q=Object.assign({},c,{legacySource:'oldAdmin',ts:firebase.firestore.FieldValue.serverTimestamp()});delete q._id;delete q._legacy;batch.set(db.collection(COL_CL).doc(id),q,{merge:true});n++;});
+    _OLDTEAM.forEach((m,i)=>{const id='legacy_team_'+String(m.name||m.nm||i).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80)+'_'+i;const q=Object.assign({},m,{legacySource:'oldAdmin',ts:firebase.firestore.FieldValue.serverTimestamp()});delete q._id;delete q._legacy;batch.set(db.collection(COL_TM).doc(id),q,{merge:true});n++;});
+    ['dopiousAdminHome','dopiousAdminLogos','dopiousAdminCompany','dopiousAdminWebsite','dopiousTheme','dopiousSEO','dopiousClientSection','dopiousAdminSubtopics','dopiousCustomServiceCategories','dopiousHiddenCategories','dopiousMediaLibrary'].forEach(k=>{if(_OLDSETTINGS[k]!==undefined){batch.set(db.collection(COL).doc(k),{value:_OLDSETTINGS[k],updatedAt:new Date().toISOString()},{merge:true});n++;}});
+    batch.set(db.collection(COL).doc('published'),{projects:_OLDPROJECTS,clients:_OLDCLIENTS,team:_OLDTEAM,home:_HOME,logos:_OLDSETTINGS.dopiousAdminLogos||[],company:_CO,website:_WEBSITE,theme:_THEME,seo:_SEO,clientSection:_CLIENT_SECTION,publishedAt:new Date().toISOString()},{merge:true});n++;
+    await batch.commit();await loadData();rAP();rACl();rATm();renderLegacyOverview();stM('lgM','✓ Imported '+n+' legacy records/settings','ok');
+  }catch(e){stM('lgM','Import error: '+e.message,'err')}
+}
+function importOldData(){importAllLegacyData();}
+function chkA(){
+  const v=document.getElementById('aPw')?.value||'';
+  if(LEGACY_PASSWORDS.includes(v)){
+    cAL();ensureLegacyAdminPanel();op('aP');rAP();rACl();rATm();fillTextLinkForm();renderLegacyOverview();
+  }else{document.getElementById('aErr').style.display='block';}
+}
+function updAdminStatus(){const el=document.getElementById('apSt');if(el)el.textContent='Live '+_P.length+' works'+(_OLDPROJECTS.length?' / old admin '+_OLDPROJECTS.length:'')+' / full legacy';}
+
+/* Make new saves preserve old feature fields too */
+async function savP(){
+  if(!db){stM('apM','Firebase ยังไม่พร้อม','err');return;}
+  const nm=document.getElementById('pN')?.value.trim();if(!nm){stM('apM','ใส่ชื่อโปรเจกต์ก่อน','err');return;}
+  const cu=document.getElementById('pCU')?.value.trim();if(!cu){stM('apM','ใส่ Cover Image URL ก่อน','err');return;}
+  const gallery=(document.getElementById('pGU')?.value||'').split('\n').map(s=>s.trim()).filter(isMediaString).slice(0,20);
+  const v=document.getElementById('pVU')?.value.trim()||'';
+  const proj={id:'proj_'+Date.now(),nm,name:nm,cl:document.getElementById('pCl')?.value.trim()||'Dopious+ Client',client:document.getElementById('pCl')?.value.trim()||'Dopious+ Client',credit:'Dopious+',cr:'Dopious+',svc:document.getElementById('pSv')?.value||'',service:document.getElementById('pSv')?.value||'',sub:'',yr:document.getElementById('pY')?.value||'2026',year:document.getElementById('pY')?.value||'2026',ds:document.getElementById('pDs')?.value.trim()||'',desc:document.getElementById('pDs')?.value.trim()||'',layout:'stack',previewType:'image',covUrl:cu,cover:cu,coverImage:cu,coverThumb:isDr(cu)?dTh(cu,400):cu,cardThumb:isDr(cu)?dTh(cu,400):cu,lqip:isDr(cu)?dTh(cu,20):'',gallery,galleryImages:gallery,galleryCaptions:[],galleryCount:gallery.length,vurl:v,videoUrl:v,driveFolderUrl:'',ts:firebase.firestore.FieldValue.serverTimestamp()};
+  try{stM('apM','กำลัง publish...','ok');await db.collection(COL).add(proj);await loadData();rAP();clrF();stM('apM','✓ Published: '+nm+' — ทุก device เห็นทันที','ok');}
+  catch(e){stM('apM','Error: '+e.message,'err')}
+}
