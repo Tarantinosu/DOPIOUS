@@ -242,3 +242,7 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
 #ld .lb{width:64px;height:2px;margin-top:14px;border-radius:3px;background:linear-gradient(90deg,#ff2a14,rgba(255,42,20,.18));animation:ldPulse .8s ease-in-out infinite alternate}
 @keyframes ldPulse{from{opacity:.35;transform:scaleX(.45)}to{opacity:1;transform:scaleX(1)}}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001s!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.001s!important}.mq div{animation:none!important}}
+
+
+/* Old Admin data import */
+.arow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}.arow .asv{flex:1 1 220px}.asv.ghost{background:#151515!important;border:1px solid rgba(255,255,255,.14)!important;color:#fff!important}.apb:disabled{opacity:.42;cursor:not-allowed;background:#151515!important;color:rgba(255,255,255,.55)!important;border-color:rgba(255,255,255,.1)!important}

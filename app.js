@@ -9,6 +9,7 @@ const COL='dopious_cms';
 const COL_CL='dopious_clients';
 const COL_TM='dopious_team';
 var db=null;
+var _OLDPUB=null,_OLDPROJECTS=[],_OLDCLIENTS=[],_OLDTEAM=[],_CO={};
 
 /* Called when Firebase SDK finishes loading */
 window._fbBoot=function(){
@@ -115,24 +116,109 @@ var _P=[],_CL=[],_TM=[];
 function getCov(p){return p.covUrl||p.coverThumb||p.cover||p.coverImage||'';}
 function getCovFull(p){return p.covUrl||p.cover||p.coverImage||p.coverThumb||'';}
 
+/* Legacy Admin compatibility: old website stored Projects/Clients/Team inside
+   dopious_cms/published or dopious_cms/dopiousAdminProjects as value arrays. */
+function normSvc(v){
+  v=String(v||'').trim();
+  if(!v)return'';
+  const direct=CATS.find(c=>c.svc===v);if(direct)return direct.svc;
+  const low=v.toLowerCase().replace(/[^a-z0-9]/g,'');
+  const hit=CATS.find(c=>c.svc.toLowerCase().replace(/[^a-z0-9]/g,'')===low||c.cat.toLowerCase().replace(/[^a-z0-9]/g,'')===low);
+  return hit?hit.svc:v;
+}
+function arrUrl(a){return (Array.isArray(a)?a:[]).map(x=>typeof x==='string'?x:(x&&(x.data||x.url||x.src)||'')).filter(x=>/^https?:\/\//i.test(String(x)));}
+function legacyKey(p,i){return String(p&&((p.id||p._id||'')+'|'+(p.name||p.nm||'')+'|'+(p.coverImage||p.cover||p.covUrl||''))||i).toLowerCase().replace(/\s+/g,' ').trim();}
+function normProject(p,i,src){
+  p=p||{};
+  const cover=p.covUrl||p.coverImage||p.cover||p.coverThumb||'';
+  const gallery=arrUrl(p.galleryImages&&p.galleryImages.length?p.galleryImages:(p.gallery&&p.gallery.length?p.gallery:(p.images||[])));
+  const name=p.name||p.nm||p.title||'Untitled';
+  const svc=normSvc(p.service||p.svc||p.cat||'');
+  return Object.assign({},p,{
+    _id:p._id||p.id||(src+'_'+i),_legacy:src==='old',
+    nm:name,name,cl:p.client||p.cl||'',client:p.client||p.cl||'',
+    cr:p.credit||p.cr||'Dopious+',credit:p.credit||p.cr||'Dopious+',
+    svc,service:svc,sub:p.sub||'',yr:p.year||p.yr||'2026',year:p.year||p.yr||'2026',
+    ds:p.desc||p.ds||'',desc:p.desc||p.ds||'',
+    covUrl:cover,cover,coverImage:cover,coverThumb:p.coverThumb||(cover&&isDr(cover)?dTh(cover,400):cover),
+    lqip:p.lqip||(cover&&isDr(cover)?dTh(cover,20):''),
+    gallery,galleryImages:gallery,galleryCaptions:p.galleryCaptions||[],
+    vurl:p.vurl||p.videoUrl||'',videoUrl:p.videoUrl||p.vurl||'',driveFolderUrl:p.driveFolderUrl||''
+  });
+}
+function mergeProjects(newer,old){
+  const seen=new Set(),out=[];
+  (newer||[]).concat(old||[]).forEach((p,i)=>{const k=legacyKey(p,i);if(seen.has(k))return;seen.add(k);out.push(p);});
+  return out;
+}
+function normContact(raw){
+  raw=raw||{};
+  return {
+    name:raw.name||raw.company||'Dopious Partnership Limited',
+    office:raw.office||raw.location||'Bangkok Office / Thailand',
+    phone:raw.phone||'+66 93-691-6592',
+    email:raw.email||'info.dopiousth@gmail.com',
+    line:raw.line||raw.lineUrl||raw.lineURL||'https://line.me/R/ti/p/@dopious',
+    whatsapp:raw.whatsapp||raw.whatsappUrl||raw.whatsappURL||'https://wa.me/66936916592',
+    facebook:raw.facebook||'',behance:raw.behance||'',linkedin:raw.linkedin||''
+  };
+}
+function applyCompanyContact(){
+  const c=normContact(_CO);
+  const tel='tel:'+String(c.phone).replace(/[^+0-9]/g,'');
+  document.querySelectorAll('a[href^="https://line.me"]').forEach(a=>a.href=c.line);
+  document.querySelectorAll('a[href^="https://wa.me"]').forEach(a=>a.href=c.whatsapp);
+  document.querySelectorAll('a[href^="mailto:"]').forEach(a=>a.href='mailto:'+c.email);
+  document.querySelectorAll('a[href^="tel:"]').forEach(a=>a.href=tel);
+  document.querySelectorAll('.of').forEach(of=>{
+    const t=of.textContent.toLowerCase();
+    if(t.includes('office'))of.innerHTML='<b>Office</b><br>'+esc(c.office);
+    if(t.includes('phone'))of.innerHTML='<b>Phone</b><br>'+esc(c.phone);
+    if(t.includes('email'))of.innerHTML='<b>Email</b><br>'+esc(c.email);
+  });
+}
+async function getDocValue(id){
+  try{const s=await db.collection(COL).doc(id).get();return s.exists?s.data():null;}catch(e){return null;}
+}
+function docVal(d){return d&&d.value!==undefined?d.value:null;}
+
 /* Load from Firebase */
 async function loadData(){
   if(!db)return;
   try{
-    const [ps,cs,ts]=await Promise.all([
-      db.collection(COL).orderBy('ts','desc').get(),
+    const [ps,cs,ts,pubDoc,oldPDoc,oldCDoc,oldTDoc,oldCoDoc]=await Promise.all([
+      db.collection(COL).orderBy('ts','desc').get().catch(()=>({docs:[]})),
       db.collection(COL_CL).orderBy('ts','asc').get().catch(()=>({docs:[]})),
       db.collection(COL_TM).orderBy('ts','asc').get().catch(()=>({docs:[]})),
+      getDocValue('published'),
+      getDocValue('dopiousAdminProjects'),
+      getDocValue('dopiousClients'),
+      getDocValue('dopiousAdminTeam'),
+      getDocValue('dopiousAdminCompany')
     ]);
-    _P=ps.docs.map(d=>({_id:d.id,...d.data()}));
-    _CL=cs.docs.map(d=>({_id:d.id,...d.data()}));
-    _TM=ts.docs.map(d=>({_id:d.id,...d.data()}));
-    rSvc();rCl();
+    const pub=pubDoc||{};_OLDPUB=pub;
+    const oldProjects=Array.isArray(pub.projects)?pub.projects:(Array.isArray(docVal(oldPDoc))?docVal(oldPDoc):[]);
+    const oldClients=Array.isArray(pub.clients)?pub.clients:(Array.isArray(docVal(oldCDoc))?docVal(oldCDoc):[]);
+    const oldTeam=Array.isArray(pub.team)?pub.team:(Array.isArray(docVal(oldTDoc))?docVal(oldTDoc):[]);
+    _CO=pub.company||docVal(oldCoDoc)||_CO||{};
+    const newProjects=ps.docs.filter(d=>d.id!=='published').map((d,i)=>normProject({_id:d.id,...d.data()},i,'new'));
+    _OLDPROJECTS=oldProjects.map((p,i)=>normProject(p,i,'old'));
+    _P=mergeProjects(newProjects,_OLDPROJECTS);
+    const newClients=cs.docs.map(d=>({_id:d.id,...d.data()}));
+    _OLDCLIENTS=(oldClients||[]).map((c,i)=>({_id:c._id||c.id||('old_client_'+i),_legacy:true,nm:c.name||c.nm||'',name:c.name||c.nm||'',url:c.url||c.logoUrl||c.logo||'',logoUrl:c.logoUrl||c.url||c.logo||''}));
+    _CL=mergeClients(newClients,_OLDCLIENTS);
+    const newTeam=ts.docs.map(d=>({_id:d.id,...d.data()}));
+    _OLDTEAM=(oldTeam||[]).map((m,i)=>({_id:m._id||m.id||('old_team_'+i),_legacy:true,nm:m.name||m.nm||'',name:m.name||m.nm||'',pos:m.position||m.pos||'',position:m.position||m.pos||'',ph:m.photo||m.ph||'',photo:m.photo||m.ph||''}));
+    _TM=mergePeople(newTeam,_OLDTEAM);
+    rSvc();rCl();applyCompanyContact();updAdminStatus();
   }catch(e){
     console.warn('loadData:',e);
     document.getElementById('sCt').textContent='Error loading';
   }
 }
+function mergeClients(a,b){const seen=new Set(),out=[];(a||[]).concat(b||[]).forEach((c,i)=>{const k=String((c.name||c.nm||'')+'|'+(c.url||c.logoUrl||'')).toLowerCase();if(seen.has(k))return;seen.add(k);out.push(c);});return out;}
+function mergePeople(a,b){const seen=new Set(),out=[];(a||[]).concat(b||[]).forEach((m,i)=>{const k=String((m.name||m.nm||'')+'|'+(m.position||m.pos||'')).toLowerCase();if(seen.has(k))return;seen.add(k);out.push(m);});return out;}
+function updAdminStatus(){const el=document.getElementById('apSt');if(el)el.textContent='Live '+_P.length+' works'+(_OLDPROJECTS.length?' / old admin '+_OLDPROJECTS.length:'');}
 
 /* Service grid */
 var _ac={},_tm2={};
@@ -249,7 +335,7 @@ function rAP(){
   l.innerHTML=_P.length?_P.map((p,i)=>{
     const cu=typeof getCov==='function'?getCov(p):(p.covUrl||p.coverThumb||'');
     const th=typeof iU==='function'?iU(cu,100):cu;
-    return'<div class="pr"><div class="pth"><img src="'+th+'" loading="lazy" onerror="this.style.opacity=0"></div><div class="pin"><b>'+esc(p.name||p.nm||'')+'</b><span>'+esc(p.service||p.svc||'')+' · '+(p.year||p.yr||'')+'</span></div><button class="apb" onclick="oPD('+i+');cAP()">View</button><button class="apb d" onclick="delP(\''+p._id+'\')">Del</button></div>';
+    return'<div class="pr"><div class="pth"><img src="'+th+'" loading="lazy" onerror="this.style.opacity=0"></div><div class="pin"><b>'+esc(p.name||p.nm||'')+'</b><span>'+esc(p.service||p.svc||'')+' · '+(p.year||p.yr||'')+'</span></div><button class="apb" onclick="oPD('+i+');cAP()">View</button>'+(p._legacy?'<button class="apb" disabled title="Loaded from old Admin published data">Old</button>':'<button class="apb d" onclick="delP(\''+p._id+'\')">Del</button>')+'</div>';
   }).join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;padding:12px 0">ยังไม่มีโปรเจกต์</p>';
 }
 async function savP(){
@@ -291,11 +377,27 @@ async function delP(id){
   try{await db.collection(COL).doc(id).delete();await loadData();rAP();stM('apM','ลบแล้ว','ok');}
   catch(e){stM('apM','Error: '+e.message,'err');}
 }
+async function importOldData(){
+  if(!db){stM('apM','Firebase ยังไม่พร้อม','err');return;}
+  if(!_OLDPROJECTS.length&&!_OLDCLIENTS.length&&!_OLDTEAM.length){stM('apM','ยังไม่เจอข้อมูลจาก Admin เก่า','err');return;}
+  if(!confirm('Import ข้อมูลจาก Admin เก่าเข้า collection ใหม่? ระบบจะกันข้อมูลซ้ำให้อัตโนมัติ'))return;
+  try{
+    const batch=db.batch();let n=0;
+    _OLDPROJECTS.forEach((p,i)=>{
+      const id='legacy_project_'+String(p.id||p._id||p.name||i).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80)+'_'+i;
+      const q=Object.assign({},p,{_legacy:false,legacySource:'oldAdmin',legacyId:p.id||p._id||id,ts:firebase.firestore.FieldValue.serverTimestamp()});
+      delete q._id;batch.set(db.collection(COL).doc(id),q,{merge:true});n++;
+    });
+    _OLDCLIENTS.forEach((c,i)=>{const id='legacy_client_'+String(c.name||c.nm||i).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80)+'_'+i;const q=Object.assign({},c,{legacySource:'oldAdmin',ts:firebase.firestore.FieldValue.serverTimestamp()});delete q._id;delete q._legacy;batch.set(db.collection(COL_CL).doc(id),q,{merge:true});n++;});
+    _OLDTEAM.forEach((m,i)=>{const id='legacy_team_'+String(m.name||m.nm||i).replace(/[^A-Za-z0-9_-]/g,'_').slice(0,80)+'_'+i;const q=Object.assign({},m,{legacySource:'oldAdmin',ts:firebase.firestore.FieldValue.serverTimestamp()});delete q._id;delete q._legacy;batch.set(db.collection(COL_TM).doc(id),q,{merge:true});n++;});
+    await batch.commit();await loadData();rAP();rACl();rATm();stM('apM','✓ Imported '+n+' รายการจาก Admin เก่า','ok');
+  }catch(e){stM('apM','Import error: '+e.message,'err');}
+}
 
 /* ── Client helpers ── */
 function rACl(){
   const l=document.getElementById('clLs');if(!l)return;
-  l.innerHTML=_CL.length?_CL.map(c=>'<div class="pr"><div class="pth">'+(c.url||c.logoUrl?'<img src="'+(c.url||c.logoUrl)+'" loading="lazy" onerror="this.style.opacity=0">':'<div style="background:#222;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.3)">'+esc(c.name||c.nm||'')+'</div>')+'</div><div class="pin"><b>'+esc(c.name||c.nm||'')+'</b></div><button class="apb d" onclick="delCl(\''+c._id+'\')">Del</button></div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;padding:12px 0">ยังไม่มี client</p>';
+  l.innerHTML=_CL.length?_CL.map(c=>'<div class="pr"><div class="pth">'+(c.url||c.logoUrl?'<img src="'+(c.url||c.logoUrl)+'" loading="lazy" onerror="this.style.opacity=0">':'<div style="background:#222;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:9px;color:rgba(255,255,255,.3)">'+esc(c.name||c.nm||'')+'</div>')+'</div><div class="pin"><b>'+esc(c.name||c.nm||'')+'</b></div>'+(c._legacy?'<button class="apb" disabled>Old</button>':'<button class="apb d" onclick="delCl(\''+c._id+'\')">Del</button>')+'</div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;padding:12px 0">ยังไม่มี client</p>';
 }
 async function savCl(){
   if(!db){stM('clM','Firebase ยังไม่พร้อม','err');return;}
@@ -317,7 +419,7 @@ async function delCl(id){
 /* ── Team helpers ── */
 function rATm(){
   const l=document.getElementById('tLs');if(!l)return;
-  l.innerHTML=_TM.length?_TM.map(m=>'<div class="pr"><div class="pth">'+(m.photo||m.ph?'<img src="'+(m.photo||m.ph)+'" loading="lazy" onerror="this.style.opacity=0">':'<div style="background:#222;width:100%;height:100%"></div>')+'</div><div class="pin"><b>'+esc(m.name||m.nm||'')+'</b><span>'+esc(m.position||m.pos||'')+'</span></div><button class="apb d" onclick="delTm(\''+m._id+'\')">Del</button></div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;padding:12px 0">ยังไม่มีสมาชิก</p>';
+  l.innerHTML=_TM.length?_TM.map(m=>'<div class="pr"><div class="pth">'+(m.photo||m.ph?'<img src="'+(m.photo||m.ph)+'" loading="lazy" onerror="this.style.opacity=0">':'<div style="background:#222;width:100%;height:100%"></div>')+'</div><div class="pin"><b>'+esc(m.name||m.nm||'')+'</b><span>'+esc(m.position||m.pos||'')+'</span></div>'+(m._legacy?'<button class="apb" disabled>Old</button>':'<button class="apb d" onclick="delTm(\''+m._id+'\')">Del</button>')+'</div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;padding:12px 0">ยังไม่มีสมาชิก</p>';
 }
 async function savTm(){
   if(!db){stM('tM','Firebase ยังไม่พร้อม','err');return;}

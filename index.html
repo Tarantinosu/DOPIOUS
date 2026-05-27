@@ -39,7 +39,7 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 </style>
 
 <!-- CSS หลัก -->
-<link rel="stylesheet" href="style.css?v=fast-ios-0527">
+<link rel="stylesheet" href="style.css?v=fast-ios-oldadmin-0527">
 
 <!-- Firebase async -->
 <script>
@@ -147,7 +147,7 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
         <label class="fw">Description<textarea id="pDs" rows="3" placeholder="รายละเอียดงาน..."></textarea></label>
         <label class="fw">Cover Preview<div class="acv" id="pPv"><span>วาง Google Drive URL ด้านบนเพื่อดู preview</span></div></label>
       </div>
-      <button class="asv" onclick="savP()">🚀 Publish</button>
+      <div class="arow"><button class="asv" onclick="savP()">🚀 Publish</button><button class="asv ghost" onclick="importOldData()">↧ Import Old Admin Data</button></div>
       <div id="pLs" style="margin-top:12px"></div>
     </div>
     <div class="apn" id="tcl"><div class="nt">🔗 ใช้ Google Drive URL สำหรับ logo</div><div class="ast" id="clM"></div><div class="af"><label class="fw">Client Name<input id="clN" placeholder="บริษัท"></label><label class="fw">Logo URL<input id="clU" placeholder="https://drive.google.com/..."></label></div><button class="asv" onclick="savCl()">Add Client</button><div id="clLs" style="margin-top:12px"></div></div>
@@ -156,7 +156,7 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 </div>
 
 <!-- JS หลัก — defer โหลดหลัง HTML render -->
-<script src="app.js?v=fast-ios-0527" defer></script>
+<script src="app.js?v=fast-ios-oldadmin-0527" defer></script>
 
 </body>
 </html>
