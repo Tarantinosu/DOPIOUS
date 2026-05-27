@@ -1,8 +1,15 @@
-DOPIOUS+ Fast iOS Package — Direct Admin Patch
+DOPIOUS+ Admin Reconnected Package
 
-Upload all files to GitHub Pages root.
+Upload all files in this folder to the root of the website.
 
-Admin direct URL:
-https://www.dopiousdesign.com/admin.html?admin=1
+What changed:
+- Public website layout is unchanged.
+- Firebase config is unchanged.
+- Works / Services grouping stays: 1 Head + 1 Sub Head = 1 Card.
+- Admin now requires password again.
+- Admin loads both current project docs and old Admin data from published / dopiousAdminProjects.
+- Admin Dashboard is light but closer to old CMS details.
+- Project Form is still data-entry style, but includes the needed detail fields.
 
-This opens the Admin CMS directly and hides the public website shell on admin.html.
+Test:
+https://www.dopiousdesign.com/admin.html?admin=1&v=admin-reconnected
