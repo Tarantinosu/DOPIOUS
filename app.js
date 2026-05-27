@@ -2103,3 +2103,60 @@ function oAL(){ location.href='admin.html?admin=1'; }
   else setTimeout(function(){window.showServiceSub('dopious');},300);
   setTimeout(_refreshDefault,900);
 })();
+
+/* =========================================================
+   HOW IT WORKS — static service information only
+   - Sub Heads no longer jump to Works cards.
+   - Panel simply explains what each Head includes.
+   - Contact buttons remain at the bottom.
+   ========================================================= */
+(function(){
+  function hEsc(v){
+    try{return typeof esc==='function'?esc(String(v||'')):String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+    catch(e){return String(v||'');}
+  }
+  function cats(){return Array.isArray(CATS)?CATS.filter(function(c){return c && (c.svc||c.cat) && Array.isArray(c.subs) && c.subs.length;}):[];}
+  function metaFromKey(key){
+    if(!key || key==='dopious') return null;
+    var i=parseInt(String(key).replace(/\D/g,''),10)-1;
+    var list=cats();
+    return (!isNaN(i) && list[i]) ? list[i] : null;
+  }
+  function plusLabel(v){return hEsc(String(v||'').replace(/\+$/,''))+'<em>+</em>';}
+  function chip(sub){return '<span class="how-sub-chip static" aria-label="Sub service">'+hEsc(sub)+'</span>';}
+  function renderAll(chips){
+    var html='';
+    cats().forEach(function(c){
+      var title=c.svc||c.cat||'';
+      html+='<div class="how-sub-group"><div class="how-sub-group-title">'+plusLabel(title)+'</div><div class="how-sub-group-chips">'+(c.subs||[]).map(chip).join('')+'</div></div>';
+    });
+    chips.innerHTML=html;
+  }
+  function renderOne(chips,meta){
+    chips.innerHTML='<div class="how-sub-group only"><div class="how-sub-group-chips">'+(meta.subs||[]).map(chip).join('')+'</div></div>';
+  }
+  window.goHowSub=function(){ return false; };
+  window.goServicesFromHow=function(){ try{ if(typeof oSt==='function') oSt(); }catch(e){} };
+  window.showServiceSub=function(key){
+    var panel=document.getElementById('serviceSubPanel'); if(!panel) return;
+    var meta=metaFromKey(key);
+    var kicker=document.getElementById('subKicker'), title=document.getElementById('subTitle'), desc=document.getElementById('subDesc'), chips=document.getElementById('subChips');
+    document.querySelectorAll('.mind-node').forEach(function(n){n.classList.remove('active');});
+    var node=document.querySelector('.mind-node.'+key); if(node) node.classList.add('active');
+    if(!meta){
+      if(kicker) kicker.textContent='DOPIOUS+ SERVICE HEADS';
+      if(title) title.innerHTML='All Services & Sub Heads';
+      if(desc) desc.textContent='รวมรายการบริการทั้งหมดของ DOPIOUS+ แยกตาม Service Head เพื่อให้เห็นว่าแต่ละหมวดมีงานย่อยอะไรบ้าง';
+      if(chips) renderAll(chips);
+      return;
+    }
+    var name=meta.svc||meta.cat||'';
+    if(kicker) kicker.textContent=name;
+    if(title) title.innerHTML=plusLabel(name);
+    if(desc) desc.textContent='บริการย่อยในหมวด '+String(name).replace(/\+$/,'')+' มีดังนี้';
+    if(chips) renderOne(chips,meta);
+  };
+  function bootHow(){try{window.showServiceSub('dopious');}catch(e){}}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(bootHow,250);});
+  else setTimeout(bootHow,250);
+})();

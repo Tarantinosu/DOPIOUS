@@ -383,3 +383,48 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
 .contact-card.is-empty .contact-ic{background:#181818!important;color:rgba(255,255,255,.42)!important;}
 .contact-card.is-empty b{color:rgba(255,255,255,.62)!important;}
 .contact-card.is-empty span+div span{color:rgba(255,255,255,.34)!important;}
+
+/* HOW IT WORKS — information only, no jump links */
+.how-sub-chip.static,
+.how-sub-chip.static:hover{
+  cursor:default!important;
+  pointer-events:none!important;
+  border-color:rgba(255,255,255,.16)!important;
+  color:rgba(255,255,255,.78)!important;
+  background:rgba(255,255,255,.045)!important;
+  opacity:1!important;
+  box-shadow:none!important;
+  transform:none!important;
+}
+.how-sub-chip.static small{display:none!important}
+.how-contact-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:22px;
+  padding-top:18px;
+  border-top:1px solid rgba(255,255,255,.09);
+}
+.how-contact-actions button{
+  border:none;
+  border-radius:999px;
+  background:#ff2a14;
+  color:#fff;
+  padding:14px 22px;
+  min-height:46px;
+  font-size:11px;
+  font-weight:950;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+  cursor:pointer;
+}
+.how-contact-actions button.ghost{
+  background:transparent;
+  border:1px solid rgba(255,255,255,.18);
+  color:#fff;
+}
+.how-contact-actions button:hover{filter:brightness(1.08)}
+@media(max-width:768px){
+  .how-contact-actions{display:grid;grid-template-columns:1fr;gap:8px}
+  .how-contact-actions button{width:100%}
+}
