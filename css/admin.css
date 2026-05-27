@@ -1,0 +1,32 @@
+/* ══════════════════════════════
+   admin.css — โหลดเฉพาะเมื่อ admin เปิด panel
+══════════════════════════════ */
+.ap{position:fixed;inset:0;z-index:800;background:#050505;overflow-y:scroll;-webkit-overflow-scrolling:touch;opacity:0;visibility:hidden;transition:.15s}
+.ap.on{opacity:1;visibility:visible}
+.apt{position:sticky;top:0;z-index:5;background:#080808;border-bottom:1px solid rgba(255,255,255,.08);padding:10px 16px;display:flex;align-items:center;gap:8px}
+.aptt{font-size:13px;font-weight:900;flex:1}.aptt em{color:rgba(255,255,255,.34);font-size:10px;font-style:normal;font-weight:400;letter-spacing:.07em;margin-left:5px}
+.apb{border:1px solid rgba(255,255,255,.1);background:transparent;color:#fff;border-radius:7px;padding:6px 10px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;min-height:32px}
+.apb.d{border-color:rgba(255,50,50,.32);color:#ff6060}
+.ata{display:flex;gap:4px;padding:8px 16px;border-bottom:1px solid rgba(255,255,255,.08);overflow-x:auto;scrollbar-width:none;background:#080808}
+.ata::-webkit-scrollbar{display:none}
+.at{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07);color:rgba(255,255,255,.45);border-radius:7px;padding:6px 11px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;min-height:31px}
+.at.on{background:#ff2a14;border-color:#ff2a14;color:#fff}
+.ab{padding:16px;max-width:780px}
+.apn{display:none}.apn.on{display:block}
+.af{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.af label{display:flex;flex-direction:column;gap:4px;font-size:10px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:rgba(255,255,255,.42)}
+.af input,.af select,.af textarea{background:#0f0f0f;border:1px solid rgba(255,255,255,.1);color:#fff;border-radius:9px;padding:9px 11px;font-size:13px;font-family:'DM Sans','Noto Sans Thai',Arial,sans-serif;outline:none;-webkit-appearance:none;resize:vertical}
+.af input:focus,.af select:focus,.af textarea:focus{border-color:#ff2a14}
+.af .fw{grid-column:1/-1}
+.acv{min-height:130px;border:2px dashed rgba(255,255,255,.1);border-radius:11px;display:flex;align-items:center;justify-content:center;background:#0a0a0a;position:relative;overflow:hidden;cursor:pointer;color:rgba(255,255,255,.24);font-size:11px;text-align:center;padding:12px}
+.acv img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.asv{background:#ff2a14;border:none;color:#fff;border-radius:11px;padding:11px 20px;font-size:13px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;width:100%;margin-top:2px;min-height:42px}
+.ast{padding:8px 11px;border-radius:7px;font-size:11px;font-weight:700;margin-bottom:10px;display:none}
+.ast.ok{background:rgba(40,190,70,.1);border:1px solid rgba(40,190,70,.24);color:#4dcf6a;display:block}
+.ast.err{background:rgba(255,50,50,.08);border:1px solid rgba(255,50,50,.24);color:#ff6060;display:block}
+.pr{display:flex;align-items:center;gap:9px;border:1px solid rgba(255,255,255,.07);background:rgba(255,255,255,.025);border-radius:11px;padding:9px 11px;margin-bottom:7px}
+.pth{width:50px;height:34px;border-radius:6px;background:#111;flex-shrink:0;overflow:hidden}
+.pth img{width:100%;height:100%;object-fit:cover}
+.pin{flex:1;min-width:0}.pin b{display:block;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pin span{color:rgba(255,255,255,.34);font-size:10px}
+@media(max-width:560px){.af{grid-template-columns:1fr}}
