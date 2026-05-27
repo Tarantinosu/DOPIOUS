@@ -460,13 +460,6 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
 .how-service-mini strong em{color:#ff2a14;font-style:normal;}
 .how-service-mini span{display:block;font-size:11px;line-height:1.45;color:rgba(255,255,255,.52);}
 .how-service-mini:hover{border-color:rgba(255,42,20,.5);background:rgba(255,42,20,.07);}
-/* patch v2 — clickable sub-head chips */
-.patch-chip-nav{cursor:pointer;transition:background .15s,color .15s,border-color .15s;}
-.patch-chip-nav:hover{background:rgba(255,42,20,.15)!important;border-color:rgba(255,42,20,.6)!important;color:#ff5040!important;}
-.patch-chip-nav:active{transform:scale(.97);}
-/* View Work button */
-.patch-view-work-btn{background:transparent;border:1px solid rgba(255,255,255,.18);border-radius:8px;color:rgba(255,255,255,.65);font-size:12px;font-family:inherit;padding:7px 16px;cursor:pointer;transition:border-color .15s,color .15s,background .15s;}
-.patch-view-work-btn:hover{border-color:#ff2a14;color:#fff;background:rgba(255,42,20,.1);}
 @media(max-width:768px){
   .service-sub-panel .sub-panel-head h3,#subTitle{font-size:34px!important;}
   #subDesc{font-size:14px!important;}
@@ -475,4 +468,30 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
   .how-sub-group-chips{flex-wrap:nowrap!important;overflow-x:auto!important;scrollbar-width:none!important;padding-bottom:2px!important;}
   .how-sub-group-chips::-webkit-scrollbar{display:none!important;}
   .how-sub-chip.final-chip{flex-shrink:0!important;font-size:9px!important;padding:8px 10px!important;}
+}
+
+/* PATCH 2026-05-27 — Reduce Works/Services card Head size on left side */
+.cat-slide-label.tax-card-label .card-head,
+.slb .head{
+  font-size:clamp(16px,2.15vw,27px)!important;
+  line-height:.98!important;
+  letter-spacing:-.035em!important;
+}
+.card-sub-one,
+.card-sub-list em,
+.slb em{
+  font-size:clamp(8px,.82vw,10px)!important;
+  letter-spacing:.12em!important;
+}
+@media(max-width:768px){
+  .cat-slide-label.tax-card-label .card-head,
+  .slb .head{
+    font-size:15px!important;
+    line-height:1!important;
+  }
+  .card-sub-one,
+  .card-sub-list em,
+  .slb em{
+    font-size:7px!important;
+  }
 }
