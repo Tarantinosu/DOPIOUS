@@ -1,1 +1,8 @@
-Upload all files in this folder to the site root. Use cache test: /?v=data-entry-final-0527 and /admin.html?admin=1&v=data-entry-final-0527
+DOPIOUS+ Fast iOS Package — Direct Admin Patch
+
+Upload all files to GitHub Pages root.
+
+Admin direct URL:
+https://www.dopiousdesign.com/admin.html?admin=1
+
+This opens the Admin CMS directly and hides the public website shell on admin.html.

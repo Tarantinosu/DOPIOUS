@@ -328,13 +328,3 @@ section{padding:64px max(36px,env(safe-area-inset-left))}
 /* HEAD SIZE TUNE — reduce Works/Services card Head size so long Head names fit better */
 .cat-slide-label.tax-card-label .card-head{font-size:clamp(18px,3vw,36px)!important;line-height:.98!important;letter-spacing:-.045em!important;}
 @media(max-width:768px){.cat-slide-label.tax-card-label .card-head{font-size:18px!important;line-height:.96!important;letter-spacing:-.035em!important;}.card-sub-list{margin-top:6px!important}.card-sub-list em{font-size:7px!important;padding:5px 7px!important}}
-
-
-/* DATA ENTRY FINAL — sub head typography only */
-.cat-slide-label.tax-card-label{gap:4px!important;max-width:min(720px,82vw)!important;}
-.cat-slide-label.tax-card-label .card-head{display:block!important;color:#fff!important;font-size:clamp(18px,2.7vw,34px)!important;line-height:.98!important;font-weight:950!important;letter-spacing:-.045em!important;text-transform:uppercase!important;text-shadow:0 2px 18px rgba(0,0,0,.78)!important;}
-.cat-slide-label.tax-card-label .card-head em{color:#ff2a14!important;font-style:normal!important;}
-.card-sub-list{display:block!important;margin-top:4px!important;max-width:100%!important;}
-.card-sub-list em{display:block!important;border:0!important;background:transparent!important;padding:0!important;border-radius:0!important;backdrop-filter:none!important;color:rgba(255,255,255,.72)!important;font-style:normal!important;font-size:11px!important;font-weight:800!important;letter-spacing:.12em!important;text-transform:uppercase!important;line-height:1.25!important;}
-.card-sub-list em:first-child{border:0!important;color:rgba(255,255,255,.72)!important;background:transparent!important;}
-@media(max-width:768px){.cat-slide-label.tax-card-label .card-head{font-size:17px!important;}.card-sub-list em{font-size:8px!important;letter-spacing:.10em!important;}}
