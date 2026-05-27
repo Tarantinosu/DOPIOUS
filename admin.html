@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>DOPIOUS+ Admin | Project Data</title>
+<link rel="icon" type="image/png" href="favicon.png">
+<style>
+:root{--r:#ff2a14;--bg:#050505;--panel:#101010;--panel2:#0b0b0b;--line:rgba(255,255,255,.14);--muted:rgba(255,255,255,.58);--text:#fff;--ok:#76e39c;--warn:#ffd27a;--bad:#ff8a7d}
+*{box-sizing:border-box}html,body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,'Noto Sans Thai',sans-serif;-webkit-text-size-adjust:100%}button,input,select,textarea{font:inherit}button{cursor:pointer}a{color:inherit;text-decoration:none}.hidden{display:none!important}
+.top{position:sticky;top:0;z-index:10;background:#050505;border-bottom:1px solid var(--line);min-height:60px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 18px}.logo{font-size:24px;font-weight:950;letter-spacing:-.06em}.logo span{color:var(--r)}.top-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.tag{font-size:11px;color:var(--muted);letter-spacing:.08em;text-transform:uppercase}
+.page{max-width:1280px;margin:0 auto;padding:18px;display:grid;gap:16px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.panel h2,.panel h3{margin:0 0 10px}.hint{font-size:12px;line-height:1.45;color:var(--muted)}.status{min-height:22px;margin-top:10px;color:var(--muted);font-size:13px}.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+.login{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:20px}.login .panel{width:min(440px,94vw)}.login h1{margin:0 0 8px;font-size:32px;letter-spacing:-.06em}.login h1 span{color:var(--r)}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.stat{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:13px}.stat b{display:block;font-size:26px;line-height:1}.stat span{display:block;margin-top:6px;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.08em}
+.work{display:grid;grid-template-columns:340px 1fr;gap:16px}.list-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.search{margin:0 0 10px!important}.list{display:grid;gap:8px;max-height:calc(100dvh - 295px);overflow:auto;padding-right:2px}.item{border:1px solid var(--line);border-radius:10px;background:#111;padding:10px;text-align:left;color:#fff;width:100%}.item b{display:block;font-size:14px}.item span{display:block;margin-top:4px;color:var(--muted);font-size:12px;line-height:1.35}.item.on{border-color:var(--r)}.item small{display:inline-block;margin-top:6px;color:var(--warn);font-size:10px;text-transform:uppercase;letter-spacing:.1em}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.wide{grid-column:1/-1}.section-title{grid-column:1/-1;margin:8px 0 0;padding-top:14px;border-top:1px solid rgba(255,255,255,.08);color:#fff;font-size:13px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}.section-title:first-child{border-top:0;padding-top:0;margin-top:0}
+label{display:block;color:rgba(255,255,255,.76);font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase}input,select,textarea{width:100%;margin-top:7px;background:#070707;color:#fff;border:1px solid var(--line);border-radius:9px;padding:12px;outline:none}textarea{min-height:88px;resize:vertical}input:focus,select:focus,textarea:focus{border-color:var(--r)}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.btn{border:0;border-radius:9px;padding:12px 15px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:var(--r);color:#fff}.btn.ghost{background:#171717;border:1px solid var(--line);color:#fff}.btn.danger{background:#250706;color:#ffb3ad;border:1px solid rgba(255,42,20,.45)}.btn.small{padding:9px 11px;font-size:12px}.mini-preview{width:110px;height:70px;border:1px solid var(--line);border-radius:8px;background:#080808;object-fit:cover;margin-top:8px;display:none}.source-pill{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:3px 8px;font-size:10px;color:var(--muted);margin-left:6px}
+
+.media-mode-row{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gallery-preview{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-top:8px}
+.gallery-preview .gcard{border:1px solid var(--line);border-radius:10px;background:#090909;padding:8px}
+.gallery-preview img{width:100%;height:96px;object-fit:cover;border-radius:7px;background:#050505;display:block}
+.gallery-preview input{margin-top:8px;font-size:12px;padding:9px;border-radius:7px}
+.team-img{width:84px;height:104px;object-fit:cover;border-radius:8px;border:1px solid var(--line);display:none;margin-top:8px;background:#050505}
+.team-list{display:grid;gap:8px;max-height:460px;overflow:auto;padding-right:2px}.team-list .item{display:block}.team-work{display:grid;grid-template-columns:330px 1fr;gap:16px}.muted-small{color:var(--muted);font-size:12px;line-height:1.45;margin-top:6px}.soft-line{border-top:1px solid rgba(255,255,255,.08);margin:18px 0 0;padding-top:14px}
+@media(max-width:920px){.media-mode-row,.team-work{grid-template-columns:1fr}.gallery-preview{grid-template-columns:repeat(auto-fill,minmax(140px,1fr))}}
+
+@media(max-width:920px){.work{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr}.wide{grid-column:auto}.list{max-height:300px}.top{align-items:flex-start;flex-direction:column}.top-right{width:100%}.page{padding:12px}.panel{padding:13px}}
+</style>
+<script>
+(function(){
+  function fail(msg){document.body.innerHTML='<div style="padding:24px;color:#fff;background:#050505;font-family:Arial">Firebase load error: '+msg+'</div>'}
+  function l2(){var s=document.createElement('script');s.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js';s.onload=boot;s.onerror=function(){fail('firestore sdk failed')};document.head.appendChild(s)}
+  function l1(){var s=document.createElement('script');s.src='https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js';s.onload=l2;s.onerror=function(){fail('firebase app sdk failed')};document.head.appendChild(s)}
+  document.readyState==='loading'?document.addEventListener('DOMContentLoaded',l1):l1();
+})();
+</script>
+</head>
+<body>
+<div id="login" class="login"><div class="panel"><h1>Dopious<span>+</span> Admin</h1><div class="hint">กรอกรหัสเพื่อเข้า Dashboard และ Project Form</div><label style="margin-top:16px">Password<input id="pw" type="text" placeholder="Password" autocomplete="off" onkeydown="if(event.key==='Enter')checkLogin()"></label><div class="actions"><button class="btn" onclick="checkLogin()">Login</button><a class="btn ghost" href="index.html">Back to Site</a></div><div id="loginStatus" class="status"></div></div></div>
+
+<div id="admin" class="hidden">
+  <div class="top"><div><div class="logo">Dopious<span>+</span> Admin</div><div class="tag">Dashboard + Project data entry</div></div><div class="top-right"><span id="connStatus" class="tag">Connecting...</span><button class="btn ghost small" onclick="loadAll()">Refresh</button><a class="btn ghost small" href="index.html" target="_blank">Open Site</a><button class="btn danger small" onclick="logout()">Logout</button></div></div>
+  <div class="page">
+    <section class="panel"><h2>Dashboard</h2><div class="hint">เช็กข้อมูลที่เชื่อมต่ออยู่ตอนนี้ ใช้สำหรับดูสถานะ ไม่ใช่หน้าโชว์งาน</div><div class="stats" style="margin-top:12px"><div class="stat"><b id="stTotal">0</b><span>All Projects</span></div><div class="stat"><b id="stNew">0</b><span>New Docs</span></div><div class="stat"><b id="stOld">0</b><span>Old Admin</span></div><div class="stat"><b id="stHeads">0</b><span>Heads Used</span></div><div class="stat"><b id="stLast">—</b><span>Last Edit</span></div></div><div id="dashNote" class="status"></div></section>
+
+
+
+
+
+    <section class="panel who-settings">
+      <h2>Who We Are Text</h2>
+      <div class="hint">ข้อความนี้จะแสดงใต้หัวข้อ WHO WE ARE+ บนหน้าเว็บไซต์</div>
+      <div class="grid" style="margin-top:14px">
+        <label class="wide">Intro Text<textarea id="whoIntro" placeholder="ใส่ข้อความหน้า Who We Are">Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.</textarea></label>
+      </div>
+      <div class="actions"><button class="btn" onclick="saveWhoIntroSettings()">Save Who We Are Text</button><button class="btn ghost" onclick="fillWhoIntroForm(whoIntroData||{})">Reset</button></div>
+      <div id="whoIntroStatus" class="status"></div>
+    </section>
+
+    <section class="panel contact-settings">
+      <h2>Contact Page Settings</h2>
+      <div class="hint">ตั้งค่าหน้า Contact / Start Project แบบเบา ๆ: ใส่ได้หลายช่องทาง เช่น Line, Facebook Messenger, Instagram, LinkedIn, Email, Tel 2–3 เบอร์ และที่อยู่ Bangkok</div>
+      <div class="grid" style="margin-top:14px">
+        <label>Contact Title<input id="coTitle" placeholder="CONTACT+"></label>
+        <label>Company Name<input id="coName" placeholder="Dopious Partnership Limited"></label>
+        <label class="wide">Contact Subtitle<textarea id="coSubtitle" placeholder="ข้อความสั้นใต้หัวข้อ Contact"></textarea></label>
+        <label>Office / City<input id="coOffice" placeholder="Bangkok / Thailand"></label>
+        <label>Google Map URL<input id="coMap" placeholder="https://maps.google.com/..."></label>
+        <label class="wide">Address<textarea id="coAddress" placeholder="Bangkok address / office description"></textarea></label>
+        <label>Line URL / ID<input id="coLine" placeholder="https://line.me/R/ti/p/@dopious หรือ @dopious"></label>
+        <label>WhatsApp URL<input id="coWhatsapp" placeholder="https://wa.me/669..."></label>
+        <label>Facebook<input id="coFacebook" placeholder="https://facebook.com/..."></label>
+        <label>Facebook Messenger<input id="coMessenger" placeholder="https://m.me/..."></label>
+        <label>Instagram<input id="coInstagram" placeholder="https://instagram.com/... หรือ @dopious"></label>
+        <label>LinkedIn<input id="coLinkedin" placeholder="https://linkedin.com/company/..."></label>
+        <label>Behance<input id="coBehance" placeholder="https://behance.net/..."></label>
+        <label>Website<input id="coWebsite" placeholder="https://www.dopiousdesign.com"></label>
+        <label class="wide">Phone Numbers<textarea id="coPhones" placeholder="+66 93-691-6592&#10;+66 xx-xxx-xxxx"></textarea></label>
+        <label class="wide">Emails<textarea id="coEmails" placeholder="info.dopiousth@gmail.com&#10;another@email.com"></textarea></label>
+      </div>
+      <div class="actions"><button class="btn" onclick="saveContactSettings()">Save Contact Settings</button><button class="btn ghost" onclick="fillContactForm(companyData||{})">Reset</button></div>
+      <div id="contactStatus" class="status"></div>
+    </section>
+
+    <section class="work">
+      <aside class="panel"><div class="list-head"><h2>Projects</h2><button class="btn ghost small" onclick="newProject()">Add New</button></div><input class="search" id="q" placeholder="Search project..." oninput="renderList()"><div id="projectList" class="list"></div></aside>
+      <main class="panel"><h2 id="formTitle">Add Project</h2><div class="hint">1 Project = 1 Head + 1 Sub Head / 1 Card = 1 Head + 1 Sub Head. ข้อมูลเก่าจะอ่านจาก published และ dopiousAdminProjects ให้ด้วย</div>
+        <div class="grid" style="margin-top:14px">
+          <div class="section-title">Basic Details</div>
+          <label class="wide">Project Name *<input id="name" autocomplete="off"></label>
+          <label>Client<input id="client" autocomplete="off"></label>
+          <label>Year<input id="year" value="2026" inputmode="numeric"></label>
+          <label>Status<select id="statusField"><option value="published">Published</option><option value="draft">Draft</option></select></label>
+          <label>Display Order<input id="order" type="number" inputmode="numeric" placeholder="Optional"></label>
+
+          <div class="section-title">Works / Services Card</div>
+          <label>Service Head *<select id="service" onchange="updateSubOptions()"></select></label>
+          <label>Sub Head *<select id="subHead"></select></label>
+          <label>Card Preview Source<select id="cardMedia"><option value="image">Cover Image</option><option value="video">Video URL</option></select></label>
+
+          <div class="section-title">Media</div>
+          <label class="wide">Cover Image URL *<input id="cover" placeholder="https://..." oninput="tinyPreview(this.value)"><img id="coverPreview" class="mini-preview" alt=""></label>
+          <label class="wide">Gallery Image URLs<textarea id="gallery" placeholder="1 URL ต่อ 1 บรรทัด" oninput="renderGalleryPreview()"></textarea><div id="galleryPreview" class="gallery-preview"></div></label>
+          <label class="wide hidden">Gallery Captions<textarea id="captions"></textarea></label>
+          <label class="wide">Video URL<input id="video" placeholder="YouTube / Drive / MP4 / optional"></label>
+          <label class="wide">Drive / Folder / Reference URL<input id="folder" placeholder="Optional"></label>
+
+          <div class="section-title">Project Detail</div>
+          <label class="wide">Short Description<textarea id="desc" placeholder="คำบรรยายสั้นบนการ์ด / รายละเอียดสั้น"></textarea></label>
+          <label class="wide">Full Description / Story<textarea id="story" placeholder="รายละเอียดหน้า project detail"></textarea></label>
+          <label>Location<input id="location" placeholder="Optional"></label>
+          <label>Role / Scope<input id="role" placeholder="Optional"></label>
+          <label>Credit<input id="credit" placeholder="Dopious+"></label>
+          <label>Layout<input id="layout" placeholder="Optional"></label>
+        </div>
+        <div class="actions"><button class="btn" onclick="saveProject()">Save Project</button><button class="btn danger" id="deleteProjectBtn" onclick="deleteProject()">Delete</button><button class="btn ghost" onclick="newProject()">Clear Form</button></div>
+        <div id="status" class="status"></div>
+      </main>
+    </section>
+
+    <section class="team-work">
+      <aside class="panel"><div class="list-head"><h2>Who We Are</h2><button class="btn ghost small" onclick="newTeam()">Add Person</button></div><div id="teamList" class="team-list"></div></aside>
+      <main class="panel"><h2 id="teamTitle">Team Member</h2><div class="hint">แก้รูปพนักงานและรายละเอียดในหน้า Who We Are ได้จากตรงนี้</div>
+        <div class="grid" style="margin-top:14px">
+          <label>Name *<input id="tName" autocomplete="off"></label>
+          <label>Position / Title<input id="tPosition" autocomplete="off"></label>
+          <label class="wide">Photo URL<input id="tPhoto" placeholder="https://..." oninput="teamPreview(this.value)"><img id="tPreview" class="team-img" alt=""></label>
+          <label class="wide">Details / Bio<textarea id="tDetails" placeholder="รายละเอียดของแต่ละคน / optional"></textarea></label>
+          <label>Display Order<input id="tOrder" type="number" inputmode="numeric" placeholder="Optional"></label>
+        </div>
+        <div class="actions"><button class="btn" onclick="saveTeam()">Save Person</button><button class="btn danger" id="deleteTeamBtn" onclick="deleteTeam()">Delete</button><button class="btn ghost" onclick="newTeam()">Clear</button></div>
+        <div id="teamStatus" class="status"></div>
+      </main>
+    </section>
+  </div>
+</div>
+<script>
+const FB={apiKey:"AIzaSyC3JxU94Zb4G1DmDAA7TeiLAkJ4uxrVh5g",authDomain:"dopious-c7230.firebaseapp.com",projectId:"dopious-c7230",storageBucket:"dopious-c7230.firebasestorage.app",messagingSenderId:"424557490629",appId:"1:424557490629:web:ae5181dc91bbac2b8f1bac"};
+const COL='dopious_cms', COL_TM='dopious_team'; let db=null, allProjects=[], allTeam=[], newCount=0, oldCount=0, editingId=null, editingSource='new', editingProject=null, editingTeamId=null, editingTeamSource='new', editingTeam=null;
+const RESERVED=new Set(['published','dopiousAdminProjects','dopiousClients','dopiousAdminTeam','dopiousAdminHome','dopiousAdminCompany','dopiousAdminWebsite','dopiousAdminLogos','dopiousTheme','dopiousSEO','dopiousClientSection','dopiousAdminSubtopics','dopiousCustomServiceCategories','dopiousHiddenCategories','dopiousMediaLibrary']);
+const TAXONOMY=[
+ {service:'Space Design+',subs:['Retail','Commercial','Residential','Office','Exhibition','Event','Kiosk','Pop-up Store','VM / Display','Window Display','Art Installation']},
+ {service:'Sculpture Design+',subs:['Sculpture','Art Installation','Public Art','Character Sculpture','Decorative Object','Landmark','3D Art Form','Spatial Art','Fabrication Concept']},
+ {service:'Visual Production+',subs:['Storyboard','Animatic','Motion Graphic','2D Animation','3D Animation','2D Visualization','3D Visualization','3D Composite','Visual Effects','LED Screen','Product Animation','VDO Production','Photo Production','Ads Production','Post Production','Shot Direction','Brand Film']},
+ {service:'Graphic Design+',subs:['Graphic','Illustration','Layout','Poster','Social Media','Print','Typography','Signage','Presentation','Visual System','Packaging Graphic','Label','Box Artwork','Infographic','Icon','Character Graphic','Pattern','Menu','Brochure','Catalogue','Key Art']},
+ {service:'Branding Design+',subs:['Brand Strategy','Brand Story','Logo','Visual Identity','Brand Guideline','Campaign Identity','Art Direction','Naming','Mood & Tone','Brand Communication']},
+ {service:'Key Visual Design+',subs:['Key Visual','Campaign Visual','Ads','Art Direction','Advertising Direction','Promotion Visual','Social Media','Launch Campaign','Seasonal Campaign','Storyboard','Visual Storytelling']},
+ {service:'Build & Install+',subs:['Booth Production','Display Production','Event Production','Fabrication','On-site Installation','Site Supervision','Material Execution','Supplier Coordination','Quality Control','Final Delivery']},
+ {service:'Production Sourcing+',subs:['Product Sourcing','Supplier Coordination','Factory Follow-up','Sample Development','Material Sourcing','Production Control','Quality Check','Final Delivery','Premium Gift','Merchandise','Corporate Gift']},
+ {service:'Industrial Design+',subs:['Product','Product Concept','CMF','Form','User Experience','Prototype','Product Visualization','Packaging Structure','Material','Manufacturing','Premium Product','Merchandise','Corporate Gift']},
+ {service:'Corporate Design+',subs:['Corporate Identity','Brand System','Company Profile','Presentation','Stationery','Corporate Graphic','Visual System','Office Collateral','Business Document']},
+ {service:'Digital Design+',subs:['Website','UX-UI','Landing Page','Web Experience','Interface','Digital Branding','Mobile Experience','User Journey','Conversion','Portfolio Website','Service Website']},
+ {service:'Fashion Design+',subs:['Fashion','Costume','Uniform','Styling Direction','Fashion Concept','Textile Direction','Character Styling','Campaign Styling','Showpiece']},
+ {service:'Creative Consultation+',subs:['Creative Brief','Concept Direction','Design Direction','Budget Planning','Scope Planning','Material Consulting','Production Consulting','Supplier Consulting','Campaign Consulting','Brand Consulting','Space Consulting','Product Consulting']}
+];
+const ALIAS={
+ 'space design':'Space Design+','sculpture design':'Sculpture Design+','2d 3d motion graphic design':'Visual Production+','photo video ads design':'Visual Production+','motion design':'Visual Production+','graphic design':'Graphic Design+','packaging design':'Graphic Design+','brand strategy corporate identity design':'Branding Design+','brand strategy corporate identity':'Branding Design+','branding design':'Branding Design+','keyvisual creative ads design':'Key Visual Design+','key visual creative ads design':'Key Visual Design+','build installation':'Build & Install+','build install':'Build & Install+','production follow up':'Production Sourcing+','production follow-up':'Production Sourcing+','marketing brand communication':'Production Sourcing+','industrial design':'Industrial Design+','prototype 3d print service':'Industrial Design+','website ux ui design':'Digital Design+','website ux-ui design':'Digital Design+','fashion design':'Fashion Design+','creative consultation':'Creative Consultation+'
+};
+function boot(){try{if(!firebase.apps.length)firebase.initializeApp(FB);db=firebase.firestore();document.getElementById('connStatus').textContent='Firebase ready';fillService();document.getElementById('pw').focus();}catch(e){document.getElementById('loginStatus').innerHTML='<span class="bad">Firebase error: '+esc(e.message)+'</span>';}}
+function checkLogin(){const v=document.getElementById('pw').value.trim(); if(v==='dopious123'||v==='dopious2026'){document.getElementById('login').classList.add('hidden');document.getElementById('admin').classList.remove('hidden');loadAll();}else document.getElementById('loginStatus').innerHTML='<span class="bad">รหัสไม่ถูกต้อง</span>';}
+function logout(){editingId=null;document.getElementById('admin').classList.add('hidden');document.getElementById('login').classList.remove('hidden');document.getElementById('pw').focus()}
+function esc(s){return String(s||'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]))}
+function clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim()}
+function key(v){return clean(v).toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').trim()}
+function lines(v){return String(v||'').split(/\n+/).map(s=>s.trim()).filter(Boolean)}
+function fillService(){const el=document.getElementById('service');el.innerHTML=TAXONOMY.map(x=>'<option value="'+esc(x.service)+'">'+esc(x.service)+'</option>').join('');updateSubOptions()}
+function metaFor(svc){const k=key(svc);const ali=ALIAS[k];return TAXONOMY.find(x=>x.service===svc||x.service===ali||key(x.service)===k)||TAXONOMY[0]}
+function normalizeService(svc){return metaFor(svc).service}
+function matchSub(raw,meta){const r=key(raw);if(!r||r==='creative')return 'General';return meta.subs.find(x=>key(x)===r)||meta.subs.find(x=>key(x).includes(r)||r.includes(key(x)))||'General'}
+function firstSub(d,svc){const meta=metaFor(svc);let arr=[];if(d.subHead)arr=[d.subHead];else if(d.sub)arr=[d.sub];else if(d.subhead)arr=[d.subhead];else if(Array.isArray(d.subHeads))arr=d.subHeads;else if(Array.isArray(d.subheads))arr=d.subheads;else if(Array.isArray(d.subServices))arr=d.subServices;else if(d.subHeadline)arr=String(d.subHeadline).split(/\s+\/\s+|,|\n|\|\|\|/);for(const x of arr){const m=matchSub(x,meta);if(m&&m!=='General')return m}return meta.subs[0]||'General'}
+function updateSubOptions(selected){const svc=document.getElementById('service').value;const meta=metaFor(svc);const el=document.getElementById('subHead');el.innerHTML=meta.subs.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');if(selected&&meta.subs.includes(selected))el.value=selected}
+function normProject(d,id,source,legacyIndex,legacyStore){d=d||{};const rawSvc=d.service||d.svc||d.cat||d.category||d.head||d.projectHeadline||'Creative Consultation+';const svc=normalizeService(rawSvc);const sub=firstSub(d,svc);const cover=d.coverImage||d.cover||d.covUrl||d.coverThumb||d.cardThumb||'';const gallery=Array.isArray(d.galleryImages)?d.galleryImages:(Array.isArray(d.gallery)?d.gallery:[]);const captions=Array.isArray(d.galleryCaptions)?d.galleryCaptions:(Array.isArray(d.captions)?d.captions:[]);return {...d,docId:id,source,legacyIndex,legacyStore,service:svc,svc,subHead:sub,sub:sub,subHeads:[sub],subHeadline:sub,name:d.name||d.nm||d.title||'Untitled',client:d.client||d.cl||'',year:d.year||d.yr||'2026',coverImage:cover,cover:cover,covUrl:cover,galleryImages:gallery,gallery:gallery,galleryCaptions:captions,cardMedia:(d.cardMedia||d.cardMediaType||d.previewMedia||'image'),cardMediaType:(d.cardMedia||d.cardMediaType||d.previewMedia||'image'),videoUrl:d.videoUrl||d.vurl||'',vurl:d.videoUrl||d.vurl||'',driveFolderUrl:d.driveFolderUrl||d.folderUrl||d.referenceUrl||'',desc:d.desc||d.ds||d.description||'',story:d.story||d.detail||d.fullDescription||'',location:d.location||'',role:d.role||d.scope||'',credit:d.credit||d.cr||'Dopious+',layout:d.layout||''}}
+function mergeByKey(newDocs,oldDocs){const seen=new Set(),out=[];newDocs.concat(oldDocs).forEach((p,i)=>{const k=key((p.name||'')+'|'+(p.client||'')+'|'+(p.coverImage||'')+'|'+(p.service||'')+'|'+(p.subHead||''));if(seen.has(k))return;seen.add(k);out.push(p)});return out}
+async function getDoc(id){try{const s=await db.collection(COL).doc(id).get();return s.exists?s.data():null}catch(e){return null}}
+function val(d){return d&&d.value!==undefined?d.value:null}
+async function loadAll(){if(!db)return;setStatus('Loading...');document.getElementById('connStatus').textContent='Loading data...';try{const [allSnap,teamSnap,pub,oldProjectsDoc,oldTeamDoc]=await Promise.all([db.collection(COL).get(),db.collection(COL_TM).orderBy('ts','asc').get().catch(()=>({docs:[]})),getDoc('published'),getDoc('dopiousAdminProjects'),getDoc('dopiousAdminTeam')]);const newDocs=[];allSnap.docs.forEach(doc=>{if(RESERVED.has(doc.id))return;const data=doc.data()||{};if(data.value!==undefined)return;if(data.name||data.nm||data.title)newDocs.push(normProject(data,doc.id,'new',null,null))});const publishedArr=(pub&&Array.isArray(pub.projects))?pub.projects:[];const valueArr=Array.isArray(val(oldProjectsDoc))?val(oldProjectsDoc):[];const oldDocs=[...publishedArr.map((p,i)=>normProject(p,'legacy_published_'+i,'old',i,'published')),...valueArr.map((p,i)=>normProject(p,'legacy_value_'+i,'old',i,'dopiousAdminProjects'))];newCount=newDocs.length;oldCount=oldDocs.length;allProjects=mergeByKey(newDocs,oldDocs).sort(sortProjects);const oldTeam=(pub&&Array.isArray(pub.team)?pub.team:(Array.isArray(val(oldTeamDoc))?val(oldTeamDoc):[]));const newTeam=teamSnap.docs.map((d,i)=>normTeam(d.data(),d.id,'new',i,null));const legacyTeam=oldTeam.map((m,i)=>normTeam(m,'legacy_team_'+i,'old',i,'published'));allTeam=mergeTeam(newTeam,legacyTeam).sort(sortTeam);renderList();renderTeamList();renderDashboard();document.getElementById('connStatus').innerHTML='<span class="ok">Connected</span>';setStatus('Loaded '+allProjects.length+' projects');}catch(e){document.getElementById('connStatus').innerHTML='<span class="bad">Connection error</span>';setStatus('โหลดข้อมูลไม่ได้: '+e.message)} }
+function sortProjects(a,b){const ta=getTime(b)-getTime(a);if(ta)return ta;return clean(a.name).localeCompare(clean(b.name))}function getTime(p){const t=p.ts;if(t&&t.seconds)return t.seconds*1000;const s=p.updatedAt||p.createdAt||'';return Date.parse(s)||0}
+function renderDashboard(){const heads=new Set(allProjects.map(p=>p.service).filter(Boolean));const last=allProjects.map(getTime).filter(Boolean).sort((a,b)=>b-a)[0];document.getElementById('stTotal').textContent=allProjects.length;document.getElementById('stNew').textContent=newCount;document.getElementById('stOld').textContent=oldCount;document.getElementById('stHeads').textContent=heads.size;document.getElementById('stLast').textContent=last?new Date(last).toLocaleDateString():'—';document.getElementById('dashNote').innerHTML=(oldCount?'<span class="warn">Old Admin data detected. กด Edit แล้ว Save เพื่อแปลงเป็นโครงใหม่ หรือกด Delete OLD ADMIN เพื่อลบข้อมูลเก่าได้</span>':'<span class="ok">Data source is current collection.</span>')+'<span class="source-pill">Team: '+allTeam.length+'</span>'}
+function renderList(){const q=key(document.getElementById('q').value);const el=document.getElementById('projectList');const data=allProjects.filter(p=>!q||key((p.name||'')+' '+(p.client||'')+' '+(p.service||'')+' '+(p.subHead||'')).includes(q));el.innerHTML=data.map(p=>'<button class="item '+(p.docId===editingId?'on':'')+'" onclick="editProject(\''+esc(p.docId)+'\')"><b>'+esc(p.name)+'</b><span>'+esc(p.service)+' / '+esc(p.subHead)+'<br>'+esc(p.client||'')+' · '+esc(p.year||'')+'</span>'+(p.source==='old'?'<small>old admin</small>':'')+'</button>').join('')||'<div class="hint">No projects found.</div>'}
+function setProjectDeleteMode(){const b=document.getElementById('deleteProjectBtn');if(b)b.textContent=editingSource==='old'?'Delete OLD ADMIN':'Delete'}
+function setVal(id,v){document.getElementById(id).value=v||''}function getVal(id){return document.getElementById(id).value.trim()}
+function editProject(id){const p=allProjects.find(x=>x.docId===id);if(!p)return;editingId=id;editingSource=p.source;editingProject=p;document.getElementById('formTitle').innerHTML='Edit Project '+(p.source==='old'?'<span class="source-pill">Old Admin</span>':'');setVal('name',p.name);setVal('client',p.client);setVal('year',p.year||'2026');setVal('statusField',p.status||'published');setVal('order',p.order||p.sortOrder||'');document.getElementById('service').value=normalizeService(p.service);updateSubOptions(p.subHead);setVal('cover',p.coverImage);tinyPreview(p.coverImage);setVal('gallery',(p.galleryImages||[]).join('\n'));setVal('captions',(p.galleryCaptions||[]).join('\n'));setVal('cardMedia',p.cardMedia||p.cardMediaType||'image');renderGalleryPreview();setVal('video',p.videoUrl||p.vurl||'');setVal('folder',p.driveFolderUrl||p.folderUrl||p.referenceUrl||'');setVal('desc',p.desc||'');setVal('story',p.story||'');setVal('location',p.location||'');setVal('role',p.role||p.scope||'');setVal('credit',p.credit||'Dopious+');setVal('layout',p.layout||'');setProjectDeleteMode();renderList();window.scrollTo({top:0,behavior:'smooth'});setStatus(p.source==='old'?'Project นี้มาจาก Admin เก่า: กด Save เพื่อแปลงเป็นข้อมูลใหม่ หรือกด Delete OLD ADMIN เพื่อลบจากข้อมูลเก่า':'')}
+function newProject(){editingId=null;editingSource='new';editingProject=null;document.getElementById('formTitle').textContent='Add Project';['name','client','cover','gallery','captions','video','folder','desc','story','location','role','order','layout'].forEach(id=>setVal(id,''));setVal('year','2026');setVal('credit','Dopious+');setVal('statusField','published');setVal('cardMedia','image');document.getElementById('service').value=TAXONOMY[0].service;updateSubOptions();tinyPreview('');renderGalleryPreview();setProjectDeleteMode();renderList();setStatus('')}
+function tinyPreview(url){const img=document.getElementById('coverPreview');if(/^https?:\/\//i.test(url||'')){img.src=url;img.style.display='block'}else{img.removeAttribute('src');img.style.display='none'}}
+function mediaThumb(url){url=String(url||'');const yt=url.match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);if(yt)return 'https://img.youtube.com/vi/'+yt[1]+'/hqdefault.jpg';const gd=url.match(/[?&]id=([A-Za-z0-9_-]+)/)||url.match(/\/d\/([A-Za-z0-9_-]+)/);if(gd)return 'https://drive.google.com/thumbnail?id='+gd[1]+'&sz=s300';return url}
+function renderGalleryPreview(){const box=document.getElementById('galleryPreview');if(!box)return;const urls=lines(getVal('gallery'));const old=lines(getVal('captions'));box.innerHTML=urls.map((u,i)=>'<div class="gcard"><img src="'+esc(mediaThumb(u))+'" loading="lazy" onerror="this.style.opacity=.25"><input data-cap="'+i+'" value="'+esc(old[i]||'')+'" placeholder="Caption for this image" oninput="syncCaptionsFromPreview()"></div>').join('');syncCaptionsFromPreview()}
+function syncCaptionsFromPreview(){const caps=[...document.querySelectorAll('#galleryPreview input[data-cap]')].map(i=>i.value.trim());setVal('captions',caps.join('\n'))}
+function payload(){const name=getVal('name'),cover=getVal('cover');const svc=document.getElementById('service').value;const sub=document.getElementById('subHead').value||'General';const now=new Date().toISOString();const gallery=lines(getVal('gallery'));syncCaptionsFromPreview();const captions=lines(getVal('captions'));const cardMedia=getVal('cardMedia')||'image';return {name,nm:name,title:name,client:getVal('client'),cl:getVal('client'),year:getVal('year')||'2026',yr:getVal('year')||'2026',status:getVal('statusField')||'published',order:getVal('order'),sortOrder:getVal('order'),service:svc,svc:svc,head:svc,projectHeadline:svc,subHead:sub,sub:sub,subHeads:[sub],subheads:[sub],subServices:[sub],selectedSubHeads:[sub],subHeadline:sub,projectSubHeadline:sub,coverImage:cover,cover:cover,covUrl:cover,coverThumb:cover,cardMedia:cardMedia,cardMediaType:cardMedia,previewMedia:cardMedia,galleryImages:gallery,gallery:gallery,galleryCaptions:captions,videoUrl:getVal('video'),vurl:getVal('video'),driveFolderUrl:getVal('folder'),folderUrl:getVal('folder'),desc:getVal('desc'),ds:getVal('desc'),description:getVal('desc'),story:getVal('story'),detail:getVal('story'),location:getVal('location'),role:getVal('role'),scope:getVal('role'),credit:getVal('credit')||'Dopious+',cr:getVal('credit')||'Dopious+',layout:getVal('layout'),updatedAt:now,ts:firebase.firestore.FieldValue.serverTimestamp()}}
+async function saveProject(){const data=payload();if(!data.name){setStatus('ใส่ Project Name ก่อน');return}if(!data.coverImage){setStatus('ใส่ Cover Image URL ก่อน');return}if(data.cardMedia==='video'&&!data.videoUrl){setStatus('เลือก Video เป็น Card Preview แล้ว ต้องใส่ Video URL ด้วย');return}setStatus('Saving...');try{if(editingId&&editingSource==='new'){await db.collection(COL).doc(editingId).set(data,{merge:true})}else{const id='proj_'+Date.now();await db.collection(COL).doc(id).set({...data,id,createdAt:new Date().toISOString()},{merge:true});editingId=id;editingSource='new'}await loadAll();setStatus('Saved / Published to Firebase')}catch(e){setStatus('Save error: '+e.message)}}
+function legacyIdentity(raw){raw=raw||{};const rawSvc=raw.service||raw.svc||raw.cat||raw.category||raw.head||raw.projectHeadline||'Creative Consultation+';const svc=normalizeService(rawSvc);const sub=firstSub(raw,svc);const cover=raw.coverImage||raw.cover||raw.covUrl||raw.coverThumb||raw.cardThumb||'';return key((raw.name||raw.nm||raw.title||'')+'|'+(raw.client||raw.cl||'')+'|'+cover+'|'+svc+'|'+sub)}
+async function removeLegacyFromPublished(target){const ref=db.collection(COL).doc('published');const snap=await ref.get();if(!snap.exists)return 0;const data=snap.data()||{};const arr=Array.isArray(data.projects)?data.projects:[];if(!arr.length)return 0;const targetKey=legacyIdentity(target);const filtered=arr.filter((item,i)=>!(target.legacyStore==='published'&&i===target.legacyIndex)&&legacyIdentity(item)!==targetKey);const removed=arr.length-filtered.length;if(removed>0)await ref.set({projects:filtered,updatedAt:new Date().toISOString()},{merge:true});return removed}
+async function removeLegacyFromValue(target){const ref=db.collection(COL).doc('dopiousAdminProjects');const snap=await ref.get();if(!snap.exists)return 0;const data=snap.data()||{};const arr=Array.isArray(data.value)?data.value:[];if(!arr.length)return 0;const targetKey=legacyIdentity(target);const filtered=arr.filter((item,i)=>!(target.legacyStore==='dopiousAdminProjects'&&i===target.legacyIndex)&&legacyIdentity(item)!==targetKey);const removed=arr.length-filtered.length;if(removed>0)await ref.set({value:filtered,updatedAt:new Date().toISOString()},{merge:true});return removed}
+async function deleteLegacyProject(target){const a=await removeLegacyFromPublished(target);const b=await removeLegacyFromValue(target);return a+b}
+async function deleteProject(){if(!editingId){setStatus('เลือก Project ก่อน');return}if(editingSource==='old'){if(!editingProject){setStatus('เลือก Project เก่าก่อน');return}if(!confirm('Delete this OLD ADMIN project from the old data source?'))return;try{setStatus('Deleting old admin data...');const removed=await deleteLegacyProject(editingProject);newProject();await loadAll();setStatus(removed?'Deleted old admin project':'ไม่พบข้อมูลเก่าที่ตรงกันให้ลบ')}catch(e){setStatus('Delete old admin error: '+e.message)}return}if(!confirm('Delete this project?'))return;try{await db.collection(COL).doc(editingId).delete();newProject();await loadAll();setStatus('Deleted')}catch(e){setStatus('Delete error: '+e.message)}}
+
+function normTeam(m,id,source,legacyIndex,legacyStore){m=m||{};return {...m,docId:id,source,legacyIndex,legacyStore,name:m.name||m.nm||'',nm:m.name||m.nm||'',position:m.position||m.pos||m.title||'',pos:m.position||m.pos||m.title||'',photo:m.photo||m.ph||m.image||m.url||'',ph:m.photo||m.ph||m.image||m.url||'',details:m.details||m.bio||m.desc||m.description||'',order:m.order||m.sortOrder||''}}
+function mergeTeam(newDocs,oldDocs){const seen=new Set(),out=[];newDocs.concat(oldDocs).forEach((m,i)=>{const k=key((m.name||'')+'|'+(m.position||'')+'|'+(m.photo||''));if(seen.has(k))return;seen.add(k);out.push(m)});return out}
+function sortTeam(a,b){const ao=parseInt(a.order||a.sortOrder||9999,10),bo=parseInt(b.order||b.sortOrder||9999,10);if(ao!==bo)return ao-bo;return clean(a.name).localeCompare(clean(b.name))}
+function renderTeamList(){const el=document.getElementById('teamList');if(!el)return;el.innerHTML=allTeam.map(t=>'<button class="item '+(t.docId===editingTeamId?'on':'')+'" onclick="editTeam(\''+esc(t.docId)+'\')"><b>'+esc(t.name||'Untitled')+'</b><span>'+esc(t.position||'')+'</span>'+(t.source==='old'?'<small>old admin</small>':'')+'</button>').join('')||'<div class="hint">No team members yet.</div>'}
+function setTeamDeleteMode(){const b=document.getElementById('deleteTeamBtn');if(b)b.textContent=editingTeamSource==='old'?'Delete OLD ADMIN':'Delete'}
+function teamVal(id,v){const el=document.getElementById(id);if(el)el.value=v||''}
+function teamPreview(url){const img=document.getElementById('tPreview');if(!img)return;if(/^https?:\/\//i.test(url||'')){img.src=mediaThumb(url);img.style.display='block'}else{img.removeAttribute('src');img.style.display='none'}}
+function editTeam(id){const t=allTeam.find(x=>x.docId===id);if(!t)return;editingTeamId=id;editingTeamSource=t.source;editingTeam=t;document.getElementById('teamTitle').innerHTML='Edit Person '+(t.source==='old'?'<span class="source-pill">Old Admin</span>':'');teamVal('tName',t.name);teamVal('tPosition',t.position);teamVal('tPhoto',t.photo);teamVal('tDetails',t.details);teamVal('tOrder',t.order||t.sortOrder||'');teamPreview(t.photo);setTeamDeleteMode();renderTeamList();setTeamStatus(t.source==='old'?'ข้อมูลเก่า: กด Save เพื่อบันทึกเป็นข้อมูลใหม่ หรือ Delete OLD ADMIN เพื่อลบจากข้อมูลเก่า':'')}
+function newTeam(){editingTeamId=null;editingTeamSource='new';editingTeam=null;document.getElementById('teamTitle').textContent='Team Member';['tName','tPosition','tPhoto','tDetails','tOrder'].forEach(id=>teamVal(id,''));teamPreview('');setTeamDeleteMode();renderTeamList();setTeamStatus('')}
+async function saveTeam(){const name=getVal('tName');if(!name){setTeamStatus('ใส่ชื่อก่อน');return}const data={name,nm:name,position:getVal('tPosition'),pos:getVal('tPosition'),photo:getVal('tPhoto'),ph:getVal('tPhoto'),details:getVal('tDetails'),bio:getVal('tDetails'),desc:getVal('tDetails'),order:getVal('tOrder'),sortOrder:getVal('tOrder'),updatedAt:new Date().toISOString(),ts:firebase.firestore.FieldValue.serverTimestamp()};try{setTeamStatus('Saving...');if(editingTeamId&&editingTeamSource==='new'){await db.collection(COL_TM).doc(editingTeamId).set(data,{merge:true})}else{const id='team_'+Date.now();await db.collection(COL_TM).doc(id).set({...data,id,createdAt:new Date().toISOString()},{merge:true});editingTeamId=id;editingTeamSource='new'}await loadAll();setTeamStatus('Saved team member')}catch(e){setTeamStatus('Save team error: '+e.message)}}
+async function removeLegacyTeam(target){let removed=0;const keyTarget=key((target.name||'')+'|'+(target.position||'')+'|'+(target.photo||''));const ref1=db.collection(COL).doc('published');const s1=await ref1.get();if(s1.exists){const data=s1.data()||{},arr=Array.isArray(data.team)?data.team:[];const f=arr.filter((m,i)=>key((m.name||m.nm||'')+'|'+(m.position||m.pos||'')+'|'+(m.photo||m.ph||''))!==keyTarget);removed+=arr.length-f.length;if(arr.length!==f.length)await ref1.set({team:f,updatedAt:new Date().toISOString()},{merge:true})}const ref2=db.collection(COL).doc('dopiousAdminTeam');const s2=await ref2.get();if(s2.exists){const data=s2.data()||{},arr=Array.isArray(data.value)?data.value:[];const f=arr.filter(m=>key((m.name||m.nm||'')+'|'+(m.position||m.pos||'')+'|'+(m.photo||m.ph||''))!==keyTarget);removed+=arr.length-f.length;if(arr.length!==f.length)await ref2.set({value:f,updatedAt:new Date().toISOString()},{merge:true})}return removed}
+async function deleteTeam(){if(!editingTeamId){setTeamStatus('เลือกคนก่อน');return}if(!confirm('Delete this team member?'))return;try{if(editingTeamSource==='old'){const n=await removeLegacyTeam(editingTeam);newTeam();await loadAll();setTeamStatus(n?'Deleted old team member':'ไม่พบข้อมูลเก่าที่ตรงกัน')}else{await db.collection(COL_TM).doc(editingTeamId).delete();newTeam();await loadAll();setTeamStatus('Deleted')}}catch(e){setTeamStatus('Delete team error: '+e.message)}}
+function setTeamStatus(t){const el=document.getElementById('teamStatus');if(el)el.textContent=t||''}
+
+function setStatus(t){document.getElementById('status').textContent=t||''}
+</script>
+
+<script>
+/* Admin sync patch — keep Admin as data entry, but make saved edits replace old-card data. */
+(function(){
+  function _clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
+  function _key(v){return _clean(v).toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').trim();}
+  function _identity(p){return _key((p.name||p.nm||p.title||'')+'|'+(p.client||p.cl||'')+'|'+(p.coverImage||p.cover||p.covUrl||p.coverThumb||''));}
+  window.mergeByKey=function(newDocs,oldDocs){
+    const newIds=new Set((newDocs||[]).map(_identity).filter(Boolean));
+    const seen=new Set(),out=[];
+    (newDocs||[]).forEach(p=>{const k=_identity(p)||_key(p.docId||Math.random());if(seen.has(k))return;seen.add(k);out.push(p);});
+    (oldDocs||[]).forEach(p=>{const k=_identity(p)||_key(p.docId||Math.random());if(newIds.has(k)||seen.has(k))return;seen.add(k);out.push(p);});
+    return out;
+  };
+  window.payload=function(){
+    const name=getVal('name'),cover=getVal('cover');
+    const svc=document.getElementById('service').value;
+    const sub=document.getElementById('subHead').value||'General';
+    const now=new Date().toISOString();
+    const gallery=lines(getVal('gallery'));
+    if(typeof syncCaptionsFromPreview==='function')syncCaptionsFromPreview();
+    const captions=lines(getVal('captions'));
+    const cardMedia=getVal('cardMedia')||'image';
+    return {name,nm:name,title:name,client:getVal('client'),cl:getVal('client'),year:getVal('year')||'2026',yr:getVal('year')||'2026',status:getVal('statusField')||'published',order:getVal('order'),sortOrder:getVal('order'),service:svc,svc:svc,head:svc,projectHeadline:svc,subHead:sub,sub:sub,subHeads:[sub],subheads:[sub],subServices:[sub],selectedSubHeads:[sub],subHeadline:sub,projectSubHeadline:sub,coverImage:cover,cover:cover,covUrl:cover,coverThumb:cover,cardMedia:cardMedia,cardMediaType:cardMedia,previewMedia:cardMedia,galleryImages:gallery,gallery:gallery,galleryCaptions:captions,videoUrl:getVal('video'),vurl:getVal('video'),driveFolderUrl:getVal('folder'),folderUrl:getVal('folder'),desc:getVal('desc'),ds:getVal('desc'),description:getVal('desc'),story:getVal('story'),detail:getVal('story'),location:getVal('location'),role:getVal('role'),scope:getVal('role'),credit:getVal('credit')||'Dopious+',cr:getVal('credit')||'Dopious+',layout:getVal('layout'),updatedAt:now,ts:firebase.firestore.FieldValue.serverTimestamp()};
+  };
+  window.saveProject=async function(){
+    const data=payload();
+    if(!data.name){setStatus('ใส่ Project Name ก่อน');return}
+    if(!data.coverImage){setStatus('ใส่ Cover Image URL ก่อน');return}
+    if(data.cardMedia==='video'&&!data.videoUrl){setStatus('เลือก Video เป็น Card Preview แล้ว ต้องใส่ Video URL ด้วย');return}
+    setStatus('Saving...');
+    try{
+      if(editingId&&editingSource==='new'){
+        await db.collection(COL).doc(editingId).set(data,{merge:true});
+      }else{
+        const id='proj_'+Date.now();
+        await db.collection(COL).doc(id).set({...data,id,createdAt:new Date().toISOString()},{merge:true});
+        if(editingSource==='old' && editingProject && typeof deleteLegacyProject==='function'){
+          try{await deleteLegacyProject(editingProject);}catch(e){console.warn('legacy cleanup failed',e)}
+        }
+        editingId=id; editingSource='new'; editingProject=null;
+      }
+      await loadAll();
+      setStatus('Saved / Published to Firebase — Refresh public page to see updated card');
+    }catch(e){setStatus('Save error: '+e.message)}
+  };
+})();
+</script>
+
+
+
+<script>
+/* Contact admin settings patch — lightweight data entry only */
+var companyData={};
+function _cLines(v){return String(v||'').split(/\n+/).map(s=>s.trim()).filter(Boolean)}
+function _cSet(id,v){const el=document.getElementById(id);if(el)el.value=v||''}
+function _cGet(id){const el=document.getElementById(id);return el?el.value.trim():''}
+function _cVal(doc){return doc&&doc.value!==undefined?doc.value:null}
+function normalizeCompany(raw){raw=raw||{};const phones=[];['phones','phoneList','phone','phone2','phone3','tel','tel2','tel3'].forEach(k=>{const v=raw[k];if(Array.isArray(v))phones.push(...v);else if(v)phones.push(...String(v).split(/\n|\|\||,/))});const emails=[];['emails','emailList','email','email2','email3'].forEach(k=>{const v=raw[k];if(Array.isArray(v))emails.push(...v);else if(v)emails.push(...String(v).split(/\n|\|\||,/))});return {
+  name:raw.name||raw.company||'Dopious Partnership Limited',
+  company:raw.name||raw.company||'Dopious Partnership Limited',
+  contactTitle:raw.contactTitle||'CONTACT+',
+  contactSubtitle:raw.contactSubtitle||raw.contactDesc||'Start a project, request a quotation, or talk with us about your next design / production brief.',
+  office:raw.office||raw.location||'Bangkok / Thailand',
+  address:raw.address||raw.fullAddress||'Bangkok / Thailand',
+  mapUrl:raw.mapUrl||raw.googleMap||raw.maps||'',
+  line:raw.line||raw.lineUrl||raw.lineURL||'https://line.me/R/ti/p/@dopious',
+  whatsapp:raw.whatsapp||raw.whatsappUrl||raw.whatsappURL||'',
+  facebook:raw.facebook||raw.facebookUrl||'',
+  messenger:raw.messenger||raw.facebookMessenger||raw.messengerUrl||'',
+  instagram:raw.instagram||raw.ig||raw.igUrl||'',
+  linkedin:raw.linkedin||raw.linkedinUrl||'',
+  behance:raw.behance||raw.behanceUrl||'',
+  website:raw.website||raw.websiteUrl||'https://www.dopiousdesign.com',
+  phones:[...new Set(phones.map(x=>String(x).trim()).filter(Boolean))],
+  emails:[...new Set(emails.map(x=>String(x).trim()).filter(Boolean))]
+}}
+function fillContactForm(raw){const c=normalizeCompany(raw||{});companyData=c;_cSet('coTitle',c.contactTitle);_cSet('coName',c.name);_cSet('coSubtitle',c.contactSubtitle);_cSet('coOffice',c.office);_cSet('coAddress',c.address);_cSet('coMap',c.mapUrl);_cSet('coLine',c.line);_cSet('coWhatsapp',c.whatsapp);_cSet('coFacebook',c.facebook);_cSet('coMessenger',c.messenger);_cSet('coInstagram',c.instagram);_cSet('coLinkedin',c.linkedin);_cSet('coBehance',c.behance);_cSet('coWebsite',c.website);_cSet('coPhones',(c.phones&&c.phones.length?c.phones:['+66 93-691-6592']).join('\n'));_cSet('coEmails',(c.emails&&c.emails.length?c.emails:['info.dopiousth@gmail.com']).join('\n'))}
+function collectContactForm(){const phones=_cLines(_cGet('coPhones')),emails=_cLines(_cGet('coEmails'));return {name:_cGet('coName')||'Dopious Partnership Limited',company:_cGet('coName')||'Dopious Partnership Limited',contactTitle:_cGet('coTitle')||'CONTACT+',contactSubtitle:_cGet('coSubtitle'),office:_cGet('coOffice'),address:_cGet('coAddress'),mapUrl:_cGet('coMap'),phones:phones,phone:phones[0]||'',phone2:phones[1]||'',phone3:phones[2]||'',emails:emails,email:emails[0]||'',email2:emails[1]||'',email3:emails[2]||'',line:_cGet('coLine'),whatsapp:_cGet('coWhatsapp'),facebook:_cGet('coFacebook'),messenger:_cGet('coMessenger'),instagram:_cGet('coInstagram'),linkedin:_cGet('coLinkedin'),behance:_cGet('coBehance'),website:_cGet('coWebsite'),updatedAt:new Date().toISOString()}}
+async function loadContactSettingsFromFirebase(pubDoc){try{const coDoc=await getDoc('dopiousAdminCompany');const pubCo=pubDoc&&pubDoc.company?pubDoc.company:null;const co=(coDoc&&coDoc.value!==undefined)?coDoc.value:(pubCo||{});fillContactForm(co)}catch(e){fillContactForm({})}}
+async function saveContactSettings(){if(!db){document.getElementById('contactStatus').textContent='Firebase not connected';return}const data=collectContactForm();try{document.getElementById('contactStatus').textContent='Saving contact settings...';await Promise.all([db.collection(COL).doc('dopiousAdminCompany').set({value:data,updatedAt:new Date().toISOString()},{merge:true}),db.collection(COL).doc('published').set({company:data,publishedAt:new Date().toISOString()},{merge:true})]);companyData=data;document.getElementById('contactStatus').innerHTML='<span class="ok">Saved contact settings</span>'}catch(e){document.getElementById('contactStatus').innerHTML='<span class="bad">Save error: '+esc(e.message)+'</span>'}}
+(function(){
+  const oldLoad=window.loadAll;
+  window.loadAll=async function(){
+    if(!db)return;
+    await oldLoad();
+    try{const pub=await getDoc('published');await loadContactSettingsFromFirebase(pub||{});}catch(e){console.warn('contact load error',e)}
+  };
+})();
+</script>
+
+
+
+<script>
+/* Who We Are intro text settings — lightweight textarea only */
+const DEFAULT_WHO_INTRO='Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.';
+var whoIntroData={};
+function _wSet(id,v){const el=document.getElementById(id);if(el)el.value=v||''}
+function _wGet(id){const el=document.getElementById(id);return el?el.value.trim():''}
+function _wVal(doc){return doc&&doc.value!==undefined?doc.value:null}
+function normalizeWebsite(raw){raw=raw||{};return {whoWeAreIntro:raw.whoWeAreIntro||raw.whoIntro||raw.aboutText||raw.whoWeAreText||raw.career||DEFAULT_WHO_INTRO}}
+function fillWhoIntroForm(raw){const w=normalizeWebsite(raw||{});whoIntroData=w;_wSet('whoIntro',w.whoWeAreIntro)}
+function collectWhoIntroForm(){return {whoWeAreIntro:_wGet('whoIntro')||DEFAULT_WHO_INTRO,whoIntro:_wGet('whoIntro')||DEFAULT_WHO_INTRO,whoWeAreText:_wGet('whoIntro')||DEFAULT_WHO_INTRO,career:_wGet('whoIntro')||DEFAULT_WHO_INTRO,updatedAt:new Date().toISOString()}}
+async function loadWhoIntroSettingsFromFirebase(pubDoc){try{const webDoc=await getDoc('dopiousAdminWebsite');const pubWeb=pubDoc&&pubDoc.website?pubDoc.website:null;const web=(webDoc&&webDoc.value!==undefined)?webDoc.value:(pubWeb||{});fillWhoIntroForm(web)}catch(e){fillWhoIntroForm({})}}
+async function saveWhoIntroSettings(){if(!db){document.getElementById('whoIntroStatus').textContent='Firebase not connected';return}const data=collectWhoIntroForm();try{document.getElementById('whoIntroStatus').textContent='Saving Who We Are text...';await Promise.all([db.collection(COL).doc('dopiousAdminWebsite').set({value:data,updatedAt:new Date().toISOString()},{merge:true}),db.collection(COL).doc('published').set({website:data,publishedAt:new Date().toISOString()},{merge:true})]);whoIntroData=data;document.getElementById('whoIntroStatus').innerHTML='<span class="ok">Saved Who We Are text</span>'}catch(e){document.getElementById('whoIntroStatus').innerHTML='<span class="bad">Save error: '+esc(e.message)+'</span>'}}
+(function(){
+  const oldLoad=window.loadAll;
+  window.loadAll=async function(){
+    if(!db)return;
+    await oldLoad();
+    try{const pub=await getDoc('published');await loadWhoIntroSettingsFromFirebase(pub||{});}catch(e){console.warn('who intro load error',e)}
+  };
+})();
+</script>
+
+</body>
+</html>

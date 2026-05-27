@@ -1,1 +1,2 @@
-Upload all files to the website root. This build makes How It Works explain each Service Head and show its Sub Heads clearly.
+Upload all files to GitHub Pages root. Open: https://www.dopiousdesign.com/?v=contact-slots-all
+Admin: https://www.dopiousdesign.com/admin.html?admin=1&v=contact-slots-all
