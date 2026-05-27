@@ -1,0 +1,16 @@
+DOPIOUS FAST IOS PACKAGE
+
+Upload these files to the root of your GitHub Pages / hosting project:
+- index.html
+- style.css
+- app.js
+- favicon.png
+- robots.txt
+- sitemap.xml
+- CNAME
+
+Important:
+1) Replace the old index.html with this index.html.
+2) Put style.css and app.js in the same folder as index.html.
+3) Keep CNAME if this site uses www.dopiousdesign.com.
+4) After uploading, hard refresh iPhone Safari: close tab, open a new tab, then visit www.dopiousdesign.com.
