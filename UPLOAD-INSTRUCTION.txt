@@ -1,1 +1,1 @@
-Upload all files in this folder to the GitHub Pages root. This version cleans the Admin Head/Sub Head setup UI and keeps the one Head + one Sub Head grouping logic.
+Upload all files in this folder to the site root. Use cache test: /?v=data-entry-final-0527 and /admin.html?admin=1&v=data-entry-final-0527

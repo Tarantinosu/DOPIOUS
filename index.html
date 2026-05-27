@@ -39,7 +39,7 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 </style>
 
 <!-- CSS หลัก -->
-<link rel="stylesheet" href="style.css?v=direct-admin-0527">
+<link rel="stylesheet" href="style.css?v=data-entry-final-0527">
 
 <!-- Firebase async -->
 <script>
@@ -168,36 +168,8 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 
 <div class="pop" id="sP" onclick="if(event.target===this)cSt()"><div class="pc"><button class="px2" onclick="cSt()">×</button><h3>Start a<br>Project<em>+</em></h3><div class="psb">Choose how to reach us</div><div class="ccg"><button class="ccb" onclick="window.open('https://line.me/R/ti/p/@dopious','_blank')"><span class="cci" style="background:#06c755">L</span><div class="ccc"><b>Line</b><span>@dopious</span></div></button><button class="ccb" onclick="window.open('https://wa.me/66936916592','_blank')"><span class="cci" style="background:#25d366">W</span><div class="ccc"><b>WhatsApp</b><span>+66 93-691-6592</span></div></button><button class="ccb" onclick="location.href='tel:+66936916592'"><span class="cci" style="background:#333">☎</span><div class="ccc"><b>Phone</b><span>+66 93-691-6592</span></div></button><button class="ccb" onclick="location.href='mailto:info.dopiousth@gmail.com'"><span class="cci" style="background:#ea4335">@</span><div class="ccc"><b>Email</b><span>info.dopiousth@gmail.com</span></div></button></div><div class="poi"><div><b>Dopious Partnership Ltd</b></div><div><b>+66 93-691-6592</b></div><div><b>info.dopiousth@gmail.com</b></div></div></div></div>
 
-<div class="alo" id="aLo"><div class="alc"><button class="xb" onclick="cAL()">×</button><h3>Admin<em>+</em></h3><div class="aerr" id="aErr">รหัสผ่านไม่ถูกต้อง</div><div class="alf"><input type="text" id="aPw" placeholder="Password" onkeydown="if(event.key==='Enter')chkA()"><button onclick="chkA()">Enter</button></div></div></div>
-
-<div class="ap" id="aP">
-  <div class="apt"><div class="aptt">Dopious<em style="color:var(--r);font-style:normal;font-size:13px;font-weight:900">+</em> Admin <em id="apSt">Loading...</em></div><button class="apb" onclick="cAP()">Logout</button><button class="apb d" onclick="cAP()">×</button></div>
-  <div class="ata"><button class="at on" onclick="sT('p',this)">Projects</button><button class="at" onclick="sT('cl',this)">Clients</button><button class="at" onclick="sT('t',this)">Team</button></div>
-  <div class="ab">
-    <div class="apn on" id="tp">
-      <div class="nt">🔗 <strong>วิธีใช้รูปที่ทุกคนเห็นได้:</strong> Google Drive → Share → Anyone with the link → Copy link → วางใน Cover URL</div>
-      <div class="ast" id="apM"></div>
-      <div class="af">
-        <label class="fw">Project Name *<input id="pN" placeholder="e.g. Brand Identity for Mima"></label>
-        <label>Client<input id="pCl" placeholder="Client name"></label>
-        <label>Year<input id="pY" value="2026"></label>
-        <label>Service<select id="pSv"><option value="Brand Strategy Corporate Identity Design+">Brand Strategy / Identity</option><option value="Industrial Design+">Industrial Design</option><option value="Space Design+">Space Design</option><option value="Keyvisual Creative Ads Design+">Keyvisual / Creative Ads</option><option value="Packaging Design+">Packaging Design</option><option value="Website UX-UI Design+">Website / UX-UI</option><option value="Graphic Design+">Graphic Design</option><option value="2D-3D Motion Graphic Design+">2D-3D Motion</option><option value="Photo / Video / Ads Design+">Photo / Video / Ads</option><option value="Sculpture Design+">Sculpture</option><option value="Fashion Design+">Fashion</option><option value="Build & Installation+">Build & Installation</option></select></label>
-        <label class="fw">Cover Image — Google Drive URL *<input id="pCU" placeholder="https://drive.google.com/file/d/..." oninput="pvC(this.value)"></label>
-        <label class="fw">Gallery — 1 URL ต่อบรรทัด<textarea id="pGU" rows="4" placeholder="https://drive.google.com/file/d/ABC/view"></textarea></label>
-        <label class="fw">Video URL<input id="pVU" placeholder="https://www.youtube.com/watch?v=..."></label>
-        <label class="fw">Description<textarea id="pDs" rows="3" placeholder="รายละเอียดงาน..."></textarea></label>
-        <label class="fw">Cover Preview<div class="acv" id="pPv"><span>วาง Google Drive URL ด้านบนเพื่อดู preview</span></div></label>
-      </div>
-      <div class="arow"><button class="asv" onclick="savP()">🚀 Publish</button><button class="asv ghost" onclick="importOldData()">↧ Import Old Admin Data</button></div>
-      <div id="pLs" style="margin-top:12px"></div>
-    </div>
-    <div class="apn" id="tcl"><div class="nt">🔗 ใช้ Google Drive URL สำหรับ logo</div><div class="ast" id="clM"></div><div class="af"><label class="fw">Client Name<input id="clN" placeholder="บริษัท"></label><label class="fw">Logo URL<input id="clU" placeholder="https://drive.google.com/..."></label></div><button class="asv" onclick="savCl()">Add Client</button><div id="clLs" style="margin-top:12px"></div></div>
-    <div class="apn" id="tt"><div class="ast" id="tM"></div><div class="af"><label>ชื่อ<input id="tN" placeholder="Full Name"></label><label>ตำแหน่ง<input id="tPs" placeholder="Senior Designer"></label><label class="fw">Photo URL<input id="tPh" placeholder="https://..."></label></div><button class="asv" onclick="savTm()">Add Team Member</button><div id="tLs" style="margin-top:12px"></div></div>
-  </div>
-</div>
-
 <!-- JS หลัก — defer โหลดหลัง HTML render -->
-<script src="app.js?v=direct-admin-0527" defer></script>
+<script src="app.js?v=data-entry-final-0527" defer></script>
 
 </body>
 </html>
