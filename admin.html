@@ -7806,35 +7806,49 @@ function downloadCredential(type){
       </div>
       <div class="admin-form-grid">
         <label>Project Name<input id="admProjectName" type="text" placeholder="Motion X Shooting Range"></label>
+        <label>Project Headline <span style="font-size:9px;font-weight:400;color:rgba(255,255,255,.35);text-transform:none;letter-spacing:0;">(optional, shown as main title)</span>
+          <input id="admProjectHeadline" type="text" placeholder="Auto from How It Works heading">
+        </label>
+        <label>Sub Headline <span style="font-size:9px;font-weight:400;color:rgba(255,255,255,.35);text-transform:none;letter-spacing:0;">(matches How It Works sub-head / tag)</span>
+          <input id="admProjectSubHeadline" type="text" placeholder="Auto from selected service tag">
+        </label>
         <label>Client Name<input id="admProjectClient" type="text" placeholder="Motion X"></label>
         <label>Credit <span style="font-size:9px;font-weight:400;color:rgba(255,255,255,.35);text-transform:none;letter-spacing:0;">(ทีมงาน, ช่างภาพ, ฯลฯ)</span>
           <input id="admProjectCredit" type="text" placeholder="Photo: John, Art Dir: Jane, 3D: Mark">
         </label>
         <label>Service Category<select id="admProjectService" onchange="updateSubServices()">
-  <option value="">— Select service —</option>
-  <optgroup label="Design">
-    <option>Graphic Design+</option>
-    <option>Industrial Design+</option>
-    <option>Space Design+</option>
-    <option>2D-3D Motion Graphic Design+</option>
-    <option>Brand Strategy Corporate Identity Design+</option>
-    <option>Keyvisual Creative Ads Design+</option>
-    <option>Packaging Design+</option>
-    <option>Website UX-UI Design+</option>
-    <option>Fashion Design+</option>
-    <option>Sculpture Design+</option>
+  <option value="">— Select service from How It Works —</option>
+  <optgroup label="Brand Strategy / Corporate Identity / Design+">
+    <option value="Brand Strategy Corporate Identity Design+">Brand Strategy Corporate Identity Design+</option>
   </optgroup>
-  <optgroup label="Production & Build">
-    <option>Photo / Video / Ads Design+</option>
-    <option>Build &amp; Installation+</option>
-    <option>Prototype 3D Print Service</option>
-    <option>Production Follow Up</option>
+  <optgroup label="Keyvisual / Creative Ads / Graphic Design+">
+    <option value="Keyvisual Creative Ads Design+">Keyvisual Creative Ads Design+</option>
+    <option value="Graphic Design+">Graphic Design+</option>
   </optgroup>
-  <optgroup label="Strategy">
-    <option>Marketing</option>
+  <optgroup label="Industrial / Prototype / Production+">
+    <option value="Industrial Design+">Industrial Design+</option>
+    <option value="Prototype 3D Print Service">Prototype 3D Print Service</option>
+    <option value="Production Follow Up">Production Follow Up</option>
+  </optgroup>
+  <optgroup label="Space / Build & Installation+">
+    <option value="Space Design+">Space Design+</option>
+    <option value="Build & Installation+">Build &amp; Installation+</option>
+  </optgroup>
+  <optgroup label="2D–3D Motion / Fashion / Sculpture Design+">
+    <option value="2D-3D Motion Graphic Design+">2D-3D Motion Graphic Design+</option>
+    <option value="Fashion Design+">Fashion Design+</option>
+    <option value="Sculpture Design+">Sculpture Design+</option>
+  </optgroup>
+  <optgroup label="Photo / Video / Ads / Marketing+">
+    <option value="Photo / Video / Ads Design+">Photo / Video / Ads Design+</option>
+    <option value="Marketing">Marketing</option>
+  </optgroup>
+  <optgroup label="Additional existing website categories">
+    <option value="Packaging Design+">Packaging Design+</option>
+    <option value="Website UX-UI Design+">Website UX-UI Design+</option>
   </optgroup>
 </select></label>
-        <label>Sub Service<select id="admProjectSub"><option>— Select sub-service —</option></select></label>
+        <label>Sub Service<select id="admProjectSub" onchange="syncHowAdminPanel()"><option value="">— Select sub-service from How It Works —</option></select></label>
         <label>Year<input id="admProjectYear" type="text" value="2026"></label>
         <label>Cover Image URL
           <input id="admProjectCoverUrl" type="url" placeholder="https://drive.google.com/... หรือ https://i.imgbb.com/..." oninput="livePreviewCoverUrl(this.value)">
@@ -8166,12 +8180,12 @@ function downloadCredential(type){
         <div class="admin-form-grid">
           <label>Service Category
             <select id="admSubtopicCategory">
-              <option value="0">Brand Strategy</option>
+              <option value="0">Brand Strategy / Corporate Identity</option>
               <option value="1">Industrial Design</option>
               <option value="2">Space Design</option>
               <option value="3">Keyvisual / Creative Ads</option>
-              <option value="4">Packaging Design</option>
-              <option value="5">Online / Offline Ads</option>
+              <option value="4">Graphic Design</option>
+              <option value="5">Packaging Design</option>
               <option value="6">Website UX-UI</option>
               <option value="7">Sculpture Design</option>
               <option value="8">Fashion Design</option>
@@ -8184,15 +8198,18 @@ function downloadCredential(type){
           <label>Link to How It Works Service
             <select id="admSubtopicServiceKey">
               <option value="n1">Brand Strategy</option>
-              <option value="n2">Keyvisual</option>
+              <option value="n2">Keyvisual / Creative Ads</option>
+              <option value="n9">Graphic Design</option>
               <option value="n3">Industrial Design</option>
               <option value="n4">Space Design</option>
-              <option value="n5">Prototype</option>
-              <option value="n6">Production</option>
-              <option value="n9">Graphic Design</option>
+              <option value="n5">Prototype / 3D Print</option>
+              <option value="n6">Production Follow Up</option>
               <option value="n10">Build & Installation</option>
+              <option value="n11">2D–3D Motion / Fashion / Sculpture</option>
               <option value="n7">Photo / Video / Ads</option>
               <option value="n8">Marketing</option>
+              <option value="n_packaging">Packaging Design</option>
+              <option value="n_website">Website UX-UI</option>
             </select>
           </label>
         </div>
@@ -8996,13 +9013,14 @@ setTimeout(()=>{ renderClientGrid(); if(typeof loadClientSectionSettingsToForm==
 const adminDefaultSubtopics = [
   {key:'n1', items:['Brand Strategy | Corporate Identity','Brand Strategy | Logo System','Brand Strategy | Guideline']},
   {key:'n3', items:['Industrial Design | Product','Industrial Design | CMF','Industrial Design | Prototype']},
-  {key:'n4', items:['Space Design | Event','Space Design | Residence','Space Design | Booth / Kiosk','Space Design | Retail']},
+  {key:'n4', items:['Space | Event','Space | Interior','Space | Exterior','Space | Kiosk','Space | Pop-up Store','Space | Exhibition Booth','Space | Retail']},
   {key:'n2', items:['Keyvisual | Campaign','Keyvisual | Online Ads','Keyvisual | Billboard']},
-  {key:'n1', items:['Packaging | Brand Extension','Packaging | Label System','Packaging | Mockup']},
-  {key:'n2', items:['Website UX-UI | Landing Page','Website UX-UI | Portfolio','Website UX-UI | System']},
-  {key:'n5', items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']},
-  {key:'n1', items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
-  {key:'n7', items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
+  {key:'n9', items:['Graphic Design | Layout','Graphic Design | Signage','Graphic Design | Illustration']},
+  {key:'n_packaging', items:['Packaging | Brand Extension','Packaging | Label System','Packaging | Mockup']},
+  {key:'n_website', items:['Website UX-UI | Landing Page','Website UX-UI | Portfolio','Website UX-UI | System']},
+  {key:'n11', items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']},
+  {key:'n11', items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
+  {key:'n11', items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
   {key:'n7', items:['Photo / Video | Shooting','Photo / Video | Content','Photo / Video | Commercial']},
   {key:'n10', items:['Build | Fit-out','Build | Installation','Build | Site Work']}
 ];
@@ -9601,7 +9619,7 @@ function previewProjectMediaUrls(){
   /* Video */
   if(videoVal){
     const embed = convertVideoUrl(videoVal);
-    html += '<div class="umv-title" style="margin-top:14px;">▶ Video Preview</div>';
+    html += '<div class="umv-title" style="margin-top:14px;">▶ Video</div>';
     html += '<div class="umv-video">';
     if(embed.type === 'iframe'){
       html += '<iframe src="'+embed.src+'" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>';
@@ -13630,7 +13648,7 @@ async function uploadImageToSupabase(file){
     if(videoVal){
       if(typeof window.convertVideoUrl === 'function'){
         var embed = window.convertVideoUrl(videoVal);
-        html += '<div class="umv-title" style="margin-top:14px;">▶ Video Preview</div><div class="umv-video">';
+        html += '<div class="umv-title" style="margin-top:14px;">▶ Video</div><div class="umv-video">';
         if(embed.type === 'iframe') html += '<iframe src="'+embed.src+'" allow="autoplay; fullscreen" allowfullscreen loading="lazy"></iframe>';
         else if(embed.type === 'video') html += '<video controls src="'+embed.src+'"></video>';
         else html += '<a class="detail-video-link" href="'+videoVal+'" target="_blank" rel="noopener">▶ เปิดวิดีโอ</a>';
@@ -14198,10 +14216,10 @@ async function uploadImageToSupabase(file){
     }
     if(videoVal){
       var embed = window.convertVideoUrl(videoVal);
-      html += '<div class="umv-title" style="margin-top:14px;">▶ Video Preview</div>';
+      html += '<div class="umv-title" style="margin-top:14px;">▶ Video</div>';
       html += '<div class="umv-video">';
       if(embed.type === 'iframe'){
-        html += '<iframe src="'+esc(embed.src)+'" title="Video Preview" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe>';
+        html += '<iframe src="'+esc(embed.src)+'" title="Video" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen" allowfullscreen></iframe>';
       }else if(embed.type === 'video'){
         html += '<video controls playsinline src="'+esc(embed.src)+'"></video>';
       }else{
@@ -15654,6 +15672,102 @@ async function uploadImageToSupabase(file){
   window.addEventListener('load', function(){ setTimeout(forceVisiblePassword, 250); });
 })();
 </script>
+
+
+<!-- Exact Admin / How / Card taxonomy match patch -->
+<style id="exact-taxonomy-final-css">
+.video-badge{display:none!important}
+.admin-how-chip-row button.active{border-color:#ff2a14!important;color:#ff2a14!important;background:rgba(255,42,20,.10)!important}
+</style>
+<script id="exact-taxonomy-final-patch">
+(function(){
+  const EXACT_TAX=[
+    {key:'n1',service:'Brand Strategy Corporate Identity Design+',kicker:'Brand Strategy Corporate Identity Design+',title:'Brand Strategy',desc:'Build a clear brand foundation before moving into visual, spatial, or campaign work — covering Brand Positioning, Corporate Identity, Logo Systems, Brand Guidelines, and Campaign Direction.',items:[]},
+    {key:'n2',service:'Keyvisual Creative Ads Design+',kicker:'Keyvisual Creative Ads Design+',title:'Keyvisual / Creative Ads',desc:'Design the main campaign Key Visual and adapt it across online and offline media — Campaign KV, Online Ads, Billboard, OOH, and Social Media Visuals.',items:[]},
+    {key:'n9',service:'Graphic Design+',kicker:'Graphic Design+',title:'Graphic Design',desc:'Create visual communication systems for brand, campaign, and print/digital media — layout design, poster, brochure, signage graphics, social templates, presentation decks, and production-ready artwork.',items:[]},
+    {key:'n3',service:'Industrial Design+',kicker:'Industrial Design+',title:'Industrial Design',desc:'Develop product form, CMF direction, 3D visualization, and production-ready presentations — Product Design, 3D Modeling, Prototype Direction, and Manufacturing Support.',items:[]},
+    {key:'n4',service:'Space Design+',kicker:'Space Design+',title:'Space Design',desc:'Design spatial experiences for commercial areas, events, booths, kiosks, retail, pop-up stores, and exhibitions — from concept design to production drawings and site follow-up.',items:['Space | Event','Space | Interior','Space | Exterior','Space | Kiosk','Space | Pop-up Store','Space | Exhibition Booth','Space | Retail']},
+    {key:'n5',service:'Prototype 3D Print Service',kicker:'Prototype 3D Print Service',title:'Prototype / 3D Print Service',desc:'Create physical prototypes, scale models, mockups, 3D printed parts, resin samples, FDM/SLA print tests, and production study models before final production.',items:[]},
+    {key:'n6',service:'Production Follow Up',kicker:'Production Follow Up',title:'Production',desc:'Manage production-ready outputs such as display pieces, signage, props, mockups, printing, material sourcing, vendor coordination, quality control, and final delivery follow-up.',items:[]},
+    {key:'n10',service:'Build & Installation+',kicker:'Build & Installation+',title:'Build & Installation',desc:'Construction, fit-out, site work, and installation for retail spaces, kiosks, booths, pop-up shops, events, exhibitions, and branded environments.',items:[]},
+    {key:'n11',service:'2D-3D Motion Graphic Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',desc:'Specialized creative work — 2D/3D Motion Graphics for digital and print media, Fashion Design and Styling Direction, Sculpture, and 3D Art for exhibitions and commercial use.',items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
+    {key:'n11',service:'Fashion Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',desc:'Specialized creative work — 2D/3D Motion Graphics for digital and print media, Fashion Design and Styling Direction, Sculpture, and 3D Art for exhibitions and commercial use.',items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
+    {key:'n11',service:'Sculpture Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',desc:'Specialized creative work — 2D/3D Motion Graphics for digital and print media, Fashion Design and Styling Direction, Sculpture, and 3D Art for exhibitions and commercial use.',items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']},
+    {key:'n7',service:'Photo / Video / Ads Design+',kicker:'Photo / Video / Ads Design+',title:'Photo / Video / Ads',desc:'Produce media assets for launches, brand communication, and digital campaigns — Photo Direction, Video Production, Motion Graphics, Commercial Ads, and Content Packages.',items:[]},
+    {key:'n8',service:'Marketing',kicker:'Marketing+',title:'Marketing',desc:'Strategic marketing follow-up, campaign planning, and brand communication — digital campaigns, social content, media buying coordination, and ongoing brand support.',items:['Marketing | Campaign Planning','Marketing | Social Media','Marketing | Brand Communication','Marketing | Follow Up','Marketing | Media Buying']},
+    {key:'n_packaging',service:'Packaging Design+',kicker:'Packaging Design+',title:'Packaging Design',desc:'Existing website category kept for old projects. Use this for label systems, structural packaging, mockups, and packaging visuals.',items:['Packaging | Brand Extension','Packaging | Label System','Packaging | Mockup']},
+    {key:'n_website',service:'Website UX-UI Design+',kicker:'Website UX-UI Design+',title:'Website UX-UI',desc:'Existing website category kept for old projects. Use this for landing pages, portfolio sites, web applications, dashboards, and admin system UI.',items:['Website UX-UI | Landing Page','Website UX-UI | Portfolio','Website UX-UI | System']}
+  ];
+  window.DOPIOUS_EXACT_TAXONOMY=EXACT_TAX;
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function cplus(s){return esc(s).replace(/\+/g,'<em>+</em>');}
+  function norm(s){return String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9]+/g,'').trim();}
+  function metaFor(service){return EXACT_TAX.find(x=>x.service===service)||EXACT_TAX.find(x=>norm(x.service)===norm(service))||EXACT_TAX[0];}
+  function ensureSelects(){
+    const svc=document.getElementById('admProjectService'); if(!svc)return;
+    const val=svc.value;
+    const groups=[
+      ['Brand Strategy / Corporate Identity / Design+',['Brand Strategy Corporate Identity Design+']],
+      ['Keyvisual / Creative Ads / Graphic Design+',['Keyvisual Creative Ads Design+','Graphic Design+']],
+      ['Industrial / Prototype / Production+',['Industrial Design+','Prototype 3D Print Service','Production Follow Up']],
+      ['Space / Build & Installation+',['Space Design+','Build & Installation+']],
+      ['2D–3D Motion / Fashion / Sculpture Design+',['2D-3D Motion Graphic Design+','Fashion Design+','Sculpture Design+']],
+      ['Photo / Video / Ads / Marketing+',['Photo / Video / Ads Design+','Marketing']],
+      ['Additional existing website categories',['Packaging Design+','Website UX-UI Design+']]
+    ];
+    svc.innerHTML='<option value="">— Select service from How It Works —</option>'+groups.map(g=>'<optgroup label="'+esc(g[0])+'">'+g[1].map(v=>'<option value="'+esc(v)+'">'+esc(v)+'</option>').join('')+'</optgroup>').join('');
+    if(val){svc.value=val;if(!svc.value){const o=document.createElement('option');o.value=o.textContent=val;svc.appendChild(o);svc.value=val;}}
+  }
+  function populateSub(selected){
+    const svc=document.getElementById('admProjectService'); const sub=document.getElementById('admProjectSub'); if(!svc||!sub)return;
+    const m=metaFor(svc.value); const val=selected!==undefined?selected:sub.value;
+    sub.innerHTML='<option value="">— Select sub-service from How It Works —</option>'+(m.items||[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('')+'<option value="Other">Other</option>';
+    if(val){sub.value=val;if(!sub.value){const o=document.createElement('option');o.value=o.textContent=val;sub.insertBefore(o,sub.lastElementChild);sub.value=val;}}
+  }
+  function exactSync(force){
+    ensureSelects();
+    const svc=document.getElementById('admProjectService'); const sub=document.getElementById('admProjectSub'); if(!svc)return;
+    const m=metaFor(svc.value); if(sub && ![...sub.options].some(o=>o.value===sub.value)) populateSub(sub.value);
+    const subVal=(sub&&sub.value&&sub.value!=='Other')?sub.value:'';
+    const h=document.getElementById('admProjectHeadline'); const sh=document.getElementById('admProjectSubHeadline');
+    if(h)h.value=m.title;
+    if(sh)sh.value=subVal || m.kicker;
+    const k=document.getElementById('admHowKicker'), t=document.getElementById('admHowTitle'), d=document.getElementById('admHowDesc'), chips=document.getElementById('admHowChips');
+    if(k)k.innerHTML=cplus(m.kicker); if(t)t.innerHTML=cplus(m.title); if(d)d.textContent=m.desc;
+    if(chips){
+      const items=m.items||[];
+      chips.innerHTML=items.length?items.map(x=>'<button type="button" class="'+(x===subVal?'active':'')+'" data-chip="'+esc(x)+'">'+esc(x)+'</button>').join(''):'<span style="color:rgba(255,255,255,.38);font-size:12px;line-height:2.2;">No fixed chip on How It Works — use the main kicker as sub-head.</span>';
+      chips.querySelectorAll('button[data-chip]').forEach(btn=>btn.onclick=function(){if(sub){populateSub(this.dataset.chip);sub.value=this.dataset.chip;}exactSync(true);});
+    }
+    if(typeof serviceSubData==='object'){
+      const byKey={}; EXACT_TAX.forEach(x=>{if(!byKey[x.key])byKey[x.key]={kicker:x.kicker,title:x.title,desc:x.desc,items:[]};(x.items||[]).forEach(it=>{if(!byKey[x.key].items.includes(it))byKey[x.key].items.push(it);});});
+      Object.keys(byKey).forEach(k2=>serviceSubData[k2]=Object.assign({},serviceSubData[k2]||{},byKey[k2]));
+    }
+  }
+  const oldUpdate=window.updateSubServices;
+  window.updateSubServices=function(selectedSub){ensureSelects();populateSub(selectedSub);exactSync(true);};
+  const oldSync=window.syncHowAdminPanel;
+  window.syncHowAdminPanel=function(){exactSync(true);};
+  function boot(){
+    ensureSelects();populateSub();exactSync(false);
+    const svc=document.getElementById('admProjectService'); const sub=document.getElementById('admProjectSub');
+    if(svc&&!svc.dataset.exactTax){svc.addEventListener('change',function(){populateSub('');exactSync(true);});svc.dataset.exactTax='1';}
+    if(sub&&!sub.dataset.exactTax){sub.addEventListener('change',function(){exactSync(true);});sub.dataset.exactTax='1';}
+    document.querySelectorAll('.video-badge').forEach(el=>el.remove());
+  }
+  const oldSave=window.saveAdminProject;
+  if(typeof oldSave==='function'&&!oldSave.__exactWrapped){
+    const wrapped=function(){exactSync(true);return oldSave.apply(this,arguments);}; wrapped.__exactWrapped=true; window.saveAdminProject=wrapped;
+  }
+  const oldPreview=window.previewAdminProject;
+  if(typeof oldPreview==='function'&&!oldPreview.__exactWrapped){
+    const wrapped=function(){exactSync(true);return oldPreview.apply(this,arguments);}; wrapped.__exactWrapped=true; window.previewAdminProject=wrapped;
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot); else boot();
+  setTimeout(boot,600);setTimeout(boot,1800);
+})();
+</script>
+
 </body>
 </html>
 <!-- ═══════════════════════════════════════════════════
@@ -15895,3 +16009,104 @@ document.addEventListener('touchstart',function(){document.querySelectorAll('vid
 .dop-lqip-wrap { overflow: hidden !important; }
 .dop-lqip-wrap img { transition: none !important; }
 </style>
+
+<!-- Admin / How It Works taxonomy parity patch -->
+<style id="admin-how-taxonomy-css">
+.admin-how-match-panel{grid-column:1/-1;border:1px solid rgba(255,42,20,.34);background:linear-gradient(135deg,rgba(255,42,20,.10),rgba(255,255,255,.035));border-radius:22px;padding:18px 18px 16px;margin:2px 0 2px;box-shadow:0 18px 42px rgba(0,0,0,.22)}
+.admin-how-match-panel small{display:block;color:#ff2a14;font-size:10px;font-weight:900;letter-spacing:.22em;text-transform:uppercase;margin-bottom:8px}
+.admin-how-match-panel h4{font-size:24px;line-height:1;letter-spacing:-.045em;margin:0 0 7px;color:#fff}
+.admin-how-match-panel h4 em,.admin-how-match-panel small em{color:#ff2a14;font-style:normal}
+.admin-how-match-panel p{font-size:13px;line-height:1.55;color:rgba(255,255,255,.58);margin:0 0 12px;max-width:920px}
+.admin-how-chip-row{display:flex;gap:7px;flex-wrap:wrap}
+.admin-how-chip-row button{border:1px solid rgba(255,255,255,.14);background:rgba(0,0,0,.24);color:#fff;border-radius:999px;padding:8px 11px;font-size:10px;font-weight:900;letter-spacing:.10em;text-transform:uppercase;cursor:pointer}
+.admin-how-chip-row button:hover,.admin-how-chip-row button.active{border-color:#ff2a14;color:#ff2a14;background:rgba(255,42,20,.09)}
+.admin-how-note{font-size:11px;color:rgba(255,255,255,.42);line-height:1.45;margin-top:8px}
+@media(max-width:760px){.admin-how-match-panel{padding:15px}.admin-how-match-panel h4{font-size:20px}.admin-how-chip-row{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.admin-how-chip-row button{flex-shrink:0}}
+</style>
+<script id="admin-how-taxonomy-patch">
+(function(){
+  const HOW_ADMIN_MASTER=[
+    {key:'n1',service:'Brand Strategy Corporate Identity Design+',kicker:'Brand Strategy Corporate Identity Design+',title:'Brand Strategy',desc:'Build a clear brand foundation before moving into visual, spatial, or campaign work — covering Brand Positioning, Corporate Identity, Logo Systems, Brand Guidelines, and Campaign Direction.',items:[]},
+    {key:'n2',service:'Keyvisual Creative Ads Design+',kicker:'Keyvisual Creative Ads Design+',title:'Keyvisual / Creative Ads',desc:'Design the main campaign Key Visual and adapt it across online and offline media — Campaign KV, Online Ads, Billboard, OOH, and Social Media Visuals.',items:[]},
+    {key:'n9',service:'Graphic Design+',kicker:'Graphic Design+',title:'Graphic Design',desc:'Create visual communication systems for brand, campaign, and print/digital media — layout design, poster, brochure, signage graphics, social templates, presentation decks, and production-ready artwork.',items:[]},
+    {key:'n3',service:'Industrial Design+',kicker:'Industrial Design+',title:'Industrial Design',desc:'Develop product form, CMF direction, 3D visualization, and production-ready presentations — Product Design, 3D Modeling, Prototype Direction, and Manufacturing Support.',items:[]},
+    {key:'n4',service:'Space Design+',kicker:'Space Design+',title:'Space Design',desc:'Design spatial experiences for commercial areas, events, booths, kiosks, retail, pop-up stores, and exhibitions — from concept design to production drawings and site follow-up.',items:['Space | Event','Space | Interior','Space | Exterior','Space | Kiosk','Space | Pop-up Store','Space | Exhibition Booth','Space | Retail']},
+    {key:'n5',service:'Prototype 3D Print Service',kicker:'Prototype 3D Print Service',title:'Prototype / 3D Print Service',desc:'Create physical prototypes, scale models, mockups, 3D printed parts, resin samples, FDM/SLA print tests, and production study models before final production.',items:[]},
+    {key:'n6',service:'Production Follow Up',kicker:'Production Follow Up',title:'Production',desc:'Manage production-ready outputs such as display pieces, signage, props, mockups, printing, material sourcing, vendor coordination, quality control, and final delivery follow-up.',items:[]},
+    {key:'n10',service:'Build & Installation+',kicker:'Build & Installation+',title:'Build & Installation',desc:'Construction, fit-out, site work, and installation for retail spaces, kiosks, booths, pop-up shops, events, exhibitions, and branded environments.',items:[]},
+    {key:'n11',service:'2D-3D Motion Graphic Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',desc:'Specialized creative work — 2D/3D Motion Graphics for digital and print media, Fashion Design and Styling Direction, Sculpture, and 3D Art for exhibitions and commercial use.',items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
+    {key:'n11',service:'Fashion Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',desc:'Specialized creative work — 2D/3D Motion Graphics for digital and print media, Fashion Design and Styling Direction, Sculpture, and 3D Art for exhibitions and commercial use.',items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
+    {key:'n11',service:'Sculpture Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',desc:'Specialized creative work — 2D/3D Motion Graphics for digital and print media, Fashion Design and Styling Direction, Sculpture, and 3D Art for exhibitions and commercial use.',items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']},
+    {key:'n7',service:'Photo / Video / Ads Design+',kicker:'Photo / Video / Ads Design+',title:'Photo / Video / Ads',desc:'Produce media assets for launches, brand communication, and digital campaigns — Photo Direction, Video Production, Motion Graphics, Commercial Ads, and Content Packages.',items:[]},
+    {key:'n8',service:'Marketing',kicker:'Marketing+',title:'Marketing',desc:'Strategic marketing follow-up, campaign planning, and brand communication — digital campaigns, social content, media buying coordination, and ongoing brand support.',items:['Marketing | Campaign Planning','Marketing | Social Media','Marketing | Brand Communication','Marketing | Follow Up','Marketing | Media Buying']},
+    {key:'n_packaging',service:'Packaging Design+',kicker:'Packaging Design+',title:'Packaging Design',desc:'Existing website category kept for old projects. Use this for label systems, structural packaging, mockups, and packaging visuals.',items:['Packaging | Brand Extension','Packaging | Label System','Packaging | Mockup']},
+    {key:'n_website',service:'Website UX-UI Design+',kicker:'Website UX-UI Design+',title:'Website UX-UI',desc:'Existing website category kept for old projects. Use this for landing pages, portfolio sites, web applications, dashboards, and admin system UI.',items:['Website UX-UI | Landing Page','Website UX-UI | Portfolio','Website UX-UI | System']}
+  ];
+  const byService={}; HOW_ADMIN_MASTER.forEach(x=>byService[x.service]=x);
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  function colorPlus(s){return esc(s).replace(/\+/g,'<em>+</em>');}
+  function selectedMeta(){const svc=document.getElementById('admProjectService')?.value||''; return byService[svc]||HOW_ADMIN_MASTER[0];}
+  function ensurePanel(){
+    const grid=document.querySelector('#adminTab-projects .admin-form-grid'); if(!grid||document.getElementById('admHowPanel')) return;
+    const svcLabel=document.getElementById('admProjectService')?.closest('label');
+    const wrap=document.createElement('div'); wrap.className='admin-how-match-panel'; wrap.id='admHowPanel';
+    wrap.innerHTML='<small id="admHowKicker">How It Works</small><h4 id="admHowTitle">Select service</h4><p id="admHowDesc">This panel mirrors the selected service heading and sub-service chips from How It Works.</p><div class="admin-how-chip-row" id="admHowChips"></div><div class="admin-how-note">Admin category / sub-service now uses the same naming as the How It Works page, so service tags jump to the correct work card.</div>';
+    if(svcLabel) grid.insertBefore(wrap, svcLabel); else grid.insertBefore(wrap, grid.firstChild);
+  }
+  function setSelectOptions(selected){
+    const svcEl=document.getElementById('admProjectService'); if(!svcEl) return;
+    const val=selected || svcEl.value || '';
+    const html='<option value="">— Select service from How It Works —</option>'+
+      '<optgroup label="Brand Strategy / Corporate Identity / Design+"><option value="Brand Strategy Corporate Identity Design+">Brand Strategy Corporate Identity Design+</option></optgroup>'+
+      '<optgroup label="Keyvisual / Creative Ads / Graphic Design+"><option value="Keyvisual Creative Ads Design+">Keyvisual Creative Ads Design+</option><option value="Graphic Design+">Graphic Design+</option></optgroup>'+
+      '<optgroup label="Industrial / Prototype / Production+"><option value="Industrial Design+">Industrial Design+</option><option value="Prototype 3D Print Service">Prototype 3D Print Service</option><option value="Production Follow Up">Production Follow Up</option></optgroup>'+
+      '<optgroup label="Space / Build & Installation+"><option value="Space Design+">Space Design+</option><option value="Build & Installation+">Build &amp; Installation+</option></optgroup>'+
+      '<optgroup label="2D–3D Motion / Fashion / Sculpture Design+"><option value="2D-3D Motion Graphic Design+">2D-3D Motion Graphic Design+</option><option value="Fashion Design+">Fashion Design+</option><option value="Sculpture Design+">Sculpture Design+</option></optgroup>'+
+      '<optgroup label="Photo / Video / Ads / Marketing+"><option value="Photo / Video / Ads Design+">Photo / Video / Ads Design+</option><option value="Marketing">Marketing</option></optgroup>'+
+      '<optgroup label="Additional existing website categories"><option value="Packaging Design+">Packaging Design+</option><option value="Website UX-UI Design+">Website UX-UI Design+</option></optgroup>';
+    if(!svcEl.dataset.howPatched || svcEl.innerHTML.indexOf('How It Works')<0){svcEl.innerHTML=html;svcEl.dataset.howPatched='1';}
+    if(val){svcEl.value=val; if(!svcEl.value){const opt=document.createElement('option');opt.value=opt.textContent=val;svcEl.appendChild(opt);svcEl.value=val;}}
+  }
+  function markManual(){this.dataset.manual='1';}
+  function syncPanel(){
+    ensurePanel();
+    const meta=selectedMeta(); const subEl=document.getElementById('admProjectSub'); const sub=subEl?.value||'';
+    const k=document.getElementById('admHowKicker'), t=document.getElementById('admHowTitle'), d=document.getElementById('admHowDesc'), chips=document.getElementById('admHowChips');
+    if(k)k.innerHTML=colorPlus(meta.kicker); if(t)t.innerHTML=colorPlus(meta.title); if(d)d.textContent=meta.desc;
+    if(chips){
+      const items=meta.items||[];
+      chips.innerHTML=items.length?items.map(x=>'<button type="button" class="'+(x===sub?'active':'')+'" data-chip="'+esc(x)+'">'+esc(x)+'</button>').join(''):'<span style="color:rgba(255,255,255,.38);font-size:12px;line-height:2.2;">No fixed chip on How It Works — use Other only when this project needs a custom sub-head.</span>';
+      chips.querySelectorAll('button[data-chip]').forEach(btn=>btn.onclick=function(){const subEl=document.getElementById('admProjectSub'); if(!subEl)return; subEl.value=this.dataset.chip; if(!subEl.value){const opt=document.createElement('option');opt.value=opt.textContent=this.dataset.chip;subEl.insertBefore(opt,subEl.lastElementChild);subEl.value=this.dataset.chip;} const sh=document.getElementById('admProjectSubHeadline'); if(sh&&!sh.dataset.manual)sh.value=this.dataset.chip; syncPanel();});
+    }
+    const h=document.getElementById('admProjectHeadline'); const sh=document.getElementById('admProjectSubHeadline');
+    if(h && !h.dataset.manual && !h.value) h.value=meta.title;
+    if(sh && !sh.dataset.manual && !sh.value) sh.value=sub || meta.kicker;
+  }
+  function updateSubs(selectedSub){
+    setSelectOptions();
+    const svcEl=document.getElementById('admProjectService'); const subEl=document.getElementById('admProjectSub'); if(!svcEl||!subEl)return;
+    const meta=selectedMeta(); const subs=meta.items||[];
+    const val=selectedSub || subEl.value || '';
+    subEl.innerHTML='<option value="">— Select sub-service from How It Works —</option>'+subs.map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('')+'<option value="Other">Other</option>';
+    if(val){subEl.value=val; if(!subEl.value){const opt=document.createElement('option'); opt.value=opt.textContent=val; subEl.insertBefore(opt, subEl.lastElementChild); subEl.value=val;}}
+    const h=document.getElementById('admProjectHeadline'); const sh=document.getElementById('admProjectSubHeadline');
+    if(h && !h.dataset.manual) h.value=meta.title;
+    if(sh && !sh.dataset.manual) sh.value=(subEl.value && subEl.value!=='Other')?subEl.value:meta.kicker;
+    syncPanel();
+  }
+  window.syncHowAdminPanel=syncPanel;
+  window.updateSubServices=function(selectedSub){updateSubs(selectedSub);};
+  function bootHowAdmin(){
+    ensurePanel(); setSelectOptions(); updateSubs();
+    ['admProjectHeadline','admProjectSubHeadline'].forEach(id=>{const el=document.getElementById(id); if(el&&!el.dataset.manualHook){el.addEventListener('input',markManual); el.dataset.manualHook='1';}});
+    const svc=document.getElementById('admProjectService'); if(svc&&!svc.dataset.howEvt){svc.addEventListener('change',()=>updateSubs('')); svc.dataset.howEvt='1';}
+    const sub=document.getElementById('admProjectSub'); if(sub&&!sub.dataset.howEvt){sub.addEventListener('change',syncPanel); sub.dataset.howEvt='1';}
+    if(typeof serviceSubData==='object'){
+      HOW_ADMIN_MASTER.forEach(m=>{ serviceSubData[m.key]=serviceSubData[m.key]||{}; if(m.key==='n_packaging'||m.key==='n_website') serviceSubData[m.key]={kicker:m.kicker,title:m.title,desc:m.desc,items:m.items}; });
+    }
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',bootHowAdmin); else bootHowAdmin();
+  setTimeout(bootHowAdmin,500); setTimeout(bootHowAdmin,1500);
+})();
+</script>
+

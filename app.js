@@ -35,6 +35,9 @@ const CATS=[
   {cat:'2D-3D MOTION GRAPHIC DESIGN+',bg:'linear-gradient(90deg,rgba(0,68,92,.72),rgba(6,148,165,.25)),radial-gradient(circle at 55% 44%,#f4d36b 0 14%,transparent 15%),linear-gradient(100deg,#0b9aaa 0 44%,#077e8e 45% 100%)',svc:'2D-3D Motion Graphic Design+'},
   {cat:'PHOTO / VIDEO / ADS DESIGN+',bg:'linear-gradient(90deg,rgba(120,12,3,.75),rgba(8,40,52,.25)),radial-gradient(circle at 42% 48%,#ff4a28 0 10%,transparent 11%),linear-gradient(100deg,#102e3c 0 36%,#9b1d10 37% 100%)',svc:'Photo / Video / Ads Design+'},
   {cat:'BUILD & INSTALLATION+',bg:'linear-gradient(90deg,rgba(10,10,10,.88),rgba(60,30,10,.4)),linear-gradient(100deg,#0a0a08 0 38%,#2a1e0e 39% 100%)',svc:'Build & Installation+'},
+  {cat:'PROTOTYPE / 3D PRINT SERVICE',bg:'linear-gradient(90deg,rgba(35,20,8,.9),rgba(255,42,20,.18)),linear-gradient(100deg,#100b06 0 44%,#2a160a 45% 100%)',svc:'Prototype 3D Print Service'},
+  {cat:'PRODUCTION FOLLOW UP',bg:'linear-gradient(90deg,rgba(10,10,10,.9),rgba(80,50,20,.28)),linear-gradient(100deg,#070707 0 46%,#24180d 47% 100%)',svc:'Production Follow Up'},
+  {cat:'MARKETING+',bg:'linear-gradient(90deg,rgba(35,8,0,.86),rgba(255,42,20,.20)),linear-gradient(100deg,#0b0505 0 42%,#30100d 43% 100%)',svc:'Marketing'},
 ];
 const S2C={};CATS.forEach((c,i)=>S2C[c.svc]=i);
 
@@ -516,6 +519,7 @@ function normProject(p,i,src){
     cl:p.client||p.cl||'', client:p.client||p.cl||'',
     credit:p.credit||p.cr||'', cr:p.credit||p.cr||'',
     svc:svc, service:svc, sub:p.sub||p.subService||'',
+    headline:p.headline||p.projectHeadline||p.head||'', subHeadline:p.subHeadline||p.subhead||p.subHead||p.projectSubHeadline||'',
     yr:p.year||p.yr||'2026', year:p.year||p.yr||'2026',
     ds:p.desc||p.ds||p.description||'', desc:p.desc||p.ds||p.description||'',
     layout:p.layout||'stack', previewType:p.previewType||p.cardPreviewType||'image',
@@ -741,10 +745,35 @@ function cleanCardText(s){return String(s||'').replace(/https?:\/\/\S+/g,'').rep
 function serviceShortName(s){return String(s||'').replace(/Design\+?$/i,'').replace(/\+$/,'').trim().split('/')[0].trim().split(' ').slice(0,3).join(' ');}
 function labelOfService(s){return serviceShortName(s)||'Dopious';}
 function serviceIndex(s){const sv=normSvc(s);return S2C[sv]!==undefined?S2C[sv]:-1;}
+
+const DOPIOUS_HOW_TAXONOMY=[
+  {key:'n1',service:'Brand Strategy Corporate Identity Design+',kicker:'Brand Strategy Corporate Identity Design+',title:'Brand Strategy',items:[]},
+  {key:'n2',service:'Keyvisual Creative Ads Design+',kicker:'Keyvisual Creative Ads Design+',title:'Keyvisual / Creative Ads',items:[]},
+  {key:'n9',service:'Graphic Design+',kicker:'Graphic Design+',title:'Graphic Design',items:[]},
+  {key:'n3',service:'Industrial Design+',kicker:'Industrial Design+',title:'Industrial Design',items:[]},
+  {key:'n4',service:'Space Design+',kicker:'Space Design+',title:'Space Design',items:['Space | Event','Space | Interior','Space | Exterior','Space | Kiosk','Space | Pop-up Store','Space | Exhibition Booth','Space | Retail']},
+  {key:'n5',service:'Prototype 3D Print Service',kicker:'Prototype 3D Print Service',title:'Prototype / 3D Print Service',items:[]},
+  {key:'n6',service:'Production Follow Up',kicker:'Production Follow Up',title:'Production',items:[]},
+  {key:'n10',service:'Build & Installation+',kicker:'Build & Installation+',title:'Build & Installation',items:[]},
+  {key:'n11',service:'2D-3D Motion Graphic Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',items:['2D-3D Motion | Animation','2D-3D Motion | Storyboard','2D-3D Motion | Render']},
+  {key:'n11',service:'Fashion Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',items:['Fashion | Direction','Fashion | Styling','Fashion | Campaign']},
+  {key:'n11',service:'Sculpture Design+',kicker:'2D–3D Motion Graphic / Fashion / Sculpture Design+',title:'2D–3D Motion / Fashion / Sculpture',items:['Sculpture | 3D Print','Sculpture | Character','Sculpture | Prototype']},
+  {key:'n7',service:'Photo / Video / Ads Design+',kicker:'Photo / Video / Ads Design+',title:'Photo / Video / Ads',items:[]},
+  {key:'n8',service:'Marketing',kicker:'Marketing+',title:'Marketing',items:['Marketing | Campaign Planning','Marketing | Social Media','Marketing | Brand Communication','Marketing | Follow Up','Marketing | Media Buying']},
+  {key:'n_packaging',service:'Packaging Design+',kicker:'Packaging Design+',title:'Packaging Design',items:['Packaging | Brand Extension','Packaging | Label System','Packaging | Mockup']},
+  {key:'n_website',service:'Website UX-UI Design+',kicker:'Website UX-UI Design+',title:'Website UX-UI',items:['Website UX-UI | Landing Page','Website UX-UI | Portfolio','Website UX-UI | System']}
+];
+function taxNorm(s){return String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9]+/g,'').trim();}
+function taxMetaForService(s){
+  const svc=normSvc(s||'');
+  return DOPIOUS_HOW_TAXONOMY.find(x=>x.service===svc)||DOPIOUS_HOW_TAXONOMY.find(x=>taxNorm(x.service)===taxNorm(svc))||{kicker:svc||'Dopious+',title:labelOfService(svc),items:[]};
+}
+function projectHeadLabel(p,svc){return cleanCardText((p&&p.headline)||'') || taxMetaForService(svc).title || labelOfService(svc);}
+function projectSubLabel(p,rawSub,svc){return cleanCardText((p&&p.subHeadline)||'') || cleanCardText(rawSub) || taxMetaForService(svc).kicker || labelOfService(svc);}
 function slideMedia(p,ai,labelTop,labelBot,bg){
   const img=getCov(p); const video=p.videoUrl||p.vurl||'';
   const useVideo=!!video && (String(p.previewType||p.cardPreviewType||'').toLowerCase().includes('video') || !img || /photo\s*\/\s*video/i.test(String(p.service||p.svc||'')));
-  return {ai:ai,title:p.name||p.nm||'Untitled',img:img,video:video,isVideo:useVideo,bg:bg,desc:p.desc||p.ds||'',labelTop:labelTop,labelBot:labelBot,service:p.service||p.svc||'',sub:p.sub||''};
+  return {ai:ai,title:p.name||p.nm||'Untitled',img:img,video:video,isVideo:useVideo,bg:bg,desc:p.desc||p.ds||'',labelTop:labelTop,labelBot:labelBot,headline:p.headline||'',subHeadline:p.subHeadline||'',service:p.service||p.svc||'',sub:p.sub||''};
 }
 function renderLayer(s,li){
   const on=li===0?' is-on':''; let body='';
@@ -768,14 +797,14 @@ function rSvc(){
     const ci=serviceIndex(svc),cat=ci>=0?CATS[ci]:null,bg=(cat&&cat.bg)||'#111',shortSvc=labelOfService(svc);
     html+='<div class="svc-cat-divider">'+esc(shortSvc)+'</div>';
     Object.keys(groups[svc]).forEach((subKey,si)=>{
-      const items=groups[svc][subKey]; const rawSub=subKey==='__none__'?'':subKey; const labelTop=rawSub||shortSvc; const labelBot=rawSub?shortSvc:'';
-      const slides=items.map(x=>slideMedia(x.p,x.ai,labelTop,labelBot,bg));
+      const items=groups[svc][subKey]; const rawSub=subKey==='__none__'?'':subKey;
+      const slides=items.map(x=>slideMedia(x.p,x.ai,projectSubLabel(x.p,rawSub,svc),projectHeadLabel(x.p,svc),bg));
       const id='csSub_'+String(svc+'_'+subKey).replace(/[^a-zA-Z0-9]/g,'_').slice(0,52)+'_'+si;
       const controls=slides.length>1?'<div class="cat-slide-controls"><button class="cat-slide-btn" data-dir="-1" type="button">‹</button><span class="cat-slide-count">1 / '+slides.length+'</span><button class="cat-slide-btn" data-dir="1" type="button">›</button></div>':'';
       const layers=slides.map(renderLayer).join('');
       const safe=JSON.stringify(slides.map(s=>({ai:s.ai,title:s.title,desc:s.desc,labelTop:s.labelTop,labelBot:s.labelBot,isVideo:s.isVideo,video:s.video,service:s.service,sub:s.sub}))).replace(/'/g,'&#39;');
       const firstDesc=cleanCardText(slides[0]&&slides[0].desc); const firstVideo=slides[0]&&slides[0].isVideo;
-      html+='<article class="cat-slide-card" id="'+id+'" data-service="'+esc(svc)+'" data-sub="'+esc(rawSub)+'" data-slides=\''+safe+'\'>'+layers+'<div class="cat-slide-top"><div class="cat-slide-name">'+esc(slides[0].title)+'</div>'+controls+'</div>'+(firstVideo?'<div class="video-badge">Video Preview</div>':'')+'<div class="cat-slide-label"><span>'+esc(labelTop)+'</span>'+(labelBot?'<span>'+esc(labelBot)+'</span>':'')+'<strong>Design<em>+</em></strong></div><div class="svc-desc" '+(firstDesc?'':'style="display:none"')+'><p>'+esc(firstDesc)+'</p></div><button class="stp" aria-label="View" onclick="oCardProject(event,\''+id+'\')"></button></article>';
+      html+='<article class="cat-slide-card" id="'+id+'" data-service="'+esc(svc)+'" data-sub="'+esc(rawSub)+'" data-slides=\''+safe+'\'>'+layers+'<div class="cat-slide-top"><div class="cat-slide-name">'+esc(slides[0].title)+'</div>'+controls+'</div>'+'<div class="cat-slide-label"><span>'+esc(slides[0].labelTop||'')+'</span>'+(slides[0].labelBot?'<span>'+esc(slides[0].labelBot)+'</span>':'')+'<strong>Design<em>+</em></strong></div><div class="svc-desc" '+(firstDesc?'':'style="display:none"')+'><p>'+esc(firstDesc)+'</p></div><button class="stp" aria-label="View" onclick="oCardProject(event,\''+id+'\')"></button></article>';
     });
   });
   g.innerHTML=html||CATS.slice(0,8).map(c=>'<article class="cat-slide-card sk"><div class="cat-slide-layer is-on" style="background:'+c.bg+'"></div><div class="cat-slide-label"><span>'+esc(labelOfService(c.svc))+'</span><strong>Design<em>+</em></strong></div></article>').join('');
@@ -788,7 +817,7 @@ function setCardSlide(card,dir){
   if(!card)return;const sl=cardSlides(card);if(!sl.length)return;const nx=((_ac[card.id]||0)+dir+sl.length)%sl.length;_ac[card.id]=nx;
   card.querySelectorAll('.cat-slide-layer').forEach((l,i)=>{l.classList.toggle('is-on',i===nx);const v=l.querySelector('video');if(v){if(i===nx){v.play&&v.play().catch(()=>{});}else{try{v.pause()}catch(e){}}}});
   const layer=card.querySelector('.cat-slide-layer[data-layer="'+nx+'"]');if(layer){const img=layer.querySelector('img[data-src]');if(img)ldI(img,img.dataset.src);const v=layer.querySelector('video:not([autoplay])');if(v){v.setAttribute('autoplay','');try{v.play().catch(()=>{})}catch(e){}}}
-  const s=sl[nx]||{};const n=card.querySelector('.cat-slide-name');if(n)n.textContent=s.title||'';const c=card.querySelector('.cat-slide-count');if(c)c.textContent=(nx+1)+' / '+sl.length;const desc=card.querySelector('.svc-desc');if(desc){const t=cleanCardText(s.desc);desc.style.display=t?'block':'none';desc.innerHTML='<p>'+esc(t)+'</p>';}let vb=card.querySelector('.video-badge');if(s.isVideo&&!vb){vb=document.createElement('div');vb.className='video-badge';card.appendChild(vb)}if(vb){vb.textContent='Video Preview';vb.style.display=s.isVideo?'block':'none'}const lab=card.querySelector('.cat-slide-label');if(lab)lab.innerHTML='<span>'+esc(s.labelTop||'')+'</span>'+(s.labelBot?'<span>'+esc(s.labelBot)+'</span>':'')+'<strong>Design<em>+</em></strong>';
+  const s=sl[nx]||{};const n=card.querySelector('.cat-slide-name');if(n)n.textContent=s.title||'';const c=card.querySelector('.cat-slide-count');if(c)c.textContent=(nx+1)+' / '+sl.length;const desc=card.querySelector('.svc-desc');if(desc){const t=cleanCardText(s.desc);desc.style.display=t?'block':'none';desc.innerHTML='<p>'+esc(t)+'</p>';}const vb=card.querySelector('.video-badge');if(vb)vb.remove();const lab=card.querySelector('.cat-slide-label');if(lab)lab.innerHTML='<span>'+esc(s.labelTop||'')+'</span>'+(s.labelBot?'<span>'+esc(s.labelBot)+'</span>':'')+'<strong>Design<em>+</em></strong>';
 }
 function oCardProject(e,id){if(e)e.stopPropagation();const card=document.getElementById(id);if(!card)return;const sl=cardSlides(card);const s=sl[_ac[id]||0]||sl[0];if(s&&s.ai!==undefined)oPD(s.ai);}
 function oCd(ci){const cards=[...document.querySelectorAll('.cat-slide-card[id]')];const card=cards[ci];if(card)oCardProject(null,card.id);}
@@ -829,7 +858,67 @@ function showServiceSub(key){
   document.querySelectorAll('.mind-node').forEach(n=>n.classList.remove('active')); const node=document.querySelector('.mind-node.'+key); if(node)node.classList.add('active');
 }
 function clearServiceSub(){showServiceSub('dopious')}
-function jumpToWork(key,item){cH();setTimeout(()=>{const needle=String(item||'').split('|')[0].trim().toLowerCase();let card=[...document.querySelectorAll('.cat-slide-card[id]')].find(c=>(c.dataset.sub||'').toLowerCase().includes(needle)|| (c.dataset.service||'').toLowerCase().includes(needle)); if(!card)card=document.querySelector('.cat-slide-card[id]'); if(card){card.scrollIntoView({behavior:'smooth',block:'center'});card.classList.add('card-highlight');setTimeout(()=>card.classList.remove('card-highlight'),1600)}},180)}
+function _jumpNorm(s){return String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,' plus ').replace(/[^a-z0-9ก-๙]+/gi,' ').replace(/\s+/g,' ').trim();}
+function _jumpCompact(s){return _jumpNorm(s).replace(/\s+/g,'');}
+const _SERVICE_KEY_MATCH={
+  n1:['Brand Strategy Corporate Identity Design+'],
+  n2:['Keyvisual Creative Ads Design+'],
+  n3:['Industrial Design+'],
+  n4:['Space Design+'],
+  n5:['Prototype 3D Print Service'],
+  n6:['Production Follow Up'],
+  n7:['Photo / Video / Ads Design+'],
+  n8:['Marketing','Marketing+'],
+  n9:['Graphic Design+'],
+  n10:['Build & Installation+'],
+  n11:['2D-3D Motion Graphic Design+','Fashion Design+','Sculpture Design+']
+};
+function _scoreJumpCard(card,key,item){
+  const sub=card.dataset.sub||'';
+  const svc=card.dataset.service||'';
+  const full=_jumpNorm(item);
+  const subN=_jumpNorm(sub);
+  const svcN=_jumpNorm(svc);
+  const hay=_jumpNorm([svc,sub,card.textContent||''].join(' '));
+  const parts=String(item||'').split('|').map(_jumpNorm).filter(Boolean);
+  const family=parts[0]||full;
+  const specific=parts.length>1?parts[parts.length-1]:'';
+  const allowed=(_SERVICE_KEY_MATCH[key]||[]).map(_jumpNorm);
+  const serviceOK=!allowed.length || allowed.some(a=>svcN.includes(a)||a.includes(svcN));
+  let score=-1;
+  if(full && subN===full) score=120;
+  else if(full && _jumpCompact(subN)===_jumpCompact(full)) score=118;
+  else if(parts.length>1 && serviceOK && specific && (subN===specific || _jumpCompact(subN)===_jumpCompact(specific))) score=110;
+  else if(parts.length>1 && serviceOK && specific && subN.includes(specific)) score=95;
+  else if(parts.length>1 && specific && hay.includes(specific) && (!family || hay.includes(family) || serviceOK)) score=82;
+  else if(!specific && serviceOK && family && hay.includes(family)) score=70;
+  else if(full && hay.includes(full)) score=60;
+  return score;
+}
+function _findWorkCard(key,item){
+  const cards=[...document.querySelectorAll('.cat-slide-card[id]')];
+  if(!cards.length)return null;
+  let best=null,bestScore=-1;
+  cards.forEach(card=>{const s=_scoreJumpCard(card,key,item); if(s>bestScore){bestScore=s;best=card;}});
+  if(bestScore>=60)return best;
+  const allowed=(_SERVICE_KEY_MATCH[key]||[]).map(_jumpNorm);
+  if(allowed.length){
+    const bySvc=cards.find(c=>allowed.some(a=>_jumpNorm(c.dataset.service||'').includes(a)||a.includes(_jumpNorm(c.dataset.service||''))));
+    if(bySvc)return bySvc;
+  }
+  return cards[0]||null;
+}
+function jumpToWork(key,item){
+  cH();
+  setTimeout(()=>{
+    const card=_findWorkCard(key,item);
+    if(card){
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+      card.classList.add('card-highlight');
+      setTimeout(()=>card.classList.remove('card-highlight'),1800);
+    }
+  },180);
+}
 function applyCustomServiceCategories(){
   const list=Array.isArray(_CUSTOM_CATS)?_CUSTOM_CATS:[]; const map=document.querySelector('.mind-map'); if(!map)return; map.querySelectorAll('.mind-node.custom-service-node').forEach(el=>el.remove());
   list.forEach((cat,i)=>{const key=cat.key||('custom_'+i);serviceSubData[key]={kicker:cat.full||cat.title||'Custom Service+',title:cat.title||'Custom Service',desc:cat.desc||'Custom service category added from Admin.',items:Array.isArray(cat.items)?cat.items:[]};const btn=document.createElement('button');btn.className='mind-node custom-service-node';btn.type='button';btn.onclick=()=>showServiceSub(key);btn.innerHTML='<b>'+esc(cat.title||'Custom Service')+'</b><span>'+esc(cat.subtitle||cat.full||'Custom Category')+'</span>';map.appendChild(btn);});
@@ -843,3 +932,20 @@ setTimeout(()=>{try{const el=document.getElementById('aPw');if(el)el.type='text'
 
 /* Full legacy admin bridge — keep public fast, load complete old Admin separately */
 function oAL(){ location.href='admin.html?admin=1'; }
+
+
+/* EXACT MATCH PATCH — Admin head/subhead, How It Works chips, and first-page cards use one taxonomy. */
+(function(){
+  try{
+    if(typeof serviceSubData==='object' && Array.isArray(DOPIOUS_HOW_TAXONOMY)){
+      const byKey={};
+      DOPIOUS_HOW_TAXONOMY.forEach(m=>{
+        if(!byKey[m.key]) byKey[m.key]={kicker:m.kicker,title:m.title,desc:(serviceSubData[m.key]&&serviceSubData[m.key].desc)||'',items:[]};
+        (m.items||[]).forEach(it=>{if(!byKey[m.key].items.includes(it))byKey[m.key].items.push(it);});
+      });
+      Object.keys(byKey).forEach(k=>{serviceSubData[k]=Object.assign({},serviceSubData[k]||{},byKey[k]);});
+      if(serviceSubData.n11){serviceSubData.n11.kicker='2D–3D Motion Graphic / Fashion / Sculpture Design+';serviceSubData.n11.title='2D–3D Motion / Fashion / Sculpture';}
+    }
+    const css=document.createElement('style');css.textContent='.video-badge{display:none!important}';document.head.appendChild(css);
+  }catch(e){}
+})();

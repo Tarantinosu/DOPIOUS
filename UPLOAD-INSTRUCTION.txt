@@ -1,14 +1,11 @@
-DOPIOUS+ Fast iOS + Full Legacy Admin Package
+DOPIOUS+ exact taxonomy match package
 
-Upload all files to your website root.
+Upload every file in this folder to the website root and replace the old files.
 
-Public site stays fast: index.html + style.css + app.js.
-Admin is now full old Admin CMS: admin.html.
+Public cache test URL:
+https://www.dopiousdesign.com/?v=exact-taxonomy-0527
 
-Admin button opens admin.html automatically.
-Password field is visible text, not dots.
-Supports the existing Admin password and the fast Admin password.
-
-After upload, test:
-https://www.dopiousdesign.com/?v=fast-full-admin-0527
+Admin URL:
 https://www.dopiousdesign.com/admin.html?admin=1
+
+This version keeps the fast public site, but makes Admin Headline / Sub Headline, How It Works service tags, and first-page work cards use the same service taxonomy. The visible "Video Preview" badge has been removed from cards.
