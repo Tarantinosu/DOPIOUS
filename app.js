@@ -1114,3 +1114,137 @@ function oAL(){ location.href='admin.html?admin=1'; }
   };
   try{if(Array.isArray(_P)&&_P.length)rSvc();}catch(e){}
 })();
+
+/* FINAL TAXONOMY PATCH — 1 Head + 1-3 Sub Heads, group by exact Head + Sub Heads */
+(function(){
+  const FINAL_TAXONOMY=[
+    {key:'n1',service:'Brand Strategy / Corporate Identity / Design+',head:'Brand Strategy / Corporate Identity / Design+',aliases:['Brand Strategy Corporate Identity Design+','Brand Strategy / Corporate Identity / Design+'],items:['Creative','Brand Strategy','Corporate Identity','Brand Story','Logo','Visual Identity','Brand Guideline','Campaign Identity','Art Direction']},
+    {key:'n3',service:'Industrial Design+',head:'Industrial Design+',aliases:['Industrial Design+'],items:['Creative','Product','Product Concept','CMF','Form','User Experience','Prototype','Product Visualization','Packaging Structure','Material','Manufacturing']},
+    {key:'n4',service:'Space Design+',head:'Space Design+',aliases:['Space Design+'],items:['Creative','Interior','Retail Space','Exhibition','Pop-up Space','Event Space','Visual Merchandising','Customer Journey','Spatial Storytelling','Brand Environment','Mall Decoration']},
+    {key:'n2',service:'Key Visual / Creative Ads / Design+',head:'Key Visual / Creative Ads / Design+',aliases:['Keyvisual Creative Ads Design+','Key Visual Creative Ads Design+','Key Visual / Creative Ads / Design+'],items:['Creative','Key Visual','Campaign Visual','Ads','Art Direction','Advertising Direction','Promotion Visual','Social Media','Launch Campaign','Seasonal Campaign','Storyboard','Visual Storytelling']},
+    {key:'n9',service:'Graphic Design+',head:'Graphic Design+',aliases:['Graphic Design+','Packaging Design+'],items:['Creative','Graphic','Layout','Poster','Social Media','Print','Typography','Illustration','Signage','Presentation','Visual System','Packaging Graphic','Label','Box Artwork']},
+    {key:'n_website',service:'Website / UX-UI Design+',head:'Website / UX-UI Design+',aliases:['Website UX-UI Design+','Website / UX-UI Design+'],items:['Creative','Website','UX-UI','Landing Page','Web Experience','Interface','Digital Branding','Mobile Experience','User Journey','Conversion']},
+    {key:'n13',service:'Sculpture Design+',head:'Sculpture Design+',aliases:['Sculpture Design+'],items:['Creative','Sculpture','Art Installation','Public Art','Character Sculpture','Decorative Object','Landmark','3D Art Form','Spatial Art','Fabrication Concept']},
+    {key:'n12',service:'Fashion Design+',head:'Fashion Design+',aliases:['Fashion Design+'],items:['Creative','Fashion','Costume','Uniform','Styling Direction','Fashion Concept','Textile Direction','Character Styling','Campaign Styling','Showpiece']},
+    {key:'n11',service:'2D-3D Motion Graphic Design+',head:'2D-3D Motion Graphic Design+',aliases:['2D-3D Motion Graphic Design+','2D–3D Motion Graphic Design+'],items:['Creative','Motion Graphic','2D Animation','3D Animation','Logo Motion','Social Motion','Event Motion','LED Screen','Product Animation','Visual Effects','Storyboard','Animatic']},
+    {key:'n7',service:'Photo / Video / Ads Design+',head:'Photo / Video / Ads Design+',aliases:['Photo / Video / Ads Design+'],items:['Creative','Photo Direction','Video Production','Ads Video','Product Shooting','Campaign Shooting','Lifestyle Content','Short Video','Brand Film','Storyboard','Shot List','Video Treatment']},
+    {key:'n10',service:'Build & Installation+',head:'Build & Installation+',aliases:['Build & Installation+'],items:['Creative','Build & Installation','Production Service','Fabrication','On-site Installation','Material Execution','Supplier Coordination','Display Production','Quality Control','Production Follow-up']},
+    {key:'n5',service:'Prototype / 3D Print Service+',head:'Prototype / 3D Print Service+',aliases:['Prototype 3D Print Service','Prototype / 3D Print Service+'],items:['Creative','Prototype','3D Printing','Mockup','Product Testing','Model Making','Form Study','Validation','Sample Development','Rapid Prototype']},
+    {key:'n8',service:'Marketing / Brand Communication+',head:'Marketing / Brand Communication+',aliases:['Marketing','Marketing+','Marketing / Brand Communication+'],items:['Creative','Marketing Strategy','Brand Communication','Campaign Planning','Content Strategy','Promotion Planning','Launch Strategy','Social Media Direction','Brand Activation','Campaign Narrative']},
+    {key:'n6',service:'Production Follow-up+',head:'Production Follow-up+',aliases:['Production Follow Up','Production Follow-up+'],items:['Creative','Production Follow-up','Supplier Briefing','Production Control','Coordination','Fabrication Check','On-site Supervision','Material Approval','Final Delivery']}
+  ];
+  window.DOPIOUS_FINAL_TAXONOMY=FINAL_TAXONOMY;
+  function nrm(s){return String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9]+/g,'').trim();}
+  function htmlPlusLocal(s){return esc(String(s||'').replace(/\s+/g,' ').trim()).replace(/\+/g,'<em>+</em>');}
+  function uniqueLocal(arr){const seen=new Set(),out=[];(arr||[]).forEach(v=>{v=String(v||'').replace(/\s+/g,' ').trim();if(!v||v==='Other'||/^—/.test(v))return;const k=nrm(v);if(!seen.has(k)){seen.add(k);out.push(v);}});return out;}
+  function metaByService(v){const key=nrm(v);return FINAL_TAXONOMY.find(m=>nrm(m.service)===key||(m.aliases||[]).some(a=>nrm(a)===key))||null;}
+  function metaByHead(v){const key=nrm(v);return FINAL_TAXONOMY.find(m=>nrm(m.head)===key)||metaByService(v);}
+  const oldBg=(...names)=>{for(const name of names){const c=(CATS||[]).find(x=>nrm(x.svc)===nrm(name)||nrm(x.cat)===nrm(name)); if(c&&c.bg)return c.bg;} return 'linear-gradient(90deg,rgba(10,10,10,.88),rgba(255,42,20,.16)),#111';};
+  try{
+    CATS.length=0;
+    FINAL_TAXONOMY.forEach(m=>CATS.push({cat:m.head.toUpperCase(),svc:m.service,bg:oldBg(m.service,...(m.aliases||[]))}));
+    Object.keys(S2C).forEach(k=>delete S2C[k]);
+    CATS.forEach((c,i)=>{S2C[c.svc]=i;(metaByService(c.svc)?.aliases||[]).forEach(a=>{S2C[a]=i;});});
+  }catch(e){console.warn('[Dopious] CATS taxonomy patch failed',e);}
+  normSvc=function(v){
+    v=String(v||'').trim(); if(!v)return'';
+    const m=metaByService(v)||metaByHead(v); if(m)return m.service;
+    return v;
+  };
+  serviceIndex=function(s){const sv=normSvc(s);return S2C[sv]!==undefined?S2C[sv]:-1;};
+  function splitSubs(v){
+    if(Array.isArray(v))return v;
+    v=String(v||'').trim(); if(!v)return[];
+    if(v.includes('|||'))return v.split('|||');
+    if(v.includes('\n'))return v.split(/\n+/);
+    if(v.includes(','))return v.split(/,+/);
+    if(v.includes(' / '))return v.split(/\s+\/\s+/);
+    return [v];
+  }
+  function normalizeLegacySub(x,meta,originalService){
+    const k=nrm(x); if(!k)return'';
+    const exact=(meta.items||[]).find(it=>nrm(it)===k); if(exact)return exact;
+    const partial=(meta.items||[]).find(it=>nrm(it).includes(k)||k.includes(nrm(it))); if(partial)return partial;
+    if(nrm(originalService)==='packagingdesign'){
+      if(/label/.test(k))return 'Label';
+      if(/box|artwork/.test(k))return 'Box Artwork';
+      if(/structure|structural|mockup/.test(k))return 'Packaging Graphic';
+      return 'Packaging Graphic';
+    }
+    return '';
+  }
+  window.cardSubHeadsForProject=function(p,svc){
+    p=p||{}; const service=normSvc(svc||p.service||p.svc||p.cat||''); const meta=metaByService(service)||FINAL_TAXONOMY[0];
+    let arr=[];
+    ['subHeads','subheads','subServices','selectedSubHeads'].forEach(k=>{if(!arr.length&&Array.isArray(p[k]))arr=p[k];});
+    if(!arr.length)arr=splitSubs(p.subHeadline||p.projectSubHeadline||'');
+    if(!arr.length)arr=splitSubs(p.sub||p.subtitle||p.subhead||p.subHead||'');
+    arr=uniqueLocal(arr).map(x=>normalizeLegacySub(x,meta,p.service||p.svc||'')).filter(Boolean);
+    if(!arr.length && nrm(p.service||p.svc)==='packagingdesign')arr=['Packaging Graphic'];
+    if(!arr.length)arr=['Creative'];
+    return uniqueLocal(arr).slice(0,3);
+  };
+  window.cardHeadForProject=function(p,svc){const m=metaByService(normSvc(svc||p?.service||p?.svc||p?.cat||''));return (m&&m.head)||String(svc||'Dopious+');};
+  projectHeadLabel=function(p,svc){return window.cardHeadForProject(p,svc);};
+  projectSubLabel=function(p,rawSub,svc){return window.cardSubHeadsForProject(Object.assign({},p||{},{sub:(p&&p.sub)||rawSub}),svc).join(' / ');};
+  const oldNormProject=normProject;
+  normProject=function(p,i,src){
+    const np=oldNormProject?oldNormProject(p,i,src):Object.assign({},p||{});
+    const oldService=(p&&((p.service||p.svc||p.cat)||''))||np.service||np.svc||'';
+    const svc=normSvc(oldService); const meta=metaByService(svc)||FINAL_TAXONOMY[0]; const subs=window.cardSubHeadsForProject(Object.assign({},p,np),svc);
+    return Object.assign({},np,{svc,service:svc,headline:meta.head,projectHeadline:meta.head,subHeads:subs,subheads:subs,subServices:subs,selectedSubHeads:subs,sub:subs[0]||'',subHeadline:subs.join(' / '),projectSubHeadline:subs.join(' / ')});
+  };
+  function groupKeyForProject(p){const svc=normSvc(p.service||p.svc||p.cat||'Other'); const subs=window.cardSubHeadsForProject(p,svc); return svc+'|'+subs.join(' / ');}
+  function labelHTML(head,subs){return '<span class="card-head">'+htmlPlusLocal(head)+'</span><div class="card-sub-list">'+(subs||[]).slice(0,3).map(x=>'<em>'+esc(x)+'</em>').join('')+'</div>';}
+  const ORDER=FINAL_TAXONOMY.map(x=>x.service);
+  rSvc=function(){
+    const g=document.getElementById('sG'); if(!g)return;
+    Object.keys(_tm2||{}).forEach(k=>clearInterval(_tm2[k])); _tm2={}; _ac={};
+    const headGroups={};
+    (_P||[]).forEach((p,ai)=>{
+      const svc=normSvc(p.service||p.svc||p.cat||p.category||'Other')||'Other';
+      const meta=metaByService(svc)||{service:svc,head:svc,items:[]};
+      const subs=window.cardSubHeadsForProject(p,svc);
+      const gk=groupKeyForProject(p);
+      if(!headGroups[svc])headGroups[svc]={meta,groups:{}};
+      if(!headGroups[svc].groups[gk])headGroups[svc].groups[gk]={svc,head:meta.head,subHeads:subs,items:[]};
+      headGroups[svc].groups[gk].items.push({p,ai});
+    });
+    const svcKeys=Object.keys(headGroups).sort((a,b)=>{let ia=ORDER.indexOf(a),ib=ORDER.indexOf(b); if(ia<0)ia=999;if(ib<0)ib=999; return ia-ib||a.localeCompare(b);});
+    let html='';
+    svcKeys.forEach((svc,si)=>{
+      const hg=headGroups[svc],meta=hg.meta,ci=serviceIndex(svc),cat=ci>=0?CATS[ci]:null,bg=(cat&&cat.bg)||'#111';
+      html+='<div class="svc-cat-divider">'+htmlPlusLocal(meta.head)+'</div>';
+      Object.keys(hg.groups).forEach((gk,gi)=>{
+        const gr=hg.groups[gk];
+        const slides=gr.items.map(x=>{
+          const base=slideMedia(x.p,x.ai,'','',bg);
+          base.head=gr.head; base.subHeads=gr.subHeads; base.service=svc; base.sub=gr.subHeads.join('|||');
+          return base;
+        });
+        const id='csGrp_'+String(gk).replace(/[^a-zA-Z0-9]/g,'_').slice(0,62)+'_'+si+'_'+gi;
+        const controls=slides.length>1?'<div class="cat-slide-controls"><button class="cat-slide-btn" data-dir="-1" type="button">‹</button><span class="cat-slide-count">1 / '+slides.length+'</span><button class="cat-slide-btn" data-dir="1" type="button">›</button></div>':'';
+        const layers=slides.map(renderLayer).join('');
+        const safe=JSON.stringify(slides.map(s=>({ai:s.ai,title:s.title,desc:s.desc,isVideo:s.isVideo,video:s.video,service:s.service,sub:s.sub,head:s.head,subHeads:s.subHeads}))).replace(/'/g,'&#39;');
+        const first=slides[0]||{}, firstDesc=cleanCardText(first.desc||'');
+        html+='<article class="cat-slide-card" id="'+id+'" data-service="'+esc(svc)+'" data-sub="'+esc(gr.subHeads.join('|||'))+'" data-slides=\''+safe+'\'>'+layers+'<div class="cat-slide-top"><div class="cat-slide-name">'+esc(first.title||'')+'</div>'+controls+'</div><div class="cat-slide-label tax-card-label">'+labelHTML(gr.head,gr.subHeads)+'</div><div class="svc-desc" '+(firstDesc?'':'style="display:none"')+'><p>'+esc(firstDesc)+'</p></div><button class="stp" aria-label="View" onclick="oCardProject(event,\''+id+'\')"></button></article>';
+      });
+    });
+    g.innerHTML=html||CATS.slice(0,8).map(c=>'<article class="cat-slide-card sk"><div class="cat-slide-layer is-on" style="background:'+c.bg+'"></div><div class="cat-slide-label tax-card-label">'+labelHTML(c.svc,['Creative'])+'</div></article>').join('');
+    g.querySelectorAll('img[data-src]').forEach(img=>IO&&IO.observe(img));
+    g.querySelectorAll('.cat-slide-card[id]').forEach(card=>{_ac[card.id]=0;card.querySelectorAll('.cat-slide-btn').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setCardSlide(card,parseInt(btn.dataset.dir||'1',10));clearInterval(_tm2[card.id]);const sl=cardSlides(card);if(sl.length>1)_tm2[card.id]=setInterval(()=>setCardSlide(card,1),4200);}));const sl=cardSlides(card);if(sl.length>1)_tm2[card.id]=setInterval(()=>setCardSlide(card,1),4200);});
+    const el=document.getElementById('sCt'); if(el){const t=(_P||[]).length;el.textContent=t?(t+' Project'+(t>1?'s':'')+' — Live'):'Upload projects from Admin';}
+  };
+  setCardSlide=function(card,dir){
+    if(!card)return; const sl=cardSlides(card); if(!sl.length)return; const nx=((_ac[card.id]||0)+dir+sl.length)%sl.length; _ac[card.id]=nx;
+    card.querySelectorAll('.cat-slide-layer').forEach((l,i)=>{l.classList.toggle('is-on',i===nx);const v=l.querySelector('video');if(v){if(i===nx){v.play&&v.play().catch(()=>{});}else{try{v.pause()}catch(e){}}}});
+    const layer=card.querySelector('.cat-slide-layer[data-layer="'+nx+'"]'); if(layer){const img=layer.querySelector('img[data-src]'); if(img)ldI(img,img.dataset.src); const v=layer.querySelector('video:not([autoplay])'); if(v){v.setAttribute('autoplay','');try{v.play().catch(()=>{})}catch(e){}}}
+    const s=sl[nx]||{}; const n=card.querySelector('.cat-slide-name'); if(n)n.textContent=s.title||''; const c=card.querySelector('.cat-slide-count'); if(c)c.textContent=(nx+1)+' / '+sl.length; const desc=card.querySelector('.svc-desc'); if(desc){const t=cleanCardText(s.desc); desc.style.display=t?'block':'none'; desc.innerHTML='<p>'+esc(t)+'</p>';}
+    const vb=card.querySelector('.video-badge'); if(vb)vb.remove();
+  };
+  try{
+    if(Array.isArray(DOPIOUS_HOW_TAXONOMY)){DOPIOUS_HOW_TAXONOMY.length=0; FINAL_TAXONOMY.forEach(m=>DOPIOUS_HOW_TAXONOMY.push({key:m.key,service:m.service,kicker:m.head,title:m.head.replace(/\+$/,''),items:m.items.slice()}));}
+    if(typeof serviceSubData==='object'){FINAL_TAXONOMY.forEach(m=>{serviceSubData[m.key]={kicker:m.head,title:m.head.replace(/\+$/,''),desc:'เลือก Service นี้แล้วกลับไปที่หน้า Services เพื่อดูผลงานที่เกี่ยวข้อง',items:m.items.slice()};});}
+  }catch(e){}
+  try{if(Array.isArray(_P)&&_P.length){_P=_P.map((p,i)=>normProject(p,i,p._legacy?'old':'new'));rSvc();}}catch(e){console.warn('[Dopious] final taxonomy render failed',e);}
+})();

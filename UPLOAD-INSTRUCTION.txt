@@ -1,13 +1,14 @@
-DOPIOUS FAST IOS — ONE HEAD / 1-3 SUB HEADS PACKAGE
+DOPIOUS+ FAST iOS — Head/Sub Head Logic Updated
 
-Upload all files in this folder to the root of www.dopiousdesign.com / GitHub Pages.
+Update included:
+- 1 Project selects exactly 1 Service Head
+- 1 Project selects 1–3 Sub Heads within that Head only
+- Works/Services cards are grouped by exact Head + exact Sub Head set
+- Projects with the same Head and same Sub Heads share one card and slide inside it
+- Projects with different Sub Heads create separate cards
+- Packaging Design+ removed from main Head; packaging options are under Industrial Design+ and Graphic Design+
 
-This build keeps the public page fast and changes card taxonomy:
-- Each card shows 1 Head only.
-- Each card shows 1-3 selected Sub Heads from that Head category.
-- Admin Sub Service selector allows up to 3 selections.
-- Selected Sub Heads are saved to subHeads/subServices and shown on the first page card.
-
-Recommended test URLs:
-https://www.dopiousdesign.com/?v=one-head-subheads-0527
-https://www.dopiousdesign.com/admin.html?admin=1&v=one-head-subheads-0527
+Upload all files in this folder to the website root and replace existing files.
+Test URLs:
+https://www.dopiousdesign.com/?v=head-sub-final-0527
+https://www.dopiousdesign.com/admin.html?admin=1&v=head-sub-final-0527

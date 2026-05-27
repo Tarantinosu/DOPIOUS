@@ -15941,6 +15941,111 @@ async function uploadImageToSupabase(file){
 })();
 </script>
 
+
+
+<!-- FINAL TAXONOMY PATCH — exact Head/Sub Head options from latest brief -->
+<style id="admin-final-taxonomy-css">
+#admProjectSub[multiple]{min-height:158px!important;padding:8px 10px!important;border-color:rgba(255,42,20,.36)!important;background:#101010!important;}
+#admProjectSub[multiple] option{padding:8px 10px;border-radius:8px;margin:2px 0;}
+#admProjectSub[multiple] option:checked{background:#ff2a14!important;color:#fff!important;}
+.admin-subhead-helper{display:block;margin-top:6px;color:rgba(255,255,255,.48)!important;font-size:11px!important;line-height:1.45!important;font-weight:400!important;letter-spacing:0!important;text-transform:none!important;}
+.admin-how-chip-row button.active{border-color:#ff2a14!important;color:#ff2a14!important;background:rgba(255,42,20,.13)!important;}
+</style>
+<script id="admin-final-taxonomy-js">
+(function(){
+  const TAX=[
+    {key:'n1',service:'Brand Strategy / Corporate Identity / Design+',head:'Brand Strategy / Corporate Identity / Design+',aliases:['Brand Strategy Corporate Identity Design+'],items:['Creative','Brand Strategy','Corporate Identity','Brand Story','Logo','Visual Identity','Brand Guideline','Campaign Identity','Art Direction']},
+    {key:'n3',service:'Industrial Design+',head:'Industrial Design+',aliases:['Industrial Design+'],items:['Creative','Product','Product Concept','CMF','Form','User Experience','Prototype','Product Visualization','Packaging Structure','Material','Manufacturing']},
+    {key:'n4',service:'Space Design+',head:'Space Design+',aliases:['Space Design+'],items:['Creative','Interior','Retail Space','Exhibition','Pop-up Space','Event Space','Visual Merchandising','Customer Journey','Spatial Storytelling','Brand Environment','Mall Decoration']},
+    {key:'n2',service:'Key Visual / Creative Ads / Design+',head:'Key Visual / Creative Ads / Design+',aliases:['Keyvisual Creative Ads Design+','Key Visual Creative Ads Design+'],items:['Creative','Key Visual','Campaign Visual','Ads','Art Direction','Advertising Direction','Promotion Visual','Social Media','Launch Campaign','Seasonal Campaign','Storyboard','Visual Storytelling']},
+    {key:'n9',service:'Graphic Design+',head:'Graphic Design+',aliases:['Graphic Design+','Packaging Design+'],items:['Creative','Graphic','Layout','Poster','Social Media','Print','Typography','Illustration','Signage','Presentation','Visual System','Packaging Graphic','Label','Box Artwork']},
+    {key:'n_website',service:'Website / UX-UI Design+',head:'Website / UX-UI Design+',aliases:['Website UX-UI Design+'],items:['Creative','Website','UX-UI','Landing Page','Web Experience','Interface','Digital Branding','Mobile Experience','User Journey','Conversion']},
+    {key:'n13',service:'Sculpture Design+',head:'Sculpture Design+',aliases:['Sculpture Design+'],items:['Creative','Sculpture','Art Installation','Public Art','Character Sculpture','Decorative Object','Landmark','3D Art Form','Spatial Art','Fabrication Concept']},
+    {key:'n12',service:'Fashion Design+',head:'Fashion Design+',aliases:['Fashion Design+'],items:['Creative','Fashion','Costume','Uniform','Styling Direction','Fashion Concept','Textile Direction','Character Styling','Campaign Styling','Showpiece']},
+    {key:'n11',service:'2D-3D Motion Graphic Design+',head:'2D-3D Motion Graphic Design+',aliases:['2D–3D Motion Graphic Design+'],items:['Creative','Motion Graphic','2D Animation','3D Animation','Logo Motion','Social Motion','Event Motion','LED Screen','Product Animation','Visual Effects','Storyboard','Animatic']},
+    {key:'n7',service:'Photo / Video / Ads Design+',head:'Photo / Video / Ads Design+',aliases:['Photo / Video / Ads Design+'],items:['Creative','Photo Direction','Video Production','Ads Video','Product Shooting','Campaign Shooting','Lifestyle Content','Short Video','Brand Film','Storyboard','Shot List','Video Treatment']},
+    {key:'n10',service:'Build & Installation+',head:'Build & Installation+',aliases:['Build & Installation+'],items:['Creative','Build & Installation','Production Service','Fabrication','On-site Installation','Material Execution','Supplier Coordination','Display Production','Quality Control','Production Follow-up']},
+    {key:'n5',service:'Prototype / 3D Print Service+',head:'Prototype / 3D Print Service+',aliases:['Prototype 3D Print Service'],items:['Creative','Prototype','3D Printing','Mockup','Product Testing','Model Making','Form Study','Validation','Sample Development','Rapid Prototype']},
+    {key:'n8',service:'Marketing / Brand Communication+',head:'Marketing / Brand Communication+',aliases:['Marketing','Marketing+'],items:['Creative','Marketing Strategy','Brand Communication','Campaign Planning','Content Strategy','Promotion Planning','Launch Strategy','Social Media Direction','Brand Activation','Campaign Narrative']},
+    {key:'n6',service:'Production Follow-up+',head:'Production Follow-up+',aliases:['Production Follow Up'],items:['Creative','Production Follow-up','Supplier Briefing','Production Control','Coordination','Fabrication Check','On-site Supervision','Material Approval','Final Delivery']}
+  ];
+  window.DOPIOUS_CARD_TAXONOMY=TAX;
+  window.DOPIOUS_FINAL_TAXONOMY=TAX;
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const plus=s=>esc(s).replace(/\+/g,'<em>+</em>');
+  function norm(s){return String(s||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9]+/g,'').trim();}
+  function metaBy(v){const k=norm(v);return TAX.find(x=>norm(x.service)===k||norm(x.head)===k||(x.aliases||[]).some(a=>norm(a)===k))||TAX[0];}
+  function selectedSubs(){const sub=$('admProjectSub');if(!sub)return[];return Array.from(sub.selectedOptions||[]).map(o=>o.value).filter(v=>v&&v!=='Other'&&!/^—/.test(v)).slice(0,3);}
+  function setSubs(vals){const sub=$('admProjectSub');if(!sub)return;vals=(vals||[]).slice(0,3);Array.from(sub.options).forEach(o=>{o.selected=vals.some(v=>norm(v)===norm(o.value));});}
+  function splitSubs(v){if(Array.isArray(v))return v;v=String(v||'').trim();if(!v)return[];if(v.includes('|||'))return v.split('|||');if(v.includes('\n'))return v.split(/\n+/);if(v.includes(','))return v.split(/,+/);if(v.includes(' / '))return v.split(/\s+\/\s+/);return [v];}
+  function rebuildServiceSelect(keep){
+    const svc=$('admProjectService'); if(!svc)return;
+    const current=keep||svc.value||''; const currentMeta=metaBy(current);
+    svc.innerHTML=TAX.map(m=>'<option value="'+esc(m.service)+'">'+esc(m.head)+'</option>').join('');
+    svc.value=currentMeta.service;
+  }
+  function meta(){return metaBy($('admProjectService')?.value||'');}
+  function normalizeSub(x,m,oldSvc){
+    const k=norm(x); if(!k)return'';
+    const exact=(m.items||[]).find(it=>norm(it)===k); if(exact)return exact;
+    const partial=(m.items||[]).find(it=>norm(it).includes(k)||k.includes(norm(it))); if(partial)return partial;
+    if(norm(oldSvc)==='packagingdesign')return 'Packaging Graphic';
+    return '';
+  }
+  function ensureOptions(keep){
+    const sub=$('admProjectSub'); if(!sub)return;
+    const m=meta(); const prev=(Array.isArray(keep)?keep:selectedSubs()).map(x=>normalizeSub(x,m,$('admProjectService')?.value||'')).filter(Boolean);
+    sub.multiple=true; sub.size=Math.min(7,Math.max(4,(m.items||[]).length||4));
+    sub.innerHTML=(m.items||[]).map(x=>'<option value="'+esc(x)+'">'+esc(x)+'</option>').join('');
+    if(!sub.parentElement.querySelector('.admin-subhead-helper')){
+      sub.insertAdjacentHTML('afterend','<span class="admin-subhead-helper">เลือก Sub Head ได้ 1–3 อันเท่านั้น และต้องอยู่ในหมวด Head นี้ — ระบบจะเอา Head + Sub Head ไปแยกการ์ดหน้า Services</span>');
+    }
+    if(prev.length)setSubs(prev.slice(0,3)); else setSubs(['Creative']);
+  }
+  function enforceMax(e){const vals=selectedSubs();if(vals.length>3){if(e&&e.target)e.target.selected=false;setSubs(vals.slice(0,3));if(typeof adminStatus==='function')adminStatus('เลือก Sub Head ได้สูงสุด 3 อันต่อ 1 การ์ด','err');}}
+  function sync(keep){
+    rebuildServiceSelect(); ensureOptions(keep); enforceMax();
+    const m=meta(), subs=selectedSubs();
+    const h=$('admProjectHeadline'), sh=$('admProjectSubHeadline');
+    if(h)h.value=m.head; if(sh)sh.value=subs.join(' / ');
+    const k=$('admHowKicker'), t=$('admHowTitle'), d=$('admHowDesc'), chips=$('admHowChips');
+    if(k)k.innerHTML=plus(m.head); if(t)t.innerHTML=plus(m.head); if(d)d.textContent='1 Project เลือก Head ได้ 1 อัน และ Sub Head ได้ 1–3 อันในหมวดเดียวกันเท่านั้น';
+    if(chips){chips.innerHTML=(m.items||[]).map(x=>'<button type="button" class="'+(subs.includes(x)?'active':'')+'" data-chip="'+esc(x)+'">'+esc(x)+'</button>').join('');chips.querySelectorAll('button').forEach(b=>b.onclick=function(){let vals=selectedSubs();const v=this.dataset.chip;if(vals.some(x=>norm(x)===norm(v)))vals=vals.filter(x=>norm(x)!==norm(v));else if(vals.length<3)vals.push(v);else{if(typeof adminStatus==='function')adminStatus('เลือก Sub Head ได้สูงสุด 3 อันต่อ 1 การ์ด','err');return;}setSubs(vals);sync(vals);});}
+  }
+  window.updateSubServices=function(selected){sync(selected?[selected]:selectedSubs());};
+  window.syncHowAdminPanel=function(){sync(selectedSubs());};
+  function readProjects(){try{if(typeof adminGet==='function'&&typeof adminStoreKeys==='object')return adminGet(adminStoreKeys.projects,[]);}catch(e){}try{return JSON.parse(localStorage.getItem('dopiousAdminProjects')||'[]')}catch(e){return[]}}
+  function writeProjects(data){try{if(typeof adminSet==='function'&&typeof adminStoreKeys==='object')adminSet(adminStoreKeys.projects,data);}catch(e){}try{localStorage.setItem('dopiousAdminProjects',JSON.stringify(data));}catch(e){}try{if(typeof firestoreSet==='function')firestoreSet('dopiousAdminProjects',data);}catch(e){}}
+  function patchLatestProject(){
+    const data=readProjects(); if(!data.length)return; const m=meta(), subs=selectedSubs(); const name=$('admProjectName')?.value.trim()||'';
+    let p=data[0]; if(name){const hit=data.find(x=>String(x.name||x.nm||'')===name); if(hit)p=hit;}
+    p.service=m.service; p.svc=m.service; p.headline=m.head; p.projectHeadline=m.head; p.subHeads=subs; p.subheads=subs; p.subServices=subs; p.selectedSubHeads=subs; p.sub=subs[0]||''; p.subHeadline=subs.join(' / '); p.projectSubHeadline=p.subHeadline;
+    writeProjects(data);
+    try{if(typeof renderAdminProjects==='function')renderAdminProjects();}catch(e){}
+    try{if(typeof renderCategoryCount==='function')renderCategoryCount();}catch(e){}
+  }
+  function patchSave(){
+    ['saveAdminProject','savP','saveProject','adminSaveProject'].forEach(fn=>{
+      if(typeof window[fn]==='function'&&!window[fn].__finalTax){const base=window[fn];window[fn]=function(){sync(selectedSubs());const result=base.apply(this,arguments);setTimeout(patchLatestProject,120);setTimeout(patchLatestProject,600);return result;};window[fn].__finalTax=true;}
+    });
+  }
+  function patchEdit(){
+    ['editAdminProjectById','openSavedAdminProjectById','editAdminProject'].forEach(fn=>{
+      if(typeof window[fn]==='function'&&!window[fn].__finalTax){const base=window[fn];window[fn]=function(){const result=base.apply(this,arguments);setTimeout(()=>{const data=readProjects();const id=arguments[0];let p=data.find(x=>String(x.id||x._id)===String(id));if(!p&&typeof id==='number')p=data[id];if(p){const m=metaBy(p.service||p.svc||p.cat||'');const svc=$('admProjectService');if(svc){rebuildServiceSelect(m.service);svc.value=m.service;}const subs=(p.subHeads||p.subheads||p.subServices||p.selectedSubHeads)||splitSubs(p.subHeadline||p.sub||'');sync(subs);}},160);return result;};window[fn].__finalTax=true;}
+    });
+  }
+  function boot(){
+    const svc=$('admProjectService'), sub=$('admProjectSub'); if(!svc||!sub)return;
+    rebuildServiceSelect(); sync(selectedSubs()); patchSave(); patchEdit();
+    if(!svc.dataset.finalTax){svc.addEventListener('change',()=>sync(['Creative']));svc.dataset.finalTax='1';}
+    if(!sub.dataset.finalTax){sub.addEventListener('change',e=>{enforceMax(e);sync(selectedSubs());});sub.dataset.finalTax='1';}
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  setTimeout(boot,300);setTimeout(boot,900);setTimeout(boot,1800);setTimeout(boot,3600);
+})();
+</script>
+
 </body>
 </html>
 <!-- ═══════════════════════════════════════════════════
