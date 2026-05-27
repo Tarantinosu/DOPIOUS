@@ -1,8 +1,1 @@
-DOPIOUS+ Fast iOS Package — Direct Admin Patch
-
-Upload all files to GitHub Pages root.
-
-Admin direct URL:
-https://www.dopiousdesign.com/admin.html?admin=1
-
-This opens the Admin CMS directly and hides the public website shell on admin.html.
+Upload all files in this folder to the GitHub Pages root. This version cleans the Admin Head/Sub Head setup UI and keeps the one Head + one Sub Head grouping logic.

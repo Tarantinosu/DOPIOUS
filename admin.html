@@ -16143,6 +16143,171 @@ async function uploadImageToSupabase(file){
 })();
 </script>
 
+
+
+<!-- FINAL PATCH — Clean Admin Head/Sub Head UI -->
+<style id="dop-clean-admin-head-sub-css">
+  /* Clean duplicated Admin service information. Keep only one compact setup box + one chip picker. */
+  #admHowPanel.dop-clean-service-summary{
+    grid-column:1/-1!important;
+    border:1px solid rgba(255,42,20,.22)!important;
+    background:linear-gradient(135deg,rgba(255,42,20,.08),rgba(255,255,255,.025))!important;
+    border-radius:20px!important;
+    padding:16px 18px!important;
+    margin:0 0 14px!important;
+    box-shadow:none!important;
+  }
+  #admHowPanel.dop-clean-service-summary small{
+    display:block!important;
+    color:#ff2a14!important;
+    font-size:10px!important;
+    font-weight:900!important;
+    letter-spacing:.22em!important;
+    text-transform:uppercase!important;
+    margin:0 0 7px!important;
+  }
+  #admHowPanel.dop-clean-service-summary h4{
+    margin:0 0 6px!important;
+    color:#fff!important;
+    font-size:22px!important;
+    line-height:1.08!important;
+    letter-spacing:-.04em!important;
+  }
+  #admHowPanel.dop-clean-service-summary h4 em,
+  #admHowPanel.dop-clean-service-summary small em{color:#ff2a14!important;font-style:normal!important;}
+  #admHowPanel.dop-clean-service-summary p{
+    margin:0!important;
+    max-width:820px!important;
+    color:rgba(255,255,255,.55)!important;
+    font-size:13px!important;
+    line-height:1.5!important;
+  }
+  #admHowPanel .admin-how-chip-row,
+  #admHowPanel #admHowChips,
+  #admHowPanel .admin-how-note,
+  #admHowDesc.one-sub-note::after{display:none!important;content:none!important;}
+  .admin-subhead-helper,
+  .dop-subhead-picked-note,
+  .dop-subhead-picked-note:after{display:none!important;content:none!important;}
+  #dopSubheadPicker{
+    min-height:0!important;
+    max-height:none!important;
+    height:auto!important;
+    padding:14px!important;
+    border:1px solid rgba(255,255,255,.12)!important;
+    background:#0d0d0d!important;
+    border-radius:18px!important;
+    gap:10px!important;
+  }
+  #dopSubheadPicker .dop-subhead-chip{
+    min-height:42px!important;
+    padding:10px 15px!important;
+    font-size:12px!important;
+    letter-spacing:.06em!important;
+  }
+  #dopSubheadPicker .dop-subhead-chip.is-selected{
+    border-color:#ff2a14!important;
+    color:#ff2a14!important;
+    background:rgba(255,42,20,.10)!important;
+  }
+  .dop-clean-subhint{
+    display:block!important;
+    margin-top:8px!important;
+    color:rgba(255,255,255,.42)!important;
+    font-size:11px!important;
+    line-height:1.4!important;
+    font-weight:400!important;
+    letter-spacing:0!important;
+    text-transform:none!important;
+  }
+  @media(max-width:768px){
+    #admHowPanel.dop-clean-service-summary{padding:14px!important;border-radius:18px!important;}
+    #admHowPanel.dop-clean-service-summary h4{font-size:19px!important;}
+    #dopSubheadPicker{padding:12px!important;gap:8px!important;}
+  }
+</style>
+<script id="dop-clean-admin-head-sub-js">
+(function(){
+  'use strict';
+  const $=id=>document.getElementById(id);
+  const esc=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const plus=s=>esc(s).replace(/\+/g,'<em>+</em>');
+  function firstText(label,text){
+    if(!label)return;
+    for(const n of Array.from(label.childNodes)){
+      if(n.nodeType===3 && n.nodeValue.trim()){
+        n.nodeValue=text;
+        return;
+      }
+    }
+    label.insertBefore(document.createTextNode(text),label.firstChild||null);
+  }
+  function selectedHead(){
+    const h=$('admProjectHeadline');
+    if(h&&h.value.trim())return h.value.trim();
+    const svc=$('admProjectService');
+    if(svc){
+      const opt=svc.options[svc.selectedIndex];
+      return (opt&&opt.textContent||svc.value||'Head').replace(/^—.*—$/,'Head').trim();
+    }
+    return 'Head';
+  }
+  function selectedSub(){
+    const sh=$('admProjectSubHeadline');
+    if(sh&&sh.value.trim())return sh.value.trim();
+    const sub=$('admProjectSub');
+    if(sub){
+      const opt=sub.options[sub.selectedIndex];
+      return (opt&&opt.textContent||sub.value||'Sub Head').replace(/^—.*—$/,'Sub Head').trim();
+    }
+    return 'Sub Head';
+  }
+  function cleanPanel(){
+    const panel=$('admHowPanel');
+    if(!panel)return;
+    panel.className='admin-how-match-panel dop-clean-service-summary';
+    panel.innerHTML='<small>Project Service Setup</small><h4>'+plus(selectedHead())+'</h4><p><strong style="color:#fff;font-weight:900;">1 Head + 1 Sub Head = 1 Card.</strong> โปรเจกต์ที่ Head และ Sub Head เหมือนกัน จะรวมอยู่ในการ์ดเดียวกันและใช้ระบบสไลด์เดิม</p>';
+  }
+  function cleanLabels(){
+    const svc=$('admProjectService');
+    const sub=$('admProjectSub');
+    firstText(svc&&svc.closest('label'),'Head');
+    firstText(sub&&sub.closest('label'),'Sub Head');
+  }
+  function cleanHelpers(){
+    document.querySelectorAll('.admin-subhead-helper,.dop-subhead-picked-note').forEach(el=>el.remove());
+    const picker=$('dopSubheadPicker');
+    if(picker && !picker.parentElement.querySelector('.dop-clean-subhint')){
+      picker.insertAdjacentHTML('afterend','<span class="dop-clean-subhint">เลือก Sub Head ได้ 1 อันเท่านั้น</span>');
+    }
+  }
+  function forceOneSubSelect(){
+    const sub=$('admProjectSub');
+    if(sub){sub.multiple=false;sub.size=1;}
+  }
+  function clean(){
+    cleanPanel();
+    cleanLabels();
+    cleanHelpers();
+    forceOneSubSelect();
+  }
+  function boot(){
+    clean();
+    const svc=$('admProjectService');
+    if(svc&&!svc.dataset.dopCleanUi){
+      svc.addEventListener('change',()=>setTimeout(clean,120));
+      svc.dataset.dopCleanUi='1';
+    }
+    document.addEventListener('click',function(e){
+      if(e.target.closest&&e.target.closest('.dop-subhead-chip'))setTimeout(clean,80);
+    },true);
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot);else boot();
+  [300,900,1800,3500,6500].forEach(t=>setTimeout(clean,t));
+  window.dopiousCleanAdminHeadSub=clean;
+})();
+</script>
+
 </body>
 </html>
 <!-- ═══════════════════════════════════════════════════
