@@ -1,2 +1,1 @@
-Upload all files in this folder to the website root. This package removes the Contact buttons from How It Works service panel and keeps only Start a Project.
-Test URL: https://www.dopiousdesign.com/?v=how-start-only
+Upload all files to the website root. This build makes How It Works explain each Service Head and show its Sub Heads clearly.

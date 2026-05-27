@@ -2246,3 +2246,86 @@ function oAL(){ location.href='admin.html?admin=1'; }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,250);});
   else setTimeout(boot,250);
 })();
+
+
+/* =========================================================
+   FINAL HOW PANEL — clear service explanation from Sub Heads
+   - Click a Service Head (ex. Branding Design+) to show what services it includes.
+   - Sub Heads are informational only; no jump to Works cards.
+   ========================================================= */
+(function(){
+  function safe(v){
+    v=String(v||'');
+    try{ if(typeof esc==='function') return esc(v); }catch(e){}
+    return v.replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
+  }
+  function clean(v){return String(v||'').replace(/\+$/,'').trim();}
+  function plus(v){return safe(clean(v))+'<em>+</em>';}
+  function list(){return (Array.isArray(CATS)?CATS:[]).filter(function(c){return c && (c.svc||c.cat) && Array.isArray(c.subs);});}
+  function metaFromKey(key){
+    if(!key || key==='dopious') return null;
+    var n=parseInt(String(key).replace(/\D/g,''),10)-1;
+    var arr=list();
+    return (!isNaN(n) && arr[n]) ? arr[n] : null;
+  }
+  var descs={
+    'Space Design+':'ออกแบบพื้นที่จริงให้แบรนด์ใช้งานได้จริง ตั้งแต่ retail, commercial, exhibition, event, kiosk, pop-up, VM / display ไปจนถึง art installation',
+    'Sculpture Design+':'ออกแบบงานประติมากรรมและ art object สำหรับพื้นที่จริง เช่น landmark, public art, character sculpture, decorative object และ spatial art',
+    'Visual Production+':'ผลิตภาพและคอนเทนต์ภาพเคลื่อนไหว เช่น storyboard, motion graphic, 2D/3D animation, visualization, video, photo, ads และ post-production',
+    'Graphic Design+':'ออกแบบกราฟิกที่ใช้กับแบรนด์และสื่อจริง เช่น layout, poster, social media, print, signage, presentation, packaging graphic, label, menu และ catalogue',
+    'Branding Design+':'วางระบบแบรนด์ให้ชัดเจน ตั้งแต่ strategy, story, logo, visual identity, guideline, campaign identity, naming, mood & tone และ brand communication',
+    'Key Visual Design+':'ออกแบบภาพหลักสำหรับแคมเปญและโฆษณา เช่น key visual, campaign visual, ads, promotion visual, launch campaign, seasonal campaign และ visual storytelling',
+    'Build & Install+':'ดูแลงานผลิตและติดตั้งจริง เช่น booth, display, event production, fabrication, on-site installation, site supervision, material execution และ quality control',
+    'Production Sourcing+':'ช่วยหาและประสานงานการผลิต เช่น product sourcing, supplier, factory follow-up, sample development, material sourcing, production control และ quality check',
+    'Industrial Design+':'ออกแบบผลิตภัณฑ์และงานที่เชื่อมกับการผลิต เช่น product, CMF, form, user experience, prototype, product visualization, packaging structure และ manufacturing',
+    'Corporate Design+':'ออกแบบภาพลักษณ์และเอกสารองค์กร เช่น corporate identity, brand system, company profile, presentation, stationery, office collateral และ business document',
+    'Digital Design+':'ออกแบบประสบการณ์ดิจิทัล เช่น website, UX-UI, landing page, interface, digital branding, mobile experience, user journey และ conversion',
+    'Fashion Design+':'ออกแบบแฟชั่น คอสตูม ยูนิฟอร์ม และ styling direction สำหรับแคมเปญ คาแรกเตอร์ โชว์พีซ หรือภาพลักษณ์ของแบรนด์',
+    'Creative Consultation+':'ให้คำปรึกษาด้าน creative brief, concept direction, design direction, budget, scope, material, production, supplier, campaign, brand, space และ product direction'
+  };
+  function chip(v){return '<span class="how-sub-chip explain-chip final-chip">'+safe(v)+'</span>';}
+  function selectedHTML(meta){
+    var name=meta.svc||meta.cat||'';
+    var desc=descs[name] || ('บริการในหมวด '+clean(name)+' พร้อมรายการ Sub Head ที่สามารถเลือกใช้ตามประเภทโปรเจกต์ได้');
+    return '<div class="how-selected-explain final-selected">'+
+      '<div class="how-selected-copy"><b>WHAT '+safe(clean(name).toUpperCase())+' INCLUDES</b><p>'+safe(desc)+'</p></div>'+ 
+      '<div class="how-sub-list-title">Sub Head / Service Types</div>'+ 
+      '<div class="how-sub-group-chips">'+(meta.subs||[]).map(chip).join('')+'</div>'+ 
+    '</div>';
+  }
+  function allHTML(){
+    return '<div class="how-all-hint">เลือก Service Head รอบวงกลม เช่น Branding Design+ เพื่อดูว่าในหมวดนั้นมี Sub Head / Service Type อะไรบ้าง</div>'+
+      '<div class="how-explain-grid final-all">'+list().map(function(c,i){
+        var name=c.svc||c.cat||'';
+        return '<button type="button" class="how-service-mini" onclick="showServiceSub(\'n'+(i+1)+'\')">'+
+          '<strong>'+plus(name)+'</strong><span>'+safe((c.subs||[]).slice(0,5).join(' / '))+'</span></button>';
+      }).join('')+'</div>';
+  }
+  window.goHowSub=function(){return false;};
+  window.goServicesFromHow=function(){try{if(typeof oSt==='function')oSt();}catch(e){}};
+  window.showServiceSub=function(key){
+    var panel=document.getElementById('serviceSubPanel'); if(!panel) return;
+    var meta=metaFromKey(key);
+    var kicker=document.getElementById('subKicker');
+    var title=document.getElementById('subTitle');
+    var desc=document.getElementById('subDesc');
+    var chips=document.getElementById('subChips');
+    document.querySelectorAll('.mind-node').forEach(function(n){n.classList.remove('active');});
+    var node=document.querySelector('.mind-node.'+key); if(node) node.classList.add('active');
+    if(!meta){
+      if(kicker) kicker.textContent='DOPIOUS+ SERVICE HEADS';
+      if(title) title.innerHTML='All Services & Sub Heads';
+      if(desc) desc.textContent='คลิก Service Head เพื่อดูว่าหมวดนั้นมีบริการประเภทไหนบ้าง';
+      if(chips) chips.innerHTML=allHTML();
+      return;
+    }
+    var name=meta.svc||meta.cat||'';
+    if(kicker) kicker.textContent='SELECTED SERVICE HEAD';
+    if(title) title.innerHTML=plus(name);
+    if(desc) desc.textContent='ด้านล่างคือ Sub Head / Service Type ทั้งหมดที่อยู่ในหมวด '+clean(name);
+    if(chips) chips.innerHTML=selectedHTML(meta);
+  };
+  function bootFinalHow(){try{window.showServiceSub('dopious');}catch(e){}}
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(bootFinalHow,350);});
+  else setTimeout(bootFinalHow,350);
+})();
