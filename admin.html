@@ -75,7 +75,7 @@ label{display:block;color:rgba(255,255,255,.76);font-size:11px;font-weight:900;l
           <label>Credit<input id="credit" placeholder="Dopious+"></label>
           <label>Layout<input id="layout" placeholder="Optional"></label>
         </div>
-        <div class="actions"><button class="btn" onclick="saveProject()">Save Project</button><button class="btn danger" onclick="deleteProject()">Delete</button><button class="btn ghost" onclick="newProject()">Clear Form</button></div>
+        <div class="actions"><button class="btn" onclick="saveProject()">Save Project</button><button class="btn danger" id="deleteProjectBtn" onclick="deleteProject()">Delete</button><button class="btn ghost" onclick="newProject()">Clear Form</button></div>
         <div id="status" class="status"></div>
       </main>
     </section>
@@ -90,7 +90,7 @@ label{display:block;color:rgba(255,255,255,.76);font-size:11px;font-weight:900;l
           <label class="wide">Details / Bio<textarea id="tDetails" placeholder="รายละเอียดของแต่ละคน / optional"></textarea></label>
           <label>Display Order<input id="tOrder" type="number" inputmode="numeric" placeholder="Optional"></label>
         </div>
-        <div class="actions"><button class="btn" onclick="saveTeam()">Save Person</button><button class="btn danger" onclick="deleteTeam()">Delete</button><button class="btn ghost" onclick="newTeam()">Clear</button></div>
+        <div class="actions"><button class="btn" onclick="saveTeam()">Save Person</button><button class="btn danger" id="deleteTeamBtn" onclick="deleteTeam()">Delete</button><button class="btn ghost" onclick="newTeam()">Clear</button></div>
         <div id="teamStatus" class="status"></div>
       </main>
     </section>
@@ -137,11 +137,12 @@ async function getDoc(id){try{const s=await db.collection(COL).doc(id).get();ret
 function val(d){return d&&d.value!==undefined?d.value:null}
 async function loadAll(){if(!db)return;setStatus('Loading...');document.getElementById('connStatus').textContent='Loading data...';try{const [allSnap,teamSnap,pub,oldProjectsDoc,oldTeamDoc]=await Promise.all([db.collection(COL).get(),db.collection(COL_TM).orderBy('ts','asc').get().catch(()=>({docs:[]})),getDoc('published'),getDoc('dopiousAdminProjects'),getDoc('dopiousAdminTeam')]);const newDocs=[];allSnap.docs.forEach(doc=>{if(RESERVED.has(doc.id))return;const data=doc.data()||{};if(data.value!==undefined)return;if(data.name||data.nm||data.title)newDocs.push(normProject(data,doc.id,'new',null,null))});const publishedArr=(pub&&Array.isArray(pub.projects))?pub.projects:[];const valueArr=Array.isArray(val(oldProjectsDoc))?val(oldProjectsDoc):[];const oldDocs=[...publishedArr.map((p,i)=>normProject(p,'legacy_published_'+i,'old',i,'published')),...valueArr.map((p,i)=>normProject(p,'legacy_value_'+i,'old',i,'dopiousAdminProjects'))];newCount=newDocs.length;oldCount=oldDocs.length;allProjects=mergeByKey(newDocs,oldDocs).sort(sortProjects);const oldTeam=(pub&&Array.isArray(pub.team)?pub.team:(Array.isArray(val(oldTeamDoc))?val(oldTeamDoc):[]));const newTeam=teamSnap.docs.map((d,i)=>normTeam(d.data(),d.id,'new',i,null));const legacyTeam=oldTeam.map((m,i)=>normTeam(m,'legacy_team_'+i,'old',i,'published'));allTeam=mergeTeam(newTeam,legacyTeam).sort(sortTeam);renderList();renderTeamList();renderDashboard();document.getElementById('connStatus').innerHTML='<span class="ok">Connected</span>';setStatus('Loaded '+allProjects.length+' projects');}catch(e){document.getElementById('connStatus').innerHTML='<span class="bad">Connection error</span>';setStatus('โหลดข้อมูลไม่ได้: '+e.message)} }
 function sortProjects(a,b){const ta=getTime(b)-getTime(a);if(ta)return ta;return clean(a.name).localeCompare(clean(b.name))}function getTime(p){const t=p.ts;if(t&&t.seconds)return t.seconds*1000;const s=p.updatedAt||p.createdAt||'';return Date.parse(s)||0}
-function renderDashboard(){const heads=new Set(allProjects.map(p=>p.service).filter(Boolean));const last=allProjects.map(getTime).filter(Boolean).sort((a,b)=>b-a)[0];document.getElementById('stTotal').textContent=allProjects.length;document.getElementById('stNew').textContent=newCount;document.getElementById('stOld').textContent=oldCount;document.getElementById('stHeads').textContent=heads.size;document.getElementById('stLast').textContent=last?new Date(last).toLocaleDateString():'—';document.getElementById('dashNote').innerHTML=(oldCount?'<span class="warn">Old Admin data detected. กดแก้แล้ว Save เพื่อบันทึกเป็นโครงใหม่ได้</span>':'<span class="ok">Data source is current collection.</span>')+'<span class="source-pill">Team: '+allTeam.length+'</span>'}
+function renderDashboard(){const heads=new Set(allProjects.map(p=>p.service).filter(Boolean));const last=allProjects.map(getTime).filter(Boolean).sort((a,b)=>b-a)[0];document.getElementById('stTotal').textContent=allProjects.length;document.getElementById('stNew').textContent=newCount;document.getElementById('stOld').textContent=oldCount;document.getElementById('stHeads').textContent=heads.size;document.getElementById('stLast').textContent=last?new Date(last).toLocaleDateString():'—';document.getElementById('dashNote').innerHTML=(oldCount?'<span class="warn">Old Admin data detected. กด Edit แล้ว Save เพื่อแปลงเป็นโครงใหม่ หรือกด Delete OLD ADMIN เพื่อลบข้อมูลเก่าได้</span>':'<span class="ok">Data source is current collection.</span>')+'<span class="source-pill">Team: '+allTeam.length+'</span>'}
 function renderList(){const q=key(document.getElementById('q').value);const el=document.getElementById('projectList');const data=allProjects.filter(p=>!q||key((p.name||'')+' '+(p.client||'')+' '+(p.service||'')+' '+(p.subHead||'')).includes(q));el.innerHTML=data.map(p=>'<button class="item '+(p.docId===editingId?'on':'')+'" onclick="editProject(\''+esc(p.docId)+'\')"><b>'+esc(p.name)+'</b><span>'+esc(p.service)+' / '+esc(p.subHead)+'<br>'+esc(p.client||'')+' · '+esc(p.year||'')+'</span>'+(p.source==='old'?'<small>old admin</small>':'')+'</button>').join('')||'<div class="hint">No projects found.</div>'}
+function setProjectDeleteMode(){const b=document.getElementById('deleteProjectBtn');if(b)b.textContent=editingSource==='old'?'Delete OLD ADMIN':'Delete'}
 function setVal(id,v){document.getElementById(id).value=v||''}function getVal(id){return document.getElementById(id).value.trim()}
-function editProject(id){const p=allProjects.find(x=>x.docId===id);if(!p)return;editingId=id;editingSource=p.source;editingProject=p;document.getElementById('formTitle').innerHTML='Edit Project '+(p.source==='old'?'<span class="source-pill">Old Admin</span>':'');setVal('name',p.name);setVal('client',p.client);setVal('year',p.year||'2026');setVal('statusField',p.status||'published');setVal('order',p.order||p.sortOrder||'');document.getElementById('service').value=normalizeService(p.service);updateSubOptions(p.subHead);setVal('cover',p.coverImage);tinyPreview(p.coverImage);setVal('gallery',(p.galleryImages||[]).join('\n'));setVal('captions',(p.galleryCaptions||[]).join('\n'));setVal('cardMedia',p.cardMedia||p.cardMediaType||'image');renderGalleryPreview();setVal('video',p.videoUrl||p.vurl||'');setVal('folder',p.driveFolderUrl||p.folderUrl||p.referenceUrl||'');setVal('desc',p.desc||'');setVal('story',p.story||'');setVal('location',p.location||'');setVal('role',p.role||p.scope||'');setVal('credit',p.credit||'Dopious+');setVal('layout',p.layout||'');renderList();window.scrollTo({top:0,behavior:'smooth'});setStatus(p.source==='old'?'Project นี้มาจาก Admin เก่า: กด Save เพื่อแปลงเป็นข้อมูลใหม่ หรือกด Delete เพื่อลบจากข้อมูลเก่า':'')}
-function newProject(){editingId=null;editingSource='new';editingProject=null;document.getElementById('formTitle').textContent='Add Project';['name','client','cover','gallery','captions','video','folder','desc','story','location','role','order','layout'].forEach(id=>setVal(id,''));setVal('year','2026');setVal('credit','Dopious+');setVal('statusField','published');setVal('cardMedia','image');document.getElementById('service').value=TAXONOMY[0].service;updateSubOptions();tinyPreview('');renderGalleryPreview();renderList();setStatus('')}
+function editProject(id){const p=allProjects.find(x=>x.docId===id);if(!p)return;editingId=id;editingSource=p.source;editingProject=p;document.getElementById('formTitle').innerHTML='Edit Project '+(p.source==='old'?'<span class="source-pill">Old Admin</span>':'');setVal('name',p.name);setVal('client',p.client);setVal('year',p.year||'2026');setVal('statusField',p.status||'published');setVal('order',p.order||p.sortOrder||'');document.getElementById('service').value=normalizeService(p.service);updateSubOptions(p.subHead);setVal('cover',p.coverImage);tinyPreview(p.coverImage);setVal('gallery',(p.galleryImages||[]).join('\n'));setVal('captions',(p.galleryCaptions||[]).join('\n'));setVal('cardMedia',p.cardMedia||p.cardMediaType||'image');renderGalleryPreview();setVal('video',p.videoUrl||p.vurl||'');setVal('folder',p.driveFolderUrl||p.folderUrl||p.referenceUrl||'');setVal('desc',p.desc||'');setVal('story',p.story||'');setVal('location',p.location||'');setVal('role',p.role||p.scope||'');setVal('credit',p.credit||'Dopious+');setVal('layout',p.layout||'');setProjectDeleteMode();renderList();window.scrollTo({top:0,behavior:'smooth'});setStatus(p.source==='old'?'Project นี้มาจาก Admin เก่า: กด Save เพื่อแปลงเป็นข้อมูลใหม่ หรือกด Delete OLD ADMIN เพื่อลบจากข้อมูลเก่า':'')}
+function newProject(){editingId=null;editingSource='new';editingProject=null;document.getElementById('formTitle').textContent='Add Project';['name','client','cover','gallery','captions','video','folder','desc','story','location','role','order','layout'].forEach(id=>setVal(id,''));setVal('year','2026');setVal('credit','Dopious+');setVal('statusField','published');setVal('cardMedia','image');document.getElementById('service').value=TAXONOMY[0].service;updateSubOptions();tinyPreview('');renderGalleryPreview();setProjectDeleteMode();renderList();setStatus('')}
 function tinyPreview(url){const img=document.getElementById('coverPreview');if(/^https?:\/\//i.test(url||'')){img.src=url;img.style.display='block'}else{img.removeAttribute('src');img.style.display='none'}}
 function mediaThumb(url){url=String(url||'');const yt=url.match(/(?:youtube\.com\/(?:watch\?[^\s#]*v=|embed\/|shorts\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/i);if(yt)return 'https://img.youtube.com/vi/'+yt[1]+'/hqdefault.jpg';const gd=url.match(/[?&]id=([A-Za-z0-9_-]+)/)||url.match(/\/d\/([A-Za-z0-9_-]+)/);if(gd)return 'https://drive.google.com/thumbnail?id='+gd[1]+'&sz=s300';return url}
 function renderGalleryPreview(){const box=document.getElementById('galleryPreview');if(!box)return;const urls=lines(getVal('gallery'));const old=lines(getVal('captions'));box.innerHTML=urls.map((u,i)=>'<div class="gcard"><img src="'+esc(mediaThumb(u))+'" loading="lazy" onerror="this.style.opacity=.25"><input data-cap="'+i+'" value="'+esc(old[i]||'')+'" placeholder="Caption for this image" oninput="syncCaptionsFromPreview()"></div>').join('');syncCaptionsFromPreview()}
@@ -158,10 +159,11 @@ function normTeam(m,id,source,legacyIndex,legacyStore){m=m||{};return {...m,docI
 function mergeTeam(newDocs,oldDocs){const seen=new Set(),out=[];newDocs.concat(oldDocs).forEach((m,i)=>{const k=key((m.name||'')+'|'+(m.position||'')+'|'+(m.photo||''));if(seen.has(k))return;seen.add(k);out.push(m)});return out}
 function sortTeam(a,b){const ao=parseInt(a.order||a.sortOrder||9999,10),bo=parseInt(b.order||b.sortOrder||9999,10);if(ao!==bo)return ao-bo;return clean(a.name).localeCompare(clean(b.name))}
 function renderTeamList(){const el=document.getElementById('teamList');if(!el)return;el.innerHTML=allTeam.map(t=>'<button class="item '+(t.docId===editingTeamId?'on':'')+'" onclick="editTeam(\''+esc(t.docId)+'\')"><b>'+esc(t.name||'Untitled')+'</b><span>'+esc(t.position||'')+'</span>'+(t.source==='old'?'<small>old admin</small>':'')+'</button>').join('')||'<div class="hint">No team members yet.</div>'}
+function setTeamDeleteMode(){const b=document.getElementById('deleteTeamBtn');if(b)b.textContent=editingTeamSource==='old'?'Delete OLD ADMIN':'Delete'}
 function teamVal(id,v){const el=document.getElementById(id);if(el)el.value=v||''}
 function teamPreview(url){const img=document.getElementById('tPreview');if(!img)return;if(/^https?:\/\//i.test(url||'')){img.src=mediaThumb(url);img.style.display='block'}else{img.removeAttribute('src');img.style.display='none'}}
-function editTeam(id){const t=allTeam.find(x=>x.docId===id);if(!t)return;editingTeamId=id;editingTeamSource=t.source;editingTeam=t;document.getElementById('teamTitle').innerHTML='Edit Person '+(t.source==='old'?'<span class="source-pill">Old Admin</span>':'');teamVal('tName',t.name);teamVal('tPosition',t.position);teamVal('tPhoto',t.photo);teamVal('tDetails',t.details);teamVal('tOrder',t.order||t.sortOrder||'');teamPreview(t.photo);renderTeamList();setTeamStatus(t.source==='old'?'ข้อมูลเก่า: กด Save เพื่อบันทึกเป็นข้อมูลใหม่ หรือ Delete เพื่อลบจากข้อมูลเก่า':'')}
-function newTeam(){editingTeamId=null;editingTeamSource='new';editingTeam=null;document.getElementById('teamTitle').textContent='Team Member';['tName','tPosition','tPhoto','tDetails','tOrder'].forEach(id=>teamVal(id,''));teamPreview('');renderTeamList();setTeamStatus('')}
+function editTeam(id){const t=allTeam.find(x=>x.docId===id);if(!t)return;editingTeamId=id;editingTeamSource=t.source;editingTeam=t;document.getElementById('teamTitle').innerHTML='Edit Person '+(t.source==='old'?'<span class="source-pill">Old Admin</span>':'');teamVal('tName',t.name);teamVal('tPosition',t.position);teamVal('tPhoto',t.photo);teamVal('tDetails',t.details);teamVal('tOrder',t.order||t.sortOrder||'');teamPreview(t.photo);setTeamDeleteMode();renderTeamList();setTeamStatus(t.source==='old'?'ข้อมูลเก่า: กด Save เพื่อบันทึกเป็นข้อมูลใหม่ หรือ Delete OLD ADMIN เพื่อลบจากข้อมูลเก่า':'')}
+function newTeam(){editingTeamId=null;editingTeamSource='new';editingTeam=null;document.getElementById('teamTitle').textContent='Team Member';['tName','tPosition','tPhoto','tDetails','tOrder'].forEach(id=>teamVal(id,''));teamPreview('');setTeamDeleteMode();renderTeamList();setTeamStatus('')}
 async function saveTeam(){const name=getVal('tName');if(!name){setTeamStatus('ใส่ชื่อก่อน');return}const data={name,nm:name,position:getVal('tPosition'),pos:getVal('tPosition'),photo:getVal('tPhoto'),ph:getVal('tPhoto'),details:getVal('tDetails'),bio:getVal('tDetails'),desc:getVal('tDetails'),order:getVal('tOrder'),sortOrder:getVal('tOrder'),updatedAt:new Date().toISOString(),ts:firebase.firestore.FieldValue.serverTimestamp()};try{setTeamStatus('Saving...');if(editingTeamId&&editingTeamSource==='new'){await db.collection(COL_TM).doc(editingTeamId).set(data,{merge:true})}else{const id='team_'+Date.now();await db.collection(COL_TM).doc(id).set({...data,id,createdAt:new Date().toISOString()},{merge:true});editingTeamId=id;editingTeamSource='new'}await loadAll();setTeamStatus('Saved team member')}catch(e){setTeamStatus('Save team error: '+e.message)}}
 async function removeLegacyTeam(target){let removed=0;const keyTarget=key((target.name||'')+'|'+(target.position||'')+'|'+(target.photo||''));const ref1=db.collection(COL).doc('published');const s1=await ref1.get();if(s1.exists){const data=s1.data()||{},arr=Array.isArray(data.team)?data.team:[];const f=arr.filter((m,i)=>key((m.name||m.nm||'')+'|'+(m.position||m.pos||'')+'|'+(m.photo||m.ph||''))!==keyTarget);removed+=arr.length-f.length;if(arr.length!==f.length)await ref1.set({team:f,updatedAt:new Date().toISOString()},{merge:true})}const ref2=db.collection(COL).doc('dopiousAdminTeam');const s2=await ref2.get();if(s2.exists){const data=s2.data()||{},arr=Array.isArray(data.value)?data.value:[];const f=arr.filter(m=>key((m.name||m.nm||'')+'|'+(m.position||m.pos||'')+'|'+(m.photo||m.ph||''))!==keyTarget);removed+=arr.length-f.length;if(arr.length!==f.length)await ref2.set({value:f,updatedAt:new Date().toISOString()},{merge:true})}return removed}
 async function deleteTeam(){if(!editingTeamId){setTeamStatus('เลือกคนก่อน');return}if(!confirm('Delete this team member?'))return;try{if(editingTeamSource==='old'){const n=await removeLegacyTeam(editingTeam);newTeam();await loadAll();setTeamStatus(n?'Deleted old team member':'ไม่พบข้อมูลเก่าที่ตรงกัน')}else{await db.collection(COL_TM).doc(editingTeamId).delete();newTeam();await loadAll();setTeamStatus('Deleted')}}catch(e){setTeamStatus('Delete team error: '+e.message)}}
@@ -169,5 +171,54 @@ function setTeamStatus(t){const el=document.getElementById('teamStatus');if(el)e
 
 function setStatus(t){document.getElementById('status').textContent=t||''}
 </script>
+
+<script>
+/* Admin sync patch — keep Admin as data entry, but make saved edits replace old-card data. */
+(function(){
+  function _clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
+  function _key(v){return _clean(v).toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').trim();}
+  function _identity(p){return _key((p.name||p.nm||p.title||'')+'|'+(p.client||p.cl||'')+'|'+(p.coverImage||p.cover||p.covUrl||p.coverThumb||''));}
+  window.mergeByKey=function(newDocs,oldDocs){
+    const newIds=new Set((newDocs||[]).map(_identity).filter(Boolean));
+    const seen=new Set(),out=[];
+    (newDocs||[]).forEach(p=>{const k=_identity(p)||_key(p.docId||Math.random());if(seen.has(k))return;seen.add(k);out.push(p);});
+    (oldDocs||[]).forEach(p=>{const k=_identity(p)||_key(p.docId||Math.random());if(newIds.has(k)||seen.has(k))return;seen.add(k);out.push(p);});
+    return out;
+  };
+  window.payload=function(){
+    const name=getVal('name'),cover=getVal('cover');
+    const svc=document.getElementById('service').value;
+    const sub=document.getElementById('subHead').value||'General';
+    const now=new Date().toISOString();
+    const gallery=lines(getVal('gallery'));
+    if(typeof syncCaptionsFromPreview==='function')syncCaptionsFromPreview();
+    const captions=lines(getVal('captions'));
+    const cardMedia=getVal('cardMedia')||'image';
+    return {name,nm:name,title:name,client:getVal('client'),cl:getVal('client'),year:getVal('year')||'2026',yr:getVal('year')||'2026',status:getVal('statusField')||'published',order:getVal('order'),sortOrder:getVal('order'),service:svc,svc:svc,head:svc,projectHeadline:svc,subHead:sub,sub:sub,subHeads:[sub],subheads:[sub],subServices:[sub],selectedSubHeads:[sub],subHeadline:sub,projectSubHeadline:sub,coverImage:cover,cover:cover,covUrl:cover,coverThumb:cover,cardMedia:cardMedia,cardMediaType:cardMedia,previewMedia:cardMedia,galleryImages:gallery,gallery:gallery,galleryCaptions:captions,videoUrl:getVal('video'),vurl:getVal('video'),driveFolderUrl:getVal('folder'),folderUrl:getVal('folder'),desc:getVal('desc'),ds:getVal('desc'),description:getVal('desc'),story:getVal('story'),detail:getVal('story'),location:getVal('location'),role:getVal('role'),scope:getVal('role'),credit:getVal('credit')||'Dopious+',cr:getVal('credit')||'Dopious+',layout:getVal('layout'),updatedAt:now,ts:firebase.firestore.FieldValue.serverTimestamp()};
+  };
+  window.saveProject=async function(){
+    const data=payload();
+    if(!data.name){setStatus('ใส่ Project Name ก่อน');return}
+    if(!data.coverImage){setStatus('ใส่ Cover Image URL ก่อน');return}
+    if(data.cardMedia==='video'&&!data.videoUrl){setStatus('เลือก Video เป็น Card Preview แล้ว ต้องใส่ Video URL ด้วย');return}
+    setStatus('Saving...');
+    try{
+      if(editingId&&editingSource==='new'){
+        await db.collection(COL).doc(editingId).set(data,{merge:true});
+      }else{
+        const id='proj_'+Date.now();
+        await db.collection(COL).doc(id).set({...data,id,createdAt:new Date().toISOString()},{merge:true});
+        if(editingSource==='old' && editingProject && typeof deleteLegacyProject==='function'){
+          try{await deleteLegacyProject(editingProject);}catch(e){console.warn('legacy cleanup failed',e)}
+        }
+        editingId=id; editingSource='new'; editingProject=null;
+      }
+      await loadAll();
+      setStatus('Saved / Published to Firebase — Refresh public page to see updated card');
+    }catch(e){setStatus('Save error: '+e.message)}
+  };
+})();
+</script>
+
 </body>
 </html>

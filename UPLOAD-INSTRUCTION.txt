@@ -1,1 +1,1 @@
-Upload all files in this ZIP to your GitHub Pages root. Use index.html, style.css, app.js, admin.html, CNAME, robots.txt, sitemap.xml, favicon.png. Test with ?v=media-team-admin-0527
+Upload all files to your website root. After upload, test with: https://www.dopiousdesign.com/?v=admin-card-sync-final and https://www.dopiousdesign.com/admin.html?admin=1&v=admin-card-sync-final
