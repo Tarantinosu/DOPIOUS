@@ -44,6 +44,33 @@ label{display:block;color:rgba(255,255,255,.76);font-size:11px;font-weight:900;l
   <div class="page">
     <section class="panel"><h2>Dashboard</h2><div class="hint">เช็กข้อมูลที่เชื่อมต่ออยู่ตอนนี้ ใช้สำหรับดูสถานะ ไม่ใช่หน้าโชว์งาน</div><div class="stats" style="margin-top:12px"><div class="stat"><b id="stTotal">0</b><span>All Projects</span></div><div class="stat"><b id="stNew">0</b><span>New Docs</span></div><div class="stat"><b id="stOld">0</b><span>Old Admin</span></div><div class="stat"><b id="stHeads">0</b><span>Heads Used</span></div><div class="stat"><b id="stLast">—</b><span>Last Edit</span></div></div><div id="dashNote" class="status"></div></section>
 
+
+
+    <section class="panel contact-settings">
+      <h2>Contact Page Settings</h2>
+      <div class="hint">ตั้งค่าหน้า Contact / Start Project แบบเบา ๆ: ใส่ได้หลายช่องทาง เช่น Line, Facebook Messenger, Instagram, LinkedIn, Email, Tel 2–3 เบอร์ และที่อยู่ Bangkok</div>
+      <div class="grid" style="margin-top:14px">
+        <label>Contact Title<input id="coTitle" placeholder="CONTACT+"></label>
+        <label>Company Name<input id="coName" placeholder="Dopious Partnership Limited"></label>
+        <label class="wide">Contact Subtitle<textarea id="coSubtitle" placeholder="ข้อความสั้นใต้หัวข้อ Contact"></textarea></label>
+        <label>Office / City<input id="coOffice" placeholder="Bangkok / Thailand"></label>
+        <label>Google Map URL<input id="coMap" placeholder="https://maps.google.com/..."></label>
+        <label class="wide">Address<textarea id="coAddress" placeholder="Bangkok address / office description"></textarea></label>
+        <label>Line URL / ID<input id="coLine" placeholder="https://line.me/R/ti/p/@dopious หรือ @dopious"></label>
+        <label>WhatsApp URL<input id="coWhatsapp" placeholder="https://wa.me/669..."></label>
+        <label>Facebook<input id="coFacebook" placeholder="https://facebook.com/..."></label>
+        <label>Facebook Messenger<input id="coMessenger" placeholder="https://m.me/..."></label>
+        <label>Instagram<input id="coInstagram" placeholder="https://instagram.com/... หรือ @dopious"></label>
+        <label>LinkedIn<input id="coLinkedin" placeholder="https://linkedin.com/company/..."></label>
+        <label>Behance<input id="coBehance" placeholder="https://behance.net/..."></label>
+        <label>Website<input id="coWebsite" placeholder="https://www.dopiousdesign.com"></label>
+        <label class="wide">Phone Numbers<textarea id="coPhones" placeholder="+66 93-691-6592&#10;+66 xx-xxx-xxxx"></textarea></label>
+        <label class="wide">Emails<textarea id="coEmails" placeholder="info.dopiousth@gmail.com&#10;another@email.com"></textarea></label>
+      </div>
+      <div class="actions"><button class="btn" onclick="saveContactSettings()">Save Contact Settings</button><button class="btn ghost" onclick="fillContactForm(companyData||{})">Reset</button></div>
+      <div id="contactStatus" class="status"></div>
+    </section>
+
     <section class="work">
       <aside class="panel"><div class="list-head"><h2>Projects</h2><button class="btn ghost small" onclick="newProject()">Add New</button></div><input class="search" id="q" placeholder="Search project..." oninput="renderList()"><div id="projectList" class="list"></div></aside>
       <main class="panel"><h2 id="formTitle">Add Project</h2><div class="hint">1 Project = 1 Head + 1 Sub Head / 1 Card = 1 Head + 1 Sub Head. ข้อมูลเก่าจะอ่านจาก published และ dopiousAdminProjects ให้ด้วย</div>
@@ -216,6 +243,48 @@ function setStatus(t){document.getElementById('status').textContent=t||''}
       await loadAll();
       setStatus('Saved / Published to Firebase — Refresh public page to see updated card');
     }catch(e){setStatus('Save error: '+e.message)}
+  };
+})();
+</script>
+
+
+
+<script>
+/* Contact admin settings patch — lightweight data entry only */
+var companyData={};
+function _cLines(v){return String(v||'').split(/\n+/).map(s=>s.trim()).filter(Boolean)}
+function _cSet(id,v){const el=document.getElementById(id);if(el)el.value=v||''}
+function _cGet(id){const el=document.getElementById(id);return el?el.value.trim():''}
+function _cVal(doc){return doc&&doc.value!==undefined?doc.value:null}
+function normalizeCompany(raw){raw=raw||{};const phones=[];['phones','phoneList','phone','phone2','phone3','tel','tel2','tel3'].forEach(k=>{const v=raw[k];if(Array.isArray(v))phones.push(...v);else if(v)phones.push(...String(v).split(/\n|\|\||,/))});const emails=[];['emails','emailList','email','email2','email3'].forEach(k=>{const v=raw[k];if(Array.isArray(v))emails.push(...v);else if(v)emails.push(...String(v).split(/\n|\|\||,/))});return {
+  name:raw.name||raw.company||'Dopious Partnership Limited',
+  company:raw.name||raw.company||'Dopious Partnership Limited',
+  contactTitle:raw.contactTitle||'CONTACT+',
+  contactSubtitle:raw.contactSubtitle||raw.contactDesc||'Start a project, request a quotation, or talk with us about your next design / production brief.',
+  office:raw.office||raw.location||'Bangkok / Thailand',
+  address:raw.address||raw.fullAddress||'Bangkok / Thailand',
+  mapUrl:raw.mapUrl||raw.googleMap||raw.maps||'',
+  line:raw.line||raw.lineUrl||raw.lineURL||'https://line.me/R/ti/p/@dopious',
+  whatsapp:raw.whatsapp||raw.whatsappUrl||raw.whatsappURL||'',
+  facebook:raw.facebook||raw.facebookUrl||'',
+  messenger:raw.messenger||raw.facebookMessenger||raw.messengerUrl||'',
+  instagram:raw.instagram||raw.ig||raw.igUrl||'',
+  linkedin:raw.linkedin||raw.linkedinUrl||'',
+  behance:raw.behance||raw.behanceUrl||'',
+  website:raw.website||raw.websiteUrl||'https://www.dopiousdesign.com',
+  phones:[...new Set(phones.map(x=>String(x).trim()).filter(Boolean))],
+  emails:[...new Set(emails.map(x=>String(x).trim()).filter(Boolean))]
+}}
+function fillContactForm(raw){const c=normalizeCompany(raw||{});companyData=c;_cSet('coTitle',c.contactTitle);_cSet('coName',c.name);_cSet('coSubtitle',c.contactSubtitle);_cSet('coOffice',c.office);_cSet('coAddress',c.address);_cSet('coMap',c.mapUrl);_cSet('coLine',c.line);_cSet('coWhatsapp',c.whatsapp);_cSet('coFacebook',c.facebook);_cSet('coMessenger',c.messenger);_cSet('coInstagram',c.instagram);_cSet('coLinkedin',c.linkedin);_cSet('coBehance',c.behance);_cSet('coWebsite',c.website);_cSet('coPhones',(c.phones&&c.phones.length?c.phones:['+66 93-691-6592']).join('\n'));_cSet('coEmails',(c.emails&&c.emails.length?c.emails:['info.dopiousth@gmail.com']).join('\n'))}
+function collectContactForm(){const phones=_cLines(_cGet('coPhones')),emails=_cLines(_cGet('coEmails'));return {name:_cGet('coName')||'Dopious Partnership Limited',company:_cGet('coName')||'Dopious Partnership Limited',contactTitle:_cGet('coTitle')||'CONTACT+',contactSubtitle:_cGet('coSubtitle'),office:_cGet('coOffice'),address:_cGet('coAddress'),mapUrl:_cGet('coMap'),phones:phones,phone:phones[0]||'',phone2:phones[1]||'',phone3:phones[2]||'',emails:emails,email:emails[0]||'',email2:emails[1]||'',email3:emails[2]||'',line:_cGet('coLine'),whatsapp:_cGet('coWhatsapp'),facebook:_cGet('coFacebook'),messenger:_cGet('coMessenger'),instagram:_cGet('coInstagram'),linkedin:_cGet('coLinkedin'),behance:_cGet('coBehance'),website:_cGet('coWebsite'),updatedAt:new Date().toISOString()}}
+async function loadContactSettingsFromFirebase(pubDoc){try{const coDoc=await getDoc('dopiousAdminCompany');const pubCo=pubDoc&&pubDoc.company?pubDoc.company:null;const co=(coDoc&&coDoc.value!==undefined)?coDoc.value:(pubCo||{});fillContactForm(co)}catch(e){fillContactForm({})}}
+async function saveContactSettings(){if(!db){document.getElementById('contactStatus').textContent='Firebase not connected';return}const data=collectContactForm();try{document.getElementById('contactStatus').textContent='Saving contact settings...';await Promise.all([db.collection(COL).doc('dopiousAdminCompany').set({value:data,updatedAt:new Date().toISOString()},{merge:true}),db.collection(COL).doc('published').set({company:data,publishedAt:new Date().toISOString()},{merge:true})]);companyData=data;document.getElementById('contactStatus').innerHTML='<span class="ok">Saved contact settings</span>'}catch(e){document.getElementById('contactStatus').innerHTML='<span class="bad">Save error: '+esc(e.message)+'</span>'}}
+(function(){
+  const oldLoad=window.loadAll;
+  window.loadAll=async function(){
+    if(!db)return;
+    await oldLoad();
+    try{const pub=await getDoc('published');await loadContactSettingsFromFirebase(pub||{});}catch(e){console.warn('contact load error',e)}
   };
 })();
 </script>
