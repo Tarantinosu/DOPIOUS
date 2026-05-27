@@ -46,6 +46,18 @@ label{display:block;color:rgba(255,255,255,.76);font-size:11px;font-weight:900;l
 
 
 
+
+
+    <section class="panel who-settings">
+      <h2>Who We Are Text</h2>
+      <div class="hint">ข้อความนี้จะแสดงใต้หัวข้อ WHO WE ARE+ บนหน้าเว็บไซต์</div>
+      <div class="grid" style="margin-top:14px">
+        <label class="wide">Intro Text<textarea id="whoIntro" placeholder="ใส่ข้อความหน้า Who We Are">Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.</textarea></label>
+      </div>
+      <div class="actions"><button class="btn" onclick="saveWhoIntroSettings()">Save Who We Are Text</button><button class="btn ghost" onclick="fillWhoIntroForm(whoIntroData||{})">Reset</button></div>
+      <div id="whoIntroStatus" class="status"></div>
+    </section>
+
     <section class="panel contact-settings">
       <h2>Contact Page Settings</h2>
       <div class="hint">ตั้งค่าหน้า Contact / Start Project แบบเบา ๆ: ใส่ได้หลายช่องทาง เช่น Line, Facebook Messenger, Instagram, LinkedIn, Email, Tel 2–3 เบอร์ และที่อยู่ Bangkok</div>
@@ -285,6 +297,30 @@ async function saveContactSettings(){if(!db){document.getElementById('contactSta
     if(!db)return;
     await oldLoad();
     try{const pub=await getDoc('published');await loadContactSettingsFromFirebase(pub||{});}catch(e){console.warn('contact load error',e)}
+  };
+})();
+</script>
+
+
+
+<script>
+/* Who We Are intro text settings — lightweight textarea only */
+const DEFAULT_WHO_INTRO='Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.';
+var whoIntroData={};
+function _wSet(id,v){const el=document.getElementById(id);if(el)el.value=v||''}
+function _wGet(id){const el=document.getElementById(id);return el?el.value.trim():''}
+function _wVal(doc){return doc&&doc.value!==undefined?doc.value:null}
+function normalizeWebsite(raw){raw=raw||{};return {whoWeAreIntro:raw.whoWeAreIntro||raw.whoIntro||raw.aboutText||raw.whoWeAreText||raw.career||DEFAULT_WHO_INTRO}}
+function fillWhoIntroForm(raw){const w=normalizeWebsite(raw||{});whoIntroData=w;_wSet('whoIntro',w.whoWeAreIntro)}
+function collectWhoIntroForm(){return {whoWeAreIntro:_wGet('whoIntro')||DEFAULT_WHO_INTRO,whoIntro:_wGet('whoIntro')||DEFAULT_WHO_INTRO,whoWeAreText:_wGet('whoIntro')||DEFAULT_WHO_INTRO,career:_wGet('whoIntro')||DEFAULT_WHO_INTRO,updatedAt:new Date().toISOString()}}
+async function loadWhoIntroSettingsFromFirebase(pubDoc){try{const webDoc=await getDoc('dopiousAdminWebsite');const pubWeb=pubDoc&&pubDoc.website?pubDoc.website:null;const web=(webDoc&&webDoc.value!==undefined)?webDoc.value:(pubWeb||{});fillWhoIntroForm(web)}catch(e){fillWhoIntroForm({})}}
+async function saveWhoIntroSettings(){if(!db){document.getElementById('whoIntroStatus').textContent='Firebase not connected';return}const data=collectWhoIntroForm();try{document.getElementById('whoIntroStatus').textContent='Saving Who We Are text...';await Promise.all([db.collection(COL).doc('dopiousAdminWebsite').set({value:data,updatedAt:new Date().toISOString()},{merge:true}),db.collection(COL).doc('published').set({website:data,publishedAt:new Date().toISOString()},{merge:true})]);whoIntroData=data;document.getElementById('whoIntroStatus').innerHTML='<span class="ok">Saved Who We Are text</span>'}catch(e){document.getElementById('whoIntroStatus').innerHTML='<span class="bad">Save error: '+esc(e.message)+'</span>'}}
+(function(){
+  const oldLoad=window.loadAll;
+  window.loadAll=async function(){
+    if(!db)return;
+    await oldLoad();
+    try{const pub=await getDoc('published');await loadWhoIntroSettingsFromFirebase(pub||{});}catch(e){console.warn('who intro load error',e)}
   };
 })();
 </script>

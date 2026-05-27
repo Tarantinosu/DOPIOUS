@@ -9,7 +9,8 @@ const COL='dopious_cms';
 const COL_CL='dopious_clients';
 const COL_TM='dopious_team';
 var db=null;
-var _OLDPUB=null,_OLDPROJECTS=[],_OLDCLIENTS=[],_OLDTEAM=[],_CO={};
+var _OLDPUB=null,_OLDPROJECTS=[],_OLDCLIENTS=[],_OLDTEAM=[],_CO={},_WEB={};
+const DEFAULT_WHO_INTRO='Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.';
 
 /* Called when Firebase SDK finishes loading */
 window._fbBoot=function(){
@@ -192,7 +193,7 @@ function docVal(d){return d&&d.value!==undefined?d.value:null;}
 async function loadData(){
   if(!db)return;
   try{
-    const [ps,cs,ts,pubDoc,oldPDoc,oldCDoc,oldTDoc,oldCoDoc]=await Promise.all([
+    const [ps,cs,ts,pubDoc,oldPDoc,oldCDoc,oldTDoc,oldCoDoc,oldWDoc]=await Promise.all([
       db.collection(COL).orderBy('ts','desc').get().catch(()=>({docs:[]})),
       db.collection(COL_CL).orderBy('ts','asc').get().catch(()=>({docs:[]})),
       db.collection(COL_TM).orderBy('ts','asc').get().catch(()=>({docs:[]})),
@@ -200,13 +201,15 @@ async function loadData(){
       getDocValue('dopiousAdminProjects'),
       getDocValue('dopiousClients'),
       getDocValue('dopiousAdminTeam'),
-      getDocValue('dopiousAdminCompany')
+      getDocValue('dopiousAdminCompany'),
+      getDocValue('dopiousAdminWebsite')
     ]);
     const pub=pubDoc||{};_OLDPUB=pub;
     const oldProjects=Array.isArray(pub.projects)?pub.projects:(Array.isArray(docVal(oldPDoc))?docVal(oldPDoc):[]);
     const oldClients=Array.isArray(pub.clients)?pub.clients:(Array.isArray(docVal(oldCDoc))?docVal(oldCDoc):[]);
     const oldTeam=Array.isArray(pub.team)?pub.team:(Array.isArray(docVal(oldTDoc))?docVal(oldTDoc):[]);
     _CO=pub.company||docVal(oldCoDoc)||_CO||{};
+    _WEB=pub.website||docVal(oldWDoc)||_WEB||{};
     const newProjects=ps.docs.filter(d=>d.id!=='published').map((d,i)=>normProject({_id:d.id,...d.data()},i,'new'));
     _OLDPROJECTS=oldProjects.map((p,i)=>normProject(p,i,'old'));
     _P=mergeProjects(newProjects,_OLDPROJECTS);
@@ -216,7 +219,7 @@ async function loadData(){
     const newTeam=ts.docs.map(d=>({_id:d.id,...d.data()}));
     _OLDTEAM=(oldTeam||[]).map((m,i)=>({_id:m._id||m.id||('old_team_'+i),_legacy:true,nm:m.name||m.nm||'',name:m.name||m.nm||'',pos:m.position||m.pos||'',position:m.position||m.pos||'',ph:m.photo||m.ph||'',photo:m.photo||m.ph||'',details:m.details||m.bio||m.desc||m.description||''}));
     _TM=mergePeople(newTeam,_OLDTEAM);
-    rSvc();rCl();applyCompanyContact();updAdminStatus();
+    rSvc();rCl();applyCompanyContact();applyWhoWeAreText();updAdminStatus();
   }catch(e){
     console.warn('loadData:',e);
     document.getElementById('sCt').textContent='Error loading';
@@ -291,6 +294,14 @@ function rCl(){const g=document.getElementById('cG');if(!g)return;g.innerHTML=_C
 
 /* Team */
 function rTm(){const g=document.getElementById('tG');if(!g)return;g.innerHTML=_TM.length?_TM.map(m=>'<div class="tm"><div class="tm-ph">'+(m.photo||m.ph?'<img src="'+(m.photo||m.ph)+'" alt="'+esc(m.name||m.nm||'')+'" loading="lazy">':'<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a1a,#080808)"></div>')+'</div><b>'+esc(m.name||m.nm||'')+'</b><span>'+esc(m.position||m.pos||'')+'</span>'+((m.details||m.bio||m.desc)?'<p>'+esc(m.details||m.bio||m.desc)+'</p>':'')+'</div>').join(''):'<p style="color:rgba(255,255,255,.26);font-size:13px;letter-spacing:.08em">Team profiles coming soon.</p>';}
+
+
+function applyWhoWeAreText(){
+  const txt=(_WEB&&(_WEB.whoWeAreIntro||_WEB.whoIntro||_WEB.whoWeAreText||_WEB.aboutText||_WEB.career))||DEFAULT_WHO_INTRO;
+  const el=document.querySelector('#wP .who-hero p');
+  if(el)el.textContent=txt;
+}
+applyWhoWeAreText();
 
 /* Admin login */
 function chkA(){
@@ -1595,7 +1606,7 @@ function oAL(){ location.href='admin.html?admin=1'; }
   window.loadData=async function(){
     if(!db)return;
     try{
-      const [ps,cs,ts,pubDoc,oldPDoc,oldCDoc,oldTDoc,oldCoDoc]=await Promise.all([
+      const [ps,cs,ts,pubDoc,oldPDoc,oldCDoc,oldTDoc,oldCoDoc,oldWDoc]=await Promise.all([
         _getCollection(COL),
         _getCollection(COL_CL),
         _getCollection(COL_TM),
@@ -1688,4 +1699,311 @@ function oAL(){ location.href='admin.html?admin=1'; }
     const desc=card.querySelector('.svc-desc'); if(desc){const t=_txt(s.desc).replace(/https?:\/\/\S+/g,'').trim();desc.style.display=t?'block':'none';desc.innerHTML='<p>'+esc(t)+'</p>';}
   };
   window.oCardProject=function(e,id){if(e)e.stopPropagation();const card=document.getElementById(id);if(!card)return;const slides=cardSlides(card);const s=slides[_ac[id]||0]||slides[0];if(s&&s.ai!==undefined&&typeof oPD==='function')oPD(s.ai);};
+})();
+
+/* HOW IT WORKS HEAD/SUBHEAD SYNC PATCH — service nodes match CATS and chips jump to matching Works card */
+(function(){
+  function hk(v){return String(v||'').toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').replace(/\s+/g,' ').trim();}
+  function hEsc(v){return typeof esc==='function'?esc(v):String(v||'').replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]});}
+  function hPlus(s){return hEsc(String(s||'').replace(/\+$/,''))+'<em>+</em>';}
+  function q(s){return String(s||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,' ');}
+  function availableCount(service,sub){
+    const s=hk(service),u=hk(sub);let n=0;
+    try{(_P||[]).forEach(function(p){const ps=hk((typeof normSvc==='function'?normSvc(p.service||p.svc||''):(p.service||p.svc||'')));const pu=hk(p.subHead||p.sub||p.subHeadline||((Array.isArray(p.subHeads)&&p.subHeads[0])||''));if(ps===s&&pu===u)n++;});}catch(e){}
+    return n;
+  }
+  function metaByKey(key){
+    if(key==='dopious')return null;
+    const i=parseInt(String(key).replace(/\D/g,''),10)-1;
+    if(!isNaN(i)&&Array.isArray(CATS)&&CATS[i])return CATS[i];
+    return null;
+  }
+  function updateNodes(){
+    if(!Array.isArray(CATS))return;
+    CATS.forEach(function(c,i){
+      const node=document.querySelector('.mind-node.n'+(i+1)); if(!node)return;
+      const b=node.querySelector('b'), sp=node.querySelector('span');
+      if(b)b.innerHTML=hPlus(c.svc||c.cat||'');
+      if(sp)sp.textContent=(c.subs||[]).slice(0,3).join(' / ');
+      node.setAttribute('data-service',c.svc||'');
+    });
+  }
+  window.showServiceSub=function(key){
+    const panel=document.getElementById('serviceSubPanel'); if(!panel)return;
+    const meta=metaByKey(key);
+    const kicker=document.getElementById('subKicker'), title=document.getElementById('subTitle'), desc=document.getElementById('subDesc'), chips=document.getElementById('subChips');
+    document.querySelectorAll('.mind-node').forEach(function(n){n.classList.remove('active')});
+    const node=document.querySelector('.mind-node.'+key); if(node)node.classList.add('active');
+    if(!meta){
+      if(kicker)kicker.textContent='DOPIOUS+ ONE-STOP SERVICE';
+      if(title)title.innerHTML='Select a Service Head';
+      if(desc)desc.textContent='เลือก Head รอบวงกลมเพื่อดู Sub Head ทั้งหมด แล้วคลิก Sub Head เพื่อไปยังการ์ด Works / Services ที่ตรงกัน';
+      if(chips)chips.innerHTML='';
+      return;
+    }
+    if(kicker)kicker.textContent=meta.svc||'';
+    if(title)title.innerHTML=hPlus(meta.svc||'');
+    if(desc)desc.textContent='Sub Head ทั้งหมดของ '+String(meta.svc||'').replace(/\+$/,'')+' — คลิก tag เพื่อไปยัง Card ที่ใช้ Head + Sub Head นี้';
+    if(chips){
+      chips.innerHTML=(meta.subs||[]).map(function(sub){
+        const n=availableCount(meta.svc,sub); const cls=n?' has-work':' no-work';
+        const label=hEsc(sub)+(n?' <small>'+n+'</small>':'');
+        return '<button class="how-sub-chip'+cls+'" type="button" onclick="goHowSub(\''+q(meta.svc)+'\',\''+q(sub)+'\')">'+label+'</button>';
+      }).join('');
+    }
+  };
+  window.goHowSub=function(service,sub){
+    try{ if(typeof cH==='function')cH(); else {const h=document.getElementById('hP'); if(h)h.classList.remove('on');} }catch(e){}
+    setTimeout(function(){
+      const sec=document.getElementById('svc'); if(sec)sec.scrollIntoView({behavior:'smooth',block:'start'});
+      setTimeout(function(){
+        const s=hk(service),u=hk(sub); let target=null;
+        document.querySelectorAll('.cat-slide-card[data-service][data-sub]').forEach(function(card){
+          if(target)return;
+          if(hk(card.getAttribute('data-service'))===s && hk(card.getAttribute('data-sub'))===u)target=card;
+        });
+        if(!target){
+          document.querySelectorAll('.cat-slide-card[data-service]').forEach(function(card){
+            if(target)return;
+            if(hk(card.getAttribute('data-service'))===s)target=card;
+          });
+        }
+        if(target){
+          target.scrollIntoView({behavior:'smooth',block:'center'});
+          target.classList.add('jump-focus');
+          setTimeout(function(){target&&target.classList.remove('jump-focus')},2200);
+        }
+      },350);
+    },120);
+  };
+  window.goServicesFromHow=function(){try{if(typeof cH==='function')cH();}catch(e){} setTimeout(function(){const s=document.getElementById('svc');if(s)s.scrollIntoView({behavior:'smooth',block:'start'});},80);};
+  function boot(){updateNodes(); if(!document.querySelector('.mind-node.active'))showServiceSub('dopious');}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot); else boot();
+  const oldLoad=window.loadData;
+  if(typeof oldLoad==='function'){
+    window.loadData=async function(){const r=await oldLoad.apply(this,arguments);try{updateNodes();}catch(e){}return r;};
+  }
+})();
+
+
+/* =========================================================
+   CONTACT SETTINGS PATCH — Admin-editable contact page
+   Keeps public layout fast and uses existing Firebase company data.
+   ========================================================= */
+(function(){
+  function _esc(v){return String(v==null?'':v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function _clean(v){return String(v==null?'':v).replace(/\s+/g,' ').trim();}
+  function _lines(v){
+    if(Array.isArray(v)) return v.map(_clean).filter(Boolean);
+    return String(v||'').split(/\n|\|\||,/).map(_clean).filter(Boolean);
+  }
+  function _first(){for(var i=0;i<arguments.length;i++){var v=arguments[i]; if(Array.isArray(v)&&v.length)return v[0]; if(_clean(v))return _clean(v);} return '';}
+  function _arr(raw){return Array.isArray(raw)?raw:(_clean(raw)?[raw]:[]);}
+  function _phoneDigits(p){return String(p||'').replace(/[^+0-9]/g,'');}
+  function _waFromPhone(p){var d=_phoneDigits(p).replace(/^\+/,''); if(d.startsWith('0')) d='66'+d.slice(1); return d?'https://wa.me/'+d:'';}
+  function _url(v,kind){
+    v=_clean(v); if(!v)return '';
+    if(kind==='line' && v.charAt(0)==='@') return 'https://line.me/R/ti/p/'+encodeURIComponent(v);
+    if(kind==='instagram' && !/^https?:\/\//i.test(v) && !v.includes('.')) return 'https://instagram.com/'+v.replace(/^@/,'');
+    if(kind==='facebook' && !/^https?:\/\//i.test(v) && !v.includes('.')) return 'https://facebook.com/'+v.replace(/^@/,'');
+    if(kind==='messenger' && !/^https?:\/\//i.test(v) && !v.includes('.')) return 'https://m.me/'+v.replace(/^@/,'');
+    if(kind==='linkedin' && !/^https?:\/\//i.test(v) && !v.includes('.')) return 'https://linkedin.com/company/'+v.replace(/^@/,'');
+    if(/^https?:\/\//i.test(v) || /^mailto:|^tel:/i.test(v)) return v;
+    return 'https://'+v;
+  }
+  function _channel(label,value,href,icon,cls){
+    value=_clean(value); href=_clean(href); if(!value && !href)return '';
+    return '<a class="contact-card '+(cls||'')+'" href="'+_esc(href||'#')+'" '+(href&&/^https?:/i.test(href)?'target="_blank" rel="noopener"':'')+'><span class="contact-ic">'+_esc(icon||label[0]||'+')+'</span><div><b>'+_esc(label)+'</b><span>'+_esc(value||href)+'</span></div></a>';
+  }
+  window.normContact=function(raw){
+    raw=raw||{};
+    var phones=[].concat(_arr(raw.phones),_lines(raw.phoneList),_arr(raw.phone),_arr(raw.phone2),_arr(raw.phone3),_arr(raw.tel),_arr(raw.tel2),_arr(raw.tel3)).map(_clean).filter(Boolean);
+    phones=[...new Set(phones)];
+    var emails=[].concat(_arr(raw.emails),_lines(raw.emailList),_arr(raw.email),_arr(raw.email2),_arr(raw.email3)).map(_clean).filter(Boolean);
+    emails=[...new Set(emails)];
+    var office=_first(raw.office,raw.location,raw.city,'Bangkok / Thailand');
+    return {
+      name:_first(raw.name,raw.company,'Dopious Partnership Limited'),
+      contactTitle:_first(raw.contactTitle,'CONTACT+'),
+      contactSubtitle:_first(raw.contactSubtitle,raw.contactDesc,'Start a project, request a quotation, or talk with us about your next design / production brief.'),
+      office:office,
+      address:_first(raw.address,raw.fullAddress,office),
+      mapUrl:_url(_first(raw.mapUrl,raw.googleMap,raw.maps),'map'),
+      phones:phones.length?phones:['+66 93-691-6592'],
+      emails:emails.length?emails:['info.dopiousth@gmail.com'],
+      line:_url(_first(raw.line,raw.lineUrl,raw.lineURL,'https://line.me/R/ti/p/@dopious'),'line'),
+      whatsapp:_url(_first(raw.whatsapp,raw.whatsappUrl,raw.whatsappURL,''),'whatsapp'),
+      facebook:_url(_first(raw.facebook,raw.facebookUrl,''),'facebook'),
+      messenger:_url(_first(raw.messenger,raw.facebookMessenger,raw.messengerUrl,''),'messenger'),
+      instagram:_url(_first(raw.instagram,raw.ig,raw.igUrl,''),'instagram'),
+      linkedin:_url(_first(raw.linkedin,raw.linkedinUrl,''),'linkedin'),
+      behance:_url(_first(raw.behance,raw.behanceUrl,''),'behance'),
+      website:_url(_first(raw.website,raw.websiteUrl,''),'website')
+    };
+  };
+  function _renderContactHTML(c){
+    var email=c.emails[0]||'';
+    var phone=c.phones[0]||'';
+    var wa=c.whatsapp||_waFromPhone(phone);
+    var title=_clean(c.contactTitle||'CONTACT+');
+    title=title.replace(/\+$/,'<span>+</span>');
+    var cards='';
+    cards+=_channel('Line', c.line&&c.line.includes('@')?c.line:'@dopious', c.line, 'L','line');
+    cards+=_channel('WhatsApp', phone||wa, wa, 'W','whatsapp');
+    cards+=_channel('Email', email, email?'mailto:'+email:'', '@','email');
+    c.phones.forEach(function(p,i){cards+=_channel(i===0?'Tel':'Tel '+(i+1), p, 'tel:'+_phoneDigits(p), '☎','phone');});
+    cards+=_channel('Facebook', c.facebook?'Facebook Page':'', c.facebook, 'f','facebook');
+    cards+=_channel('Messenger', c.messenger?'Messenger':'', c.messenger, 'M','messenger');
+    cards+=_channel('Instagram', c.instagram?'Instagram':'', c.instagram, 'IG','instagram');
+    cards+=_channel('LinkedIn', c.linkedin?'LinkedIn':'', c.linkedin, 'in','linkedin');
+    cards+=_channel('Behance', c.behance?'Behance':'', c.behance, 'Be','behance');
+    cards+=_channel('Website', c.website?'Website':'', c.website, 'www','website');
+    return '<div class="contact-clean-page"><div class="contact-intro"><small>Dopious+ Contact</small><h2>'+title+'</h2><p>'+_esc(c.contactSubtitle)+'</p></div><div class="contact-main-grid"><div class="contact-card-grid">'+cards+'</div><div class="contact-office-box"><small>Office / Location</small><strong>'+_esc(c.office)+'</strong><p>'+_esc(c.address||c.office)+'</p>'+(c.mapUrl?'<a href="'+_esc(c.mapUrl)+'" target="_blank" rel="noopener">Open Map</a>':'')+'</div></div></div>';
+  }
+  window.applyCompanyContact=function(){
+    var c=normContact(window._CO||_CO||{});
+    var phone=c.phones[0]||'';
+    var email=c.emails[0]||'';
+    var tel='tel:'+_phoneDigits(phone);
+    var wa=c.whatsapp||_waFromPhone(phone);
+    document.querySelectorAll('a[href^="https://line.me"],button[onclick*="line.me"]').forEach(function(a){if(a.tagName==='A')a.href=c.line;else a.setAttribute('onclick',"window.open('"+c.line+"','_blank')")});
+    document.querySelectorAll('a[href^="https://wa.me"],button[onclick*="wa.me"]').forEach(function(a){if(a.tagName==='A')a.href=wa;else a.setAttribute('onclick',"window.open('"+wa+"','_blank')")});
+    document.querySelectorAll('a[href^="mailto:"]').forEach(function(a){a.href='mailto:'+email});
+    document.querySelectorAll('a[href^="tel:"]').forEach(function(a){a.href=tel});
+    document.querySelectorAll('.of').forEach(function(of){var t=of.textContent.toLowerCase();if(t.includes('office'))of.innerHTML='<b>Office</b><br>'+_esc(c.office);if(t.includes('phone'))of.innerHTML='<b>Phone</b><br>'+_esc(phone);if(t.includes('email'))of.innerHTML='<b>Email</b><br>'+_esc(email)});
+    document.querySelectorAll('.poi div').forEach(function(d,i){if(i===0)d.innerHTML='<b>'+_esc(c.name)+'</b>';if(i===1)d.innerHTML='<b>'+_esc(phone)+'</b>';if(i===2)d.innerHTML='<b>'+_esc(email)+'</b>'});
+    var hero=document.querySelector('#cP .cont-hero');
+    if(hero) hero.innerHTML=_renderContactHTML(c);
+    var home=document.querySelector('.cs');
+    if(home){
+      var socials='';
+      socials+=c.line?'<a class="sc2" href="'+_esc(c.line)+'" target="_blank" rel="noopener">L</a>':'';
+      socials+=wa?'<a class="sc2" href="'+_esc(wa)+'" target="_blank" rel="noopener">W</a>':'';
+      socials+=c.facebook?'<a class="sc2" href="'+_esc(c.facebook)+'" target="_blank" rel="noopener">f</a>':'';
+      socials+=c.instagram?'<a class="sc2" href="'+_esc(c.instagram)+'" target="_blank" rel="noopener">IG</a>':'';
+      var scs=home.querySelector('.scs'); if(scs)scs.innerHTML=socials;
+      var input=home.querySelector('.eb input'); if(input)input.placeholder=email||'YOUR EMAIL ADDRESS';
+    }
+  };
+})();
+
+/* =========================================================
+   HOW IT WORKS EXACT CARD JUMP FIX
+   Scope: How It Works sub-head chips -> exact Works/Services card only.
+   Product under Industrial Design+ must jump to the Industrial Design+ / Product card.
+   ========================================================= */
+(function(){
+  function _text(v){return String(v==null?'':v).replace(/&nbsp;/g,' ').replace(/\s+/g,' ').trim();}
+  function _key(v){return _text(v).toLowerCase().replace(/[–—]/g,'-').replace(/\+/g,'').replace(/[^a-z0-9ก-๙]+/gi,' ').replace(/\s+/g,' ').trim();}
+  function _canonService(v){
+    var raw=_text(v);
+    try{ if(typeof normSvc==='function') raw=normSvc(raw); }catch(e){}
+    var k=_key(raw);
+    try{ if(typeof CAT_ALIAS==='object' && CAT_ALIAS[k]) raw=CAT_ALIAS[k]; }catch(e){}
+    try{
+      var hit=(CATS||[]).find(function(c){return _key(c.svc)===_key(raw)||_key(c.cat)===_key(raw);});
+      if(hit) return hit.svc;
+    }catch(e){}
+    return raw;
+  }
+  function _meta(service){
+    var s=_canonService(service), sk=_key(s);
+    try{return (CATS||[]).find(function(c){return _key(c.svc)===sk || _key(c.cat)===sk;})||null;}catch(e){return null;}
+  }
+  function _canonSub(service,sub){
+    var raw=_text(sub); if(!raw) return 'General';
+    var m=_meta(service), rk=_key(raw);
+    if(m && Array.isArray(m.subs)){
+      var exact=m.subs.find(function(x){return _key(x)===rk;});
+      if(exact) return exact;
+      var near=m.subs.find(function(x){var k=_key(x);return k && (k.includes(rk)||rk.includes(k));});
+      if(near) return near;
+    }
+    return raw;
+  }
+  function _cardSub(card){
+    var ds=card.getAttribute('data-sub')||'';
+    if(ds) return ds;
+    var el=card.querySelector('.card-sub-one,.card-sub-list em,.cat-slide-label span:nth-child(2)');
+    return el?_text(el.textContent):'';
+  }
+  function _cardService(card){
+    var ds=card.getAttribute('data-service')||'';
+    if(ds) return ds;
+    var el=card.querySelector('.card-head,.cat-slide-label span:first-child');
+    return el?_text(el.textContent):'';
+  }
+  function _findCard(service,sub){
+    var s=_key(_canonService(service));
+    var u=_key(_canonSub(service,sub));
+    var cards=[].slice.call(document.querySelectorAll('.cat-slide-card[data-service], .cat-slide-card'));
+    var exact=null;
+    cards.some(function(card){
+      var cs=_key(_canonService(_cardService(card)));
+      var cu=_key(_canonSub(service,_cardSub(card)));
+      if(cs===s && cu===u){exact=card;return true;}
+      return false;
+    });
+    if(exact) return exact;
+    /* Secondary fallback: inspect slide JSON because some old card labels were updated after render. */
+    cards.some(function(card){
+      var slides=[];try{slides=JSON.parse(card.getAttribute('data-slides')||'[]');}catch(e){}
+      return slides.some(function(sl){
+        var cs=_key(_canonService(sl.service||sl.svc||''));
+        var cu=_key(_canonSub(service,sl.subHead||sl.sub||sl.subHeadline||''));
+        if(cs===s && cu===u){exact=card;return true;}
+        return false;
+      });
+    });
+    return exact;
+  }
+  function _focusCard(card){
+    if(!card) return false;
+    try{card.scrollIntoView({behavior:'smooth',block:'center'});}catch(e){
+      var y=card.getBoundingClientRect().top+(window.pageYOffset||0)-90; window.scrollTo(0,y);
+    }
+    card.classList.add('jump-focus');
+    setTimeout(function(){card.classList.remove('jump-focus');},2600);
+    return true;
+  }
+  window.goHowSub=function(service,sub){
+    service=_canonService(service); sub=_canonSub(service,sub);
+    try{ if(typeof cH==='function') cH(); else {var h=document.getElementById('hP'); if(h)h.classList.remove('on');} }catch(e){}
+    try{document.body.style.overflow='';document.documentElement.style.overflow='';document.body.style.height='';document.documentElement.style.height='';}catch(e){}
+    setTimeout(function(){
+      if(typeof rSvc==='function') rSvc();
+      var target=_findCard(service,sub);
+      var sec=document.getElementById('svc');
+      if(target){_focusCard(target);return;}
+      if(sec){try{sec.scrollIntoView({behavior:'smooth',block:'start'});}catch(e){window.scrollTo(0,sec.offsetTop-70);}}
+    },180);
+  };
+  window.showServiceSub=function(key){
+    var panel=document.getElementById('serviceSubPanel'); if(!panel)return;
+    var idx=parseInt(String(key||'').replace(/\D/g,''),10)-1;
+    var meta=(!isNaN(idx)&&Array.isArray(CATS))?CATS[idx]:null;
+    var kicker=document.getElementById('subKicker'), title=document.getElementById('subTitle'), desc=document.getElementById('subDesc'), chips=document.getElementById('subChips');
+    document.querySelectorAll('.mind-node').forEach(function(n){n.classList.remove('active');});
+    var node=document.querySelector('.mind-node.'+key); if(node)node.classList.add('active');
+    if(!meta){
+      if(kicker)kicker.textContent='DOPIOUS+ ONE-STOP SERVICE';
+      if(title)title.innerHTML='Select a Service Head';
+      if(desc)desc.textContent='เลือก Head รอบวงกลมเพื่อดู Sub Head ทั้งหมด แล้วคลิก Sub Head เพื่อไปยังการ์ด Works / Services ที่ตรงกัน';
+      if(chips)chips.innerHTML='';
+      return;
+    }
+    if(kicker)kicker.textContent=meta.svc||'';
+    if(title)title.innerHTML=(String(meta.svc||'').replace(/\+$/,'')+'<em>+</em>');
+    if(desc)desc.textContent='เลือก Sub Head เพื่อไปยังการ์ด Works / Services ที่ใช้ Head + Sub Head ตรงกัน';
+    if(chips){
+      chips.innerHTML=(meta.subs||[]).map(function(rawSub){
+        var sub=_canonSub(meta.svc,rawSub);
+        var has=!!_findCard(meta.svc,sub);
+        return '<button class="how-sub-chip '+(has?'has-work':'no-work')+'" type="button" data-service="'+_text(meta.svc).replace(/"/g,'&quot;')+'" data-sub="'+_text(sub).replace(/"/g,'&quot;')+'">'+sub+'</button>';
+      }).join('');
+      chips.querySelectorAll('.how-sub-chip').forEach(function(btn){
+        btn.addEventListener('click',function(){goHowSub(btn.getAttribute('data-service'),btn.getAttribute('data-sub'));});
+      });
+    }
+  };
 })();

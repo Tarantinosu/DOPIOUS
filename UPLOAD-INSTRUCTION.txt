@@ -1,1 +1,1 @@
-Upload all files to your website root. After upload, test with: https://www.dopiousdesign.com/?v=admin-card-sync-final and https://www.dopiousdesign.com/admin.html?admin=1&v=admin-card-sync-final
+Upload all files to the root of your GitHub Pages / hosting. This version adds Who We Are intro text settings in admin and displays it on the public Who We Are page.
