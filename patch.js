@@ -152,6 +152,11 @@
     if(title)title.innerHTML=plus(name);
     if(desc)desc.textContent='Sub-services available in '+clean(name)+':';
     if(chips)chips.innerHTML=selectedHTML(meta);
+    /* scroll panel into view on mobile */
+    setTimeout(function(){
+      var p=document.getElementById('serviceSubPanel');
+      if(p)p.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },80);
   };
 
   /* ---------- reset panel to clean default whenever How panel opens ---------- */
