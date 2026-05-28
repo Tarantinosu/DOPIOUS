@@ -38,7 +38,7 @@
     var svcN=norm(svcName);
     var targetId=null;
 
-    /* find first matching card — head span = service only, em = sub-head only */
+    /* find first matching card */
     document.querySelectorAll('#sG .sc[id]').forEach(function(card){
       if(targetId)return;
       var slb=card.querySelector('.slb');if(!slb)return;
@@ -51,28 +51,45 @@
       else targetId=card.id;
     });
 
-    /* close panel */
+    /* override iOS _sy so uk() restores to our target, not original position */
+    if(targetId){
+      var _el=document.getElementById(targetId);
+      if(_el){
+        var _r=_el.getBoundingClientRect();
+        var _y=Math.max(0,_r.top+(window.pageYOffset||window.scrollY||0)-70);
+        try{window._sy=_y;}catch(e){}
+      }
+    }
+
+    /* close panel — uk() will scrollTo(0, window._sy) on iOS */
     try{if(typeof cH==='function')cH();}catch(e){}
 
-    /* force-clear all scroll locks immediately (same pattern as goHowSub in app.js) */
+    /* force-clear all scroll locks */
     document.body.style.overflow='';
     document.body.style.height='';
     document.documentElement.style.overflow='';
     document.documentElement.style.height='';
 
-    /* wait 600ms: 150ms panel fade + iOS _sy restore (~300ms) + buffer */
+    /* 600ms: panel fade (150ms) + iOS restore scroll settles + rAF */
     setTimeout(function(){
       document.body.style.overflow='';
       document.body.style.height='';
       document.documentElement.style.overflow='';
       document.documentElement.style.height='';
+
       var el=targetId?document.getElementById(targetId):null;
       if(!el){
         var s=document.getElementById('svc');
         if(s)s.scrollIntoView({behavior:'smooth'});
         return;
       }
-      el.scrollIntoView({behavior:'smooth',block:'center'});
+
+      /* recalculate after everything has settled */
+      var r=el.getBoundingClientRect();
+      var y=Math.max(0,r.top+(window.pageYOffset||window.scrollY||0)-70);
+      /* instant scroll overrides any lingering iOS momentum */
+      window.scrollTo(0,y);
+
       el.style.outline='3px solid #ff2a14';
       el.style.outlineOffset='4px';
       setTimeout(function(){el.style.outline='';el.style.outlineOffset='';},1600);
