@@ -31,19 +31,52 @@
     return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
   }
 
-  /* ---------- navigate: delegate to app.js goHowSub which handles overflow clear + scroll ---------- */
+  /* ---------- navigate ---------- */
   window.patchNavSub=function(subName,svcName){
-    /* goHowSub(service, sub) already: closes panel, clears overflow, finds card, scrollIntoView */
-    if(typeof window.goHowSub==='function'){
-      window.goHowSub(svcName, subName||'');
-      return;
-    }
-    /* fallback: just close panel and scroll to section */
+    var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
+    var subN=norm(subName);
+    var svcN=norm(svcName);
+    var targetId=null;
+
+    /* find first matching card — head span = service only, em = sub-head only */
+    document.querySelectorAll('#sG .sc[id]').forEach(function(card){
+      if(targetId)return;
+      var slb=card.querySelector('.slb');if(!slb)return;
+      var hd=slb.querySelector('.head,span');
+      var em=slb.querySelector('em');
+      var ht=norm(hd?hd.textContent:'');
+      var st=norm(em?em.textContent:'');
+      if(svcN&&!ht.includes(svcN.substring(0,8)))return;
+      if(subN){if(st.includes(subN))targetId=card.id;}
+      else targetId=card.id;
+    });
+
+    /* close panel */
     try{if(typeof cH==='function')cH();}catch(e){}
+
+    /* force-clear all scroll locks immediately (same pattern as goHowSub in app.js) */
+    document.body.style.overflow='';
+    document.body.style.height='';
+    document.documentElement.style.overflow='';
+    document.documentElement.style.height='';
+
+    /* wait 600ms: 150ms panel fade + iOS _sy restore (~300ms) + buffer */
     setTimeout(function(){
-      var s=document.getElementById('svc');
-      if(s)s.scrollIntoView({behavior:'smooth'});
-    },200);
+      document.body.style.overflow='';
+      document.body.style.height='';
+      document.documentElement.style.overflow='';
+      document.documentElement.style.height='';
+      var el=targetId?document.getElementById(targetId):null;
+      if(!el){
+        var s=document.getElementById('svc');
+        if(s)s.scrollIntoView({behavior:'smooth'});
+        return;
+      }
+      el.scrollIntoView({behavior:'smooth',block:'center'});
+      el.style.outline='3px solid #ff2a14';
+      el.style.outlineOffset='4px';
+      setTimeout(function(){el.style.outline='';el.style.outlineOffset='';},1600);
+    },600);
   };
 
   /* ---------- service descriptions ---------- */
