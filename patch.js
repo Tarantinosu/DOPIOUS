@@ -97,7 +97,8 @@
   function metaFromKey(key){
     if(!key||key==='dopious')return null;
     var n=parseInt(String(key).replace(/\D/g,''),10)-1;
-    var arr=(Array.isArray(window.CATS)?window.CATS:[]).filter(function(c){
+    var _cats=typeof CATS!=='undefined'?CATS:(window.CATS||[]);
+    var arr=(Array.isArray(_cats)?_cats:[]).filter(function(c){
       return c&&(c.svc||c.cat)&&Array.isArray(c.subs);
     });
     return(!isNaN(n)&&arr[n])?arr[n]:null;
