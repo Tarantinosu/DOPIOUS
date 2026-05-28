@@ -31,62 +31,48 @@
     return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
   }
 
-  /* ---------- navigate: close panel → scroll to matching section ---------- */
+  /* ---------- navigate: close panel → scroll to matching card ---------- */
   window.patchNavSub=function(subName,svcName){
-    /* 1. close How panel */
     try{if(typeof cH==='function')cH();}catch(e){}
 
-    /* 2. after close animation, find and scroll */
     setTimeout(function(){
       var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
       var subN=norm(subName);
       var svcN=norm(svcName);
       var target=null;
 
-      /* strategy A: look for data-svc / data-cat attributes */
-      var candidates=document.querySelectorAll('#sG [data-svc],[data-cat],[data-service],[data-type]');
-      candidates.forEach(function(el){
-        if(target)return;
-        var val=norm(el.getAttribute('data-svc')||el.getAttribute('data-cat')||el.getAttribute('data-service')||el.getAttribute('data-type')||'');
-        if(val&&(val===svcN||svcN.includes(val)||val.includes(svcN)))target=el;
-      });
-
-      /* strategy B: scan headings/labels in #sG for service name text */
-      if(!target){
-        var hdrs=document.querySelectorAll('#sG h2,#sG h3,#sG h4,#sG .sh,#sG .svc-head,#sG .cat-t,#sG .sti,#sG [class*="title"],#sG [class*="head"]');
-        hdrs.forEach(function(el){
+      /* ── ตรง: หา .slb em ที่ตรงกับ sub-head แล้วขึ้น article.sc ── */
+      if(subN){
+        var ems=document.querySelectorAll('#sG .slb em');
+        ems.forEach(function(em){
           if(target)return;
-          var t=norm(el.textContent);
-          if(t&&(t===svcN||t.includes(svcN.substring(0,6))||svcN.includes(t.substring(0,6))))target=el;
+          if(norm(em.textContent)===subN)target=em.closest('article')||em.closest('.sc');
         });
       }
 
-      /* strategy C: scan ALL text nodes in #sG for sub head name match */
-      if(!target){
-        var allInGrid=document.querySelectorAll('#sG *');
-        allInGrid.forEach(function(el){
+      /* ── fallback: หา .slb .head ที่ตรงกับ service name ── */
+      if(!target&&svcN){
+        var heads=document.querySelectorAll('#sG .slb .head');
+        heads.forEach(function(h){
           if(target)return;
-          if(el.children.length>0)return;
-          var t=norm(el.textContent);
-          if(t&&t===subN)target=el.closest('[class],[id]')||el;
+          var t=norm(h.textContent);
+          if(t&&(t===svcN||t.includes(svcN.substring(0,5))||svcN.includes(t.substring(0,5))))
+            target=h.closest('article')||h.closest('.sc');
         });
       }
 
-      /* scroll */
-      if(target){
-        var offset=70; /* nav height */
-        var y=target.getBoundingClientRect().top+window.pageYOffset-offset;
-        window.scrollTo({top:y,behavior:'smooth'});
-        /* brief highlight flash */
-        var orig=target.style.outline;
-        target.style.outline='2px solid #ff2a14';
-        target.style.outlineOffset='4px';
-        setTimeout(function(){target.style.outline=orig;target.style.outlineOffset='';},1200);
-      } else {
-        /* fallback: scroll to #svc section */
+      /* ── fallback สุดท้าย: scroll ไป #svc ── */
+      if(!target){
         var svcEl=document.getElementById('svc');
         if(svcEl)svcEl.scrollIntoView({behavior:'smooth'});
+        return;
       }
+
+      var y=target.getBoundingClientRect().top+window.pageYOffset-70;
+      window.scrollTo({top:y,behavior:'smooth'});
+      target.style.outline='2px solid #ff2a14';
+      target.style.outlineOffset='4px';
+      setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1400);
     },360);
   };
 
