@@ -31,47 +31,44 @@
     return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
   }
 
-  /* ---------- navigate: หาการ์ดก่อน → คำนวณ Y → ปิด panel → scroll ---------- */
+  /* ---------- navigate: match head/sub separately → ปิด panel → scroll ---------- */
   window.patchNavSub=function(subName,svcName){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var subN=norm(subName);
     var svcN=norm(svcName);
     var target=null;
 
-    /* 1. หาการ์ด */
+    /* 1. Find card: match .head span for service, em for sub-head (avoid cross-match) */
     document.querySelectorAll('#sG .sc').forEach(function(card){
       if(target)return;
       var slb=card.querySelector('.slb');
       if(!slb)return;
-      var t=norm(slb.textContent);
-      if(subN&&t.includes(subN)){target=card;return;}
-      if(!subN&&svcN&&t.includes(svcN.substring(0,8))){target=card;}
+      var headEl=slb.querySelector('.head,span');
+      var emEl=slb.querySelector('em');
+      var headT=norm(headEl?headEl.textContent:'');
+      var subT=norm(emEl?emEl.textContent:'');
+      var svcOk=!svcN||headT.includes(svcN.substring(0,8));
+      if(!svcOk)return;
+      if(subN){if(subT.includes(subN))target=card;}
+      else target=card;
     });
 
-    /* 2. คำนวณ absolute Y ผ่าน offsetTop (ไม่ขึ้นกับ scroll state) */
-    var destY=null;
-    if(target){
-      var el=target,acc=0;
-      while(el){acc+=el.offsetTop;el=el.offsetParent;}
-      destY=Math.max(0,acc-70);
-    }
-
-    /* 3. ปิด panel */
+    /* 2. Close panel */
     try{if(typeof cH==='function')cH();}catch(e){}
 
-    /* 4. scroll หลัง animation (350ms) */
+    /* 3. After panel fully closes, getBoundingClientRect is clean */
     setTimeout(function(){
-      if(destY===null){
+      if(!target){
         var s=document.getElementById('svc');
         if(s)s.scrollIntoView({behavior:'smooth'});
         return;
       }
-      window.scrollTo({top:destY,behavior:'smooth'});
-      if(target){
-        target.style.outline='3px solid #ff2a14';
-        target.style.outlineOffset='4px';
-        setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
-      }
+      var r=target.getBoundingClientRect();
+      var y=r.top+(window.pageYOffset||window.scrollY||0)-70;
+      window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+      target.style.outline='3px solid #ff2a14';
+      target.style.outlineOffset='4px';
+      setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
     },350);
   };
 
