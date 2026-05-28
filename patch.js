@@ -31,47 +31,19 @@
     return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
   }
 
-  /* ---------- navigate: close panel → scrollIntoView target card ---------- */
+  /* ---------- navigate: delegate to app.js goHowSub which handles overflow clear + scroll ---------- */
   window.patchNavSub=function(subName,svcName){
-    var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
-    var subN=norm(subName);
-    var svcN=norm(svcName);
-    var targetId=null;
-
-    /* Find first matching card id */
-    document.querySelectorAll('#sG .sc[id]').forEach(function(card){
-      if(targetId)return;
-      var slb=card.querySelector('.slb');
-      if(!slb)return;
-      /* match service against .head span only — NOT sub-head em — to avoid cross-match */
-      var headEl=slb.querySelector('.head,span');
-      var emEl=slb.querySelector('em');
-      var headT=norm(headEl?headEl.textContent:'');
-      var subT=norm(emEl?emEl.textContent:'');
-      /* service must match */
-      if(svcN&&!headT.includes(svcN.substring(0,8)))return;
-      /* if sub chip: sub-head must also match */
-      if(subN){if(subT.includes(subN))targetId=card.id;}
-      else targetId=card.id; /* VIEW WORK: first card of this service */
-    });
-
-    /* Close panel first */
+    /* goHowSub(service, sub) already: closes panel, clears overflow, finds card, scrollIntoView */
+    if(typeof window.goHowSub==='function'){
+      window.goHowSub(svcName, subName||'');
+      return;
+    }
+    /* fallback: just close panel and scroll to section */
     try{if(typeof cH==='function')cH();}catch(e){}
-
-    /* After panel fade (150ms transition + buffer = 300ms), scroll */
     setTimeout(function(){
-      var el=targetId?document.getElementById(targetId):null;
-      if(!el){
-        var sec=document.getElementById('svc');
-        if(sec)sec.scrollIntoView({behavior:'smooth'});
-        return;
-      }
-      /* scrollIntoView: browser-native, always correct */
-      el.scrollIntoView({behavior:'smooth',block:'start'});
-      el.style.outline='3px solid #ff2a14';
-      el.style.outlineOffset='4px';
-      setTimeout(function(){el.style.outline='';el.style.outlineOffset='';},1600);
-    },300);
+      var s=document.getElementById('svc');
+      if(s)s.scrollIntoView({behavior:'smooth'});
+    },200);
   };
 
   /* ---------- service descriptions ---------- */
