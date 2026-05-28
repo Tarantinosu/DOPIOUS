@@ -31,14 +31,14 @@
     return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
   }
 
-  /* ---------- navigate: หาการ์ดก่อน → ปิด panel → scroll ---------- */
+  /* ---------- navigate: หาการ์ดก่อน → คำนวณ Y → ปิด panel → scroll ---------- */
   window.patchNavSub=function(subName,svcName){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var subN=norm(subName);
     var svcN=norm(svcName);
     var target=null;
 
-    /* 1. หาการ์ดก่อนปิด panel */
+    /* 1. หาการ์ด */
     document.querySelectorAll('#sG .sc').forEach(function(card){
       if(target)return;
       var slb=card.querySelector('.slb');
@@ -48,22 +48,31 @@
       if(!subN&&svcN&&t.includes(svcN.substring(0,8))){target=card;}
     });
 
-    /* 2. ปิด panel */
+    /* 2. คำนวณ absolute Y ผ่าน offsetTop (ไม่ขึ้นกับ scroll state) */
+    var destY=null;
+    if(target){
+      var el=target,acc=0;
+      while(el){acc+=el.offsetTop;el=el.offsetParent;}
+      destY=Math.max(0,acc-70);
+    }
+
+    /* 3. ปิด panel */
     try{if(typeof cH==='function')cH();}catch(e){}
 
-    /* 3. scroll หลัง panel animation เสร็จ (150ms) */
+    /* 4. scroll หลัง animation (350ms) */
     setTimeout(function(){
-      if(!target){
+      if(destY===null){
         var s=document.getElementById('svc');
         if(s)s.scrollIntoView({behavior:'smooth'});
         return;
       }
-      var y=target.getBoundingClientRect().top+window.pageYOffset-70;
-      window.scrollTo({top:y,behavior:'smooth'});
-      target.style.outline='3px solid #ff2a14';
-      target.style.outlineOffset='4px';
-      setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
-    },200);
+      window.scrollTo({top:destY,behavior:'smooth'});
+      if(target){
+        target.style.outline='3px solid #ff2a14';
+        target.style.outlineOffset='4px';
+        setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
+      }
+    },350);
   };
 
   /* ---------- service descriptions ---------- */
