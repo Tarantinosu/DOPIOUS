@@ -31,45 +31,47 @@
     return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
   }
 
-  /* ---------- navigate: match head/sub separately → ปิด panel → scroll ---------- */
+  /* ---------- navigate: close panel → scrollIntoView target card ---------- */
   window.patchNavSub=function(subName,svcName){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var subN=norm(subName);
     var svcN=norm(svcName);
-    var target=null;
+    var targetId=null;
 
-    /* 1. Find card: match .head span for service, em for sub-head (avoid cross-match) */
-    document.querySelectorAll('#sG .sc').forEach(function(card){
-      if(target)return;
+    /* Find first matching card id */
+    document.querySelectorAll('#sG .sc[id]').forEach(function(card){
+      if(targetId)return;
       var slb=card.querySelector('.slb');
       if(!slb)return;
+      /* match service against .head span only — NOT sub-head em — to avoid cross-match */
       var headEl=slb.querySelector('.head,span');
       var emEl=slb.querySelector('em');
       var headT=norm(headEl?headEl.textContent:'');
       var subT=norm(emEl?emEl.textContent:'');
-      var svcOk=!svcN||headT.includes(svcN.substring(0,8));
-      if(!svcOk)return;
-      if(subN){if(subT.includes(subN))target=card;}
-      else target=card;
+      /* service must match */
+      if(svcN&&!headT.includes(svcN.substring(0,8)))return;
+      /* if sub chip: sub-head must also match */
+      if(subN){if(subT.includes(subN))targetId=card.id;}
+      else targetId=card.id; /* VIEW WORK: first card of this service */
     });
 
-    /* 2. Close panel */
+    /* Close panel first */
     try{if(typeof cH==='function')cH();}catch(e){}
 
-    /* 3. After panel fully closes, getBoundingClientRect is clean */
+    /* After panel fade (150ms transition + buffer = 300ms), scroll */
     setTimeout(function(){
-      if(!target){
-        var s=document.getElementById('svc');
-        if(s)s.scrollIntoView({behavior:'smooth'});
+      var el=targetId?document.getElementById(targetId):null;
+      if(!el){
+        var sec=document.getElementById('svc');
+        if(sec)sec.scrollIntoView({behavior:'smooth'});
         return;
       }
-      var r=target.getBoundingClientRect();
-      var y=r.top+(window.pageYOffset||window.scrollY||0)-70;
-      window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
-      target.style.outline='3px solid #ff2a14';
-      target.style.outlineOffset='4px';
-      setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
-    },350);
+      /* scrollIntoView: browser-native, always correct */
+      el.scrollIntoView({behavior:'smooth',block:'start'});
+      el.style.outline='3px solid #ff2a14';
+      el.style.outlineOffset='4px';
+      setTimeout(function(){el.style.outline='';el.style.outlineOffset='';},1600);
+    },300);
   };
 
   /* ---------- service descriptions ---------- */
