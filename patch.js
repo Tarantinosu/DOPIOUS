@@ -159,9 +159,16 @@
       return;
     }
 
-    /* ── Service selected → ปิด panel + scroll ไปการ์ดทันที ── */
+    /* ── Service selected: แสดง sub-head + scroll ไปหา panel ── */
     var name=meta.svc||meta.cat||'';
-    patchNavSub('',name);
+    if(kicker)kicker.textContent='SERVICE HEAD';
+    if(title)title.innerHTML=plus(name);
+    if(desc)desc.textContent='Sub-services available in '+clean(name)+':';
+    if(chips)chips.innerHTML=selectedHTML(meta);
+    setTimeout(function(){
+      var p=document.getElementById('serviceSubPanel');
+      if(p)p.scrollIntoView({behavior:'smooth',block:'nearest'});
+    },80);
   };
 
   /* ---------- reset panel to clean default whenever How panel opens ---------- */
