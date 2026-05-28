@@ -41,27 +41,16 @@
       var svcN=norm(svcName);
       var target=null;
 
-      /* ── ตรง: หา .slb em ที่ตรงกับ sub-head แล้วขึ้น article.sc ── */
-      if(subN){
-        var ems=document.querySelectorAll('#sG .slb em');
-        ems.forEach(function(em){
-          if(target)return;
-          if(norm(em.textContent)===subN)target=em.closest('article')||em.closest('.sc');
-        });
-      }
+      /* วนทุก card ใน #sG แล้วอ่าน .slb textContent โดยตรง */
+      document.querySelectorAll('#sG .sc').forEach(function(card){
+        if(target)return;
+        var slb=card.querySelector('.slb');
+        if(!slb)return;
+        var t=norm(slb.textContent);
+        if(subN&&t.includes(subN)){target=card;return;}
+        if(!subN&&svcN&&t.includes(svcN.substring(0,8))){target=card;}
+      });
 
-      /* ── fallback: หา .slb .head ที่ตรงกับ service name ── */
-      if(!target&&svcN){
-        var heads=document.querySelectorAll('#sG .slb .head');
-        heads.forEach(function(h){
-          if(target)return;
-          var t=norm(h.textContent);
-          if(t&&(t===svcN||t.includes(svcN.substring(0,5))||svcN.includes(t.substring(0,5))))
-            target=h.closest('article')||h.closest('.sc');
-        });
-      }
-
-      /* ── fallback สุดท้าย: scroll ไป #svc ── */
       if(!target){
         var svcEl=document.getElementById('svc');
         if(svcEl)svcEl.scrollIntoView({behavior:'smooth'});
@@ -73,7 +62,7 @@
       target.style.outline='2px solid #ff2a14';
       target.style.outlineOffset='4px';
       setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1400);
-    },360);
+    },500);
   };
 
   /* ---------- service descriptions ---------- */
