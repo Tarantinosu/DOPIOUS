@@ -31,38 +31,39 @@
     return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
   }
 
-  /* ---------- navigate: close panel → scroll to matching card ---------- */
+  /* ---------- navigate: หาการ์ดก่อน → ปิด panel → scroll ---------- */
   window.patchNavSub=function(subName,svcName){
+    var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
+    var subN=norm(subName);
+    var svcN=norm(svcName);
+    var target=null;
+
+    /* 1. หาการ์ดก่อนปิด panel */
+    document.querySelectorAll('#sG .sc').forEach(function(card){
+      if(target)return;
+      var slb=card.querySelector('.slb');
+      if(!slb)return;
+      var t=norm(slb.textContent);
+      if(subN&&t.includes(subN)){target=card;return;}
+      if(!subN&&svcN&&t.includes(svcN.substring(0,8))){target=card;}
+    });
+
+    /* 2. ปิด panel */
     try{if(typeof cH==='function')cH();}catch(e){}
 
+    /* 3. scroll หลัง panel animation เสร็จ (150ms) */
     setTimeout(function(){
-      var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
-      var subN=norm(subName);
-      var svcN=norm(svcName);
-      var target=null;
-
-      /* วนทุก card ใน #sG แล้วอ่าน .slb textContent โดยตรง */
-      document.querySelectorAll('#sG .sc').forEach(function(card){
-        if(target)return;
-        var slb=card.querySelector('.slb');
-        if(!slb)return;
-        var t=norm(slb.textContent);
-        if(subN&&t.includes(subN)){target=card;return;}
-        if(!subN&&svcN&&t.includes(svcN.substring(0,8))){target=card;}
-      });
-
       if(!target){
-        var svcEl=document.getElementById('svc');
-        if(svcEl)svcEl.scrollIntoView({behavior:'smooth'});
+        var s=document.getElementById('svc');
+        if(s)s.scrollIntoView({behavior:'smooth'});
         return;
       }
-
       var y=target.getBoundingClientRect().top+window.pageYOffset-70;
       window.scrollTo({top:y,behavior:'smooth'});
-      target.style.outline='2px solid #ff2a14';
+      target.style.outline='3px solid #ff2a14';
       target.style.outlineOffset='4px';
-      setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1400);
-    },500);
+      setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
+    },200);
   };
 
   /* ---------- service descriptions ---------- */
