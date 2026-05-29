@@ -32,7 +32,13 @@
   }
 
   /* ---------- navigate ---------- */
-  /* ---------- find card by service + optional sub-head ---------- */
+  function clrLocks(){
+    document.body.style.overflow='';
+    document.body.style.height='';
+    document.documentElement.style.overflow='';
+    document.documentElement.style.height='';
+  }
+
   function findCard(subN,svcN){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var pfx=svcN?svcN.substring(0,Math.min(8,svcN.length)):'';
@@ -51,49 +57,52 @@
     return hit;
   }
 
-  /* ---------- scroll to card id (no panel logic) ---------- */
-  function scrollToCard(targetId){
-    /* clear any residual scroll locks */
-    document.body.style.overflow='';
-    document.body.style.height='';
-    document.documentElement.style.overflow='';
-    document.documentElement.style.height='';
-
-    var el=targetId?document.getElementById(targetId):null;
-    if(!el){
-      var s=document.getElementById('svc');
-      if(s)s.scrollIntoView({behavior:'smooth'});
-      return;
-    }
-    el.style.scrollMarginTop='70px';
-    window.location.hash='#'+targetId;
-    el.style.outline='3px solid #ff2a14';
-    el.style.outlineOffset='4px';
-    setTimeout(function(){
-      el.style.outline='';
-      el.style.outlineOffset='';
-      el.style.scrollMarginTop='';
-      try{history.replaceState(null,'',window.location.pathname+window.location.search);}catch(e){}
-    },1600);
-  }
-
   window.patchNavSub=function(subName,svcName){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var subN=norm(subName);
     var svcN=norm(svcName);
+    var raf=window.requestAnimationFrame||function(fn){setTimeout(fn,16);};
 
-    /* ปิด panel ก่อนเลย — ให้ user เห็น feedback ทันที */
-    try{if(typeof cH==='function')cH();}catch(e){}
-    document.body.style.overflow='';
-    document.body.style.height='';
-    document.documentElement.style.overflow='';
-    document.documentElement.style.height='';
-
-    /* หาการ์ดทันที */
+    /* หาการ์ดก่อน */
     var targetId=findCard(subN,svcN);
-    if(targetId){
-      /* รอ panel close animation (150ms) แล้ว scroll */
-      setTimeout(function(){scrollToCard(targetId);},320);
+    var el=targetId?document.getElementById(targetId):null;
+
+    /* iOS fix: override window._sy ก่อน cH() เพื่อให้ uk() scroll ไปหาการ์ดแทน _sy เดิม */
+    if(el){
+      try{
+        var savedY=typeof window._sy==='number'?window._sy:(window.scrollY||window.pageYOffset||0);
+        var rect=el.getBoundingClientRect();
+        window._sy=Math.max(0,savedY+rect.top-70);
+      }catch(e){}
+    }
+
+    /* ปิด panel ทันที */
+    try{if(typeof cH==='function')cH();}catch(e){}
+    clrLocks();
+
+    /* scroll ไปหาการ์ด หลัง panel animation (150ms) เสร็จ */
+    function scrollNow(target){
+      clrLocks();
+      if(!target){
+        var s=document.getElementById('svc');
+        if(s)s.scrollIntoView({behavior:'smooth'});
+        return;
+      }
+      /* double rAF — รอให้ browser flush scroll queue ก่อน */
+      raf(function(){raf(function(){
+        clrLocks();
+        var curY=window.scrollY||window.pageYOffset||0;
+        var r=target.getBoundingClientRect();
+        var destY=Math.max(0,curY+r.top-70);
+        try{window.scrollTo({top:destY,behavior:'smooth'});}catch(e){window.scrollTo(0,destY);}
+        target.style.outline='3px solid #ff2a14';
+        target.style.outlineOffset='4px';
+        setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
+      });});
+    }
+
+    if(el){
+      setTimeout(function(){scrollNow(el);},220);
       return;
     }
 
@@ -101,14 +110,11 @@
     var tries=0;
     var t=setInterval(function(){
       tries++;
-      document.body.style.overflow='';
-      document.documentElement.style.overflow='';
-      document.body.style.height='';
-      document.documentElement.style.height='';
-      targetId=findCard(subN,svcN);
-      if(targetId||tries>=4){
+      clrLocks();
+      var tid=findCard(subN,svcN);
+      if(tid||tries>=4){
         clearInterval(t);
-        scrollToCard(targetId);
+        scrollNow(tid?document.getElementById(tid):null);
       }
     },500);
   };
