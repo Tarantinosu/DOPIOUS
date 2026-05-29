@@ -32,64 +32,85 @@
   }
 
   /* ---------- navigate ---------- */
-  window.patchNavSub=function(subName,svcName){
+  /* ---------- find card by service + optional sub-head ---------- */
+  function findCard(subN,svcN){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
-    var subN=norm(subName);
-    var svcN=norm(svcName);
-    var targetId=null;
-
-    /* หาการ์ด */
+    var pfx=svcN?svcN.substring(0,Math.min(8,svcN.length)):'';
+    var hit=null;
     document.querySelectorAll('#sG .sc[id]').forEach(function(card){
-      if(targetId)return;
+      if(hit)return;
       var slb=card.querySelector('.slb');if(!slb)return;
       var hd=slb.querySelector('.head,span');
       var em=slb.querySelector('em');
       var ht=norm(hd?hd.textContent:'');
       var st=norm(em?em.textContent:'');
-      if(svcN&&!ht.includes(svcN.substring(0,8)))return;
-      if(subN){if(st.includes(subN))targetId=card.id;}
-      else targetId=card.id;
+      if(pfx&&!ht.includes(pfx))return;
+      if(subN){if(st.includes(subN))hit=card.id;}
+      else hit=card.id;
     });
+    return hit;
+  }
 
-    /* ปิด panel */
-    try{if(typeof cH==='function')cH();}catch(e){}
-
-    /* force-clear scroll locks */
+  /* ---------- scroll to card id (no panel logic) ---------- */
+  function scrollToCard(targetId){
+    /* clear any residual scroll locks */
     document.body.style.overflow='';
     document.body.style.height='';
     document.documentElement.style.overflow='';
     document.documentElement.style.height='';
 
+    var el=targetId?document.getElementById(targetId):null;
+    if(!el){
+      var s=document.getElementById('svc');
+      if(s)s.scrollIntoView({behavior:'smooth'});
+      return;
+    }
+    el.style.scrollMarginTop='70px';
+    window.location.hash='#'+targetId;
+    el.style.outline='3px solid #ff2a14';
+    el.style.outlineOffset='4px';
     setTimeout(function(){
+      el.style.outline='';
+      el.style.outlineOffset='';
+      el.style.scrollMarginTop='';
+      try{history.replaceState(null,'',window.location.pathname+window.location.search);}catch(e){}
+    },1600);
+  }
+
+  window.patchNavSub=function(subName,svcName){
+    var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
+    var subN=norm(subName);
+    var svcN=norm(svcName);
+
+    /* ปิด panel ก่อนเลย — ให้ user เห็น feedback ทันที */
+    try{if(typeof cH==='function')cH();}catch(e){}
+    document.body.style.overflow='';
+    document.body.style.height='';
+    document.documentElement.style.overflow='';
+    document.documentElement.style.height='';
+
+    /* หาการ์ดทันที */
+    var targetId=findCard(subN,svcN);
+    if(targetId){
+      /* รอ panel close animation (150ms) แล้ว scroll */
+      setTimeout(function(){scrollToCard(targetId);},320);
+      return;
+    }
+
+    /* ถ้าการ์ดยังไม่โหลด (Firebase ยังโหลดอยู่) — retry ทุก 500ms สูงสุด 4 ครั้ง */
+    var tries=0;
+    var t=setInterval(function(){
+      tries++;
       document.body.style.overflow='';
       document.documentElement.style.overflow='';
       document.body.style.height='';
       document.documentElement.style.height='';
-
-      var el=targetId?document.getElementById(targetId):null;
-      if(!el){
-        var s=document.getElementById('svc');
-        if(s)s.scrollIntoView({behavior:'smooth'});
-        return;
+      targetId=findCard(subN,svcN);
+      if(targetId||tries>=4){
+        clearInterval(t);
+        scrollToCard(targetId);
       }
-
-      /* scroll-margin-top เพื่อชดเชย nav bar ความสูง 62px */
-      el.style.scrollMarginTop='70px';
-
-      /* hash navigation — browser-native, ทำงานถูกต้องบนทุก platform */
-      window.location.hash='#'+targetId;
-
-      /* highlight */
-      el.style.outline='3px solid #ff2a14';
-      el.style.outlineOffset='4px';
-      setTimeout(function(){
-        el.style.outline='';
-        el.style.outlineOffset='';
-        el.style.scrollMarginTop='';
-        /* clean hash จาก URL */
-        try{history.replaceState(null,'',window.location.pathname+window.location.search);}catch(e){}
-      },1600);
-    },300);
+    },500);
   };
 
   /* ---------- service descriptions ---------- */
