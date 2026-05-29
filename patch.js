@@ -43,15 +43,12 @@
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var pfx=svcN?svcN.substring(0,Math.min(8,svcN.length)):'';
     var hit=null;
-    document.querySelectorAll('#sG .sc[id]').forEach(function(card){
+    document.querySelectorAll('#sG .cat-slide-card[data-service]').forEach(function(card){
       if(hit)return;
-      var slb=card.querySelector('.slb');if(!slb)return;
-      var hd=slb.querySelector('.head,span');
-      var em=slb.querySelector('em');
-      var ht=norm(hd?hd.textContent:'');
-      var st=norm(em?em.textContent:'');
-      if(pfx&&!ht.includes(pfx))return;
-      if(subN){if(st.includes(subN))hit=card.id;}
+      var svcAttr=norm(card.getAttribute('data-service')||'');
+      var subAttr=norm(card.getAttribute('data-sub')||'');
+      if(pfx&&!svcAttr.includes(pfx))return;
+      if(subN){if(subAttr.includes(subN))hit=card.id;}
       else hit=card.id;
     });
     return hit;
