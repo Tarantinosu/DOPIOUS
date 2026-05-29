@@ -38,7 +38,7 @@
     var svcN=norm(svcName);
     var targetId=null;
 
-    /* find first matching card */
+    /* หาการ์ด */
     document.querySelectorAll('#sG .sc[id]').forEach(function(card){
       if(targetId)return;
       var slb=card.querySelector('.slb');if(!slb)return;
@@ -51,30 +51,19 @@
       else targetId=card.id;
     });
 
-    /* override iOS _sy so uk() restores to our target, not original position */
-    if(targetId){
-      var _el=document.getElementById(targetId);
-      if(_el){
-        var _r=_el.getBoundingClientRect();
-        var _y=Math.max(0,_r.top+(window.pageYOffset||window.scrollY||0)-70);
-        try{window._sy=_y;}catch(e){}
-      }
-    }
-
-    /* close panel — uk() will scrollTo(0, window._sy) on iOS */
+    /* ปิด panel */
     try{if(typeof cH==='function')cH();}catch(e){}
 
-    /* force-clear all scroll locks */
+    /* force-clear scroll locks */
     document.body.style.overflow='';
     document.body.style.height='';
     document.documentElement.style.overflow='';
     document.documentElement.style.height='';
 
-    /* 600ms: panel fade (150ms) + iOS restore scroll settles + rAF */
     setTimeout(function(){
       document.body.style.overflow='';
-      document.body.style.height='';
       document.documentElement.style.overflow='';
+      document.body.style.height='';
       document.documentElement.style.height='';
 
       var el=targetId?document.getElementById(targetId):null;
@@ -84,16 +73,23 @@
         return;
       }
 
-      /* recalculate after everything has settled */
-      var r=el.getBoundingClientRect();
-      var y=Math.max(0,r.top+(window.pageYOffset||window.scrollY||0)-70);
-      /* instant scroll overrides any lingering iOS momentum */
-      window.scrollTo(0,y);
+      /* scroll-margin-top เพื่อชดเชย nav bar ความสูง 62px */
+      el.style.scrollMarginTop='70px';
 
+      /* hash navigation — browser-native, ทำงานถูกต้องบนทุก platform */
+      window.location.hash='#'+targetId;
+
+      /* highlight */
       el.style.outline='3px solid #ff2a14';
       el.style.outlineOffset='4px';
-      setTimeout(function(){el.style.outline='';el.style.outlineOffset='';},1600);
-    },600);
+      setTimeout(function(){
+        el.style.outline='';
+        el.style.outlineOffset='';
+        el.style.scrollMarginTop='';
+        /* clean hash จาก URL */
+        try{history.replaceState(null,'',window.location.pathname+window.location.search);}catch(e){}
+      },1600);
+    },300);
   };
 
   /* ---------- service descriptions ---------- */
