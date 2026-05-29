@@ -92,9 +92,6 @@
         var r=target.getBoundingClientRect();
         var destY=Math.max(0,curY+r.top-70);
         try{window.scrollTo({top:destY,behavior:'smooth'});}catch(e){window.scrollTo(0,destY);}
-        target.style.outline='3px solid #ff2a14';
-        target.style.outlineOffset='4px';
-        setTimeout(function(){target.style.outline='';target.style.outlineOffset='';},1600);
       });});
     }
 
