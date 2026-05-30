@@ -19,13 +19,18 @@
     '.svcp-name{font-size:clamp(18px,4vw,24px);font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:8px}'+
     '.svcp-name em{color:#ff2a14;font-style:normal}'+
     '.svcp-desc{font-size:12px;color:rgba(255,255,255,.36);line-height:1.65;margin-bottom:14px;max-width:500px}'+
-    '.svcp-section-toggle{width:100%;display:flex;align-items:center;gap:12px;background:none;border:none;border:0;color:#fff;cursor:pointer;padding:18px 0;text-align:left}'+
-    '.svcp-section-toggle:hover .svcp-name{color:rgba(255,255,255,.75)}'+
-    '.svcp-toggle-arr{margin-left:auto;font-size:20px;font-weight:300;color:rgba(255,255,255,.25);transition:transform .2s,color .2s;flex-shrink:0}'+
-    '.svcp-section.open .svcp-toggle-arr{transform:rotate(45deg);color:#ff2a14}'+
-    '.svcp-section-body{display:none;padding-bottom:18px}'+
-    '.svcp-section.open .svcp-section-body{display:block}'+
-    '.svcp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:16px}'+
+    '.svcp-tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}'+
+    '.svcp-tile{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:14px 12px;text-align:left;cursor:pointer;transition:border-color .15s,background .15s;color:#fff}'+
+    '.svcp-tile:hover,.svcp-tile:active{background:rgba(255,255,255,.07)}'+
+    '.svcp-tile.active{border-color:rgba(255,42,20,.55);background:rgba(255,42,20,.08)}'+
+    '.svcp-tile-num{font-size:10px;color:rgba(255,255,255,.25);margin-bottom:4px;font-weight:700;letter-spacing:.1em}'+
+    '.svcp-tile-name{font-size:13px;font-weight:900;letter-spacing:-.03em;line-height:1.25;color:rgba(255,255,255,.8)}'+
+    '.svcp-tile.active .svcp-tile-name{color:#fff}'+
+    '.svcp-tile-name em{color:#ff2a14;font-style:normal}'+
+    '.svcp-expanded{display:none;border:1px solid rgba(255,255,255,.1);border-radius:14px;padding:18px;background:rgba(255,255,255,.03);margin-bottom:12px}'+
+    '.svcp-exp-name{font-size:clamp(20px,4vw,26px);font-weight:900;letter-spacing:-.05em;line-height:1;margin-bottom:10px}'+
+    '.svcp-exp-name em{color:#ff2a14;font-style:normal}'+
+    '.svcp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;margin-bottom:16px}'+
     '.svcp-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:13px 12px 11px;cursor:pointer;text-align:left;transition:background .12s,border-color .12s}'+
     '.svcp-card:hover,.svcp-card:active{background:rgba(255,42,20,.12);border-color:rgba(255,42,20,.38)}'+
     '.svcp-card-name{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72);line-height:1.35}'+
@@ -162,34 +167,52 @@
     {svc:'Creative Consultation+',subs:['Creative Brief','Concept Direction','Design Direction','Budget Planning','Scope Planning','Material Consulting','Production Consulting','Supplier Consulting','Campaign Consulting','Brand Consulting','Space Consulting','Product Consulting']}
   ];
 
-  /* ---------- toggle accordion section ---------- */
-  window.patchToggleSvc=function(svcName){
+  /* ---------- open a service (highlight tile + show expanded panel) ---------- */
+  window.patchOpenSvc=function(svcName){
     var body=document.getElementById('svcPgBody');
-    if(!body)return;
-    var sec=body.querySelector('[data-svc="'+svcName+'"]');
-    if(!sec)return;
-    var isOpen=sec.classList.contains('open');
-    body.querySelectorAll('.svcp-section.open').forEach(function(s){s.classList.remove('open');});
-    if(!isOpen)sec.classList.add('open');
+    var expanded=document.getElementById('svcExpanded');
+    if(!body||!expanded)return;
+
+    /* highlight active tile */
+    body.querySelectorAll('.svcp-tile').forEach(function(t){
+      t.classList.toggle('active',t.getAttribute('data-svc')===svcName);
+    });
+
+    /* build expanded content */
+    var g=readGroups();
+    var items=g.map[svcName]||[];
+    var name=clean(svcName);
+    var svcEnc=safe(name).replace(/'/g,'&#39;');
+
+    var cards=items.map(function(item){
+      var label=item.sub||name;
+      var enc=safe(item.sub).replace(/'/g,'&#39;');
+      return '<button class="svcp-card" type="button" onclick="patchNavSub(\''+enc+'\',\''+svcEnc+'\')">'
+        +'<div class="svcp-card-name">'+safe(label)+'</div>'
+        +'<div class="svcp-card-arr">→</div>'
+        +'</button>';
+    }).join('');
+
+    expanded.innerHTML='<div class="svcp-exp-name">'+safe(name)+'<em>+</em></div>'
+      +(descs[svcName]?'<div class="svcp-desc">'+safe(descs[svcName])+'</div>':'')
+      +'<div class="svcp-grid">'+cards+'</div>'
+      +'<button class="svcp-btn" type="button" onclick="patchNavSub(\'\',\''+svcEnc+'\')">'
+      +'View All '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
+      +'</button>';
+    expanded.style.display='block';
+
+    /* scroll expanded into view inside the panel */
+    setTimeout(function(){
+      var panel=document.getElementById('hP');
+      if(!panel)return;
+      var panelTop=panel.getBoundingClientRect().top;
+      var expTop=expanded.getBoundingClientRect().top;
+      panel.scrollBy({top:expTop-panelTop-70,behavior:'smooth'});
+    },40);
   };
 
-  /* ---------- scroll panel to a service section + open it ---------- */
-  window.patchScrollToSvc=function(svcName){
-    var panel=document.getElementById('hP');
-    var body=document.getElementById('svcPgBody');
-    if(!panel||!body)return;
-    /* open this section, close others */
-    body.querySelectorAll('.svcp-section.open').forEach(function(s){s.classList.remove('open');});
-    var sec=body.querySelector('[data-svc="'+svcName+'"]');
-    if(sec)sec.classList.add('open');
-    /* scroll panel to the section */
-    setTimeout(function(){
-      var target=sec||body;
-      var panelTop=panel.getBoundingClientRect().top;
-      var targetTop=target.getBoundingClientRect().top;
-      panel.scrollBy({top:targetTop-panelTop-70,behavior:'smooth'});
-    },30);
-  };
+  /* ---------- mind map node → open service ---------- */
+  window.patchScrollToSvc=function(svcName){patchOpenSvc(svcName);};
 
   /* ---------- read live cards from works grid ---------- */
   function readGroups(){
@@ -221,46 +244,23 @@
     }
     clearTimeout(_renderTimer);
 
-    var html='<div class="svcp-hd">'
-      +'<div class="svcp-hd-label">What We Do</div>'
-      +'<div class="svcp-hd-title">Services<em>+</em></div>'
-      +'</div>';
-
+    var tiles='';
     g.order.forEach(function(svc,i){
-      var items=g.map[svc];
       var name=clean(svc);
       var num=(i+1<10?'0':'')+(i+1);
-      var svcEnc=safe(name).replace(/'/g,'&#39;');
-
-      var cards=items.map(function(item){
-        var label=item.sub||name;
-        var enc=safe(item.sub).replace(/'/g,'&#39;');
-        return '<button class="svcp-card" type="button" onclick="patchNavSub(\''+enc+'\',\''+svcEnc+'\')">'
-          +'<div class="svcp-card-name">'+safe(label)+'</div>'
-          +'<div class="svcp-card-arr">→</div>'
-          +'</button>';
-      }).join('');
-
       var svcEncQ=safe(svc).replace(/'/g,'&#39;');
-      html+='<div class="svcp-section" data-svc="'+safe(svc)+'">'
-        +'<button class="svcp-section-toggle" type="button" onclick="patchToggleSvc(\''+svcEncQ+'\')">'
-          +'<div>'
-            +'<div class="svcp-num">'+num+'</div>'
-            +'<div class="svcp-name">'+safe(name)+'<em>+</em></div>'
-          +'</div>'
-          +'<div class="svcp-toggle-arr">+</div>'
-        +'</button>'
-        +'<div class="svcp-section-body">'
-          +(descs[svc]?'<div class="svcp-desc">'+safe(descs[svc])+'</div>':'')
-          +'<div class="svcp-grid">'+cards+'</div>'
-          +'<button class="svcp-btn" type="button" onclick="patchNavSub(\'\',\''+svcEnc+'\')">'
-          +'View All '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
-          +'</button>'
-        +'</div>'
-        +'</div>';
+      tiles+='<button class="svcp-tile" data-svc="'+safe(svc)+'" type="button" onclick="patchOpenSvc(\''+svcEncQ+'\')">'
+        +'<div class="svcp-tile-num">'+num+'</div>'
+        +'<div class="svcp-tile-name">'+safe(name)+'<em>+</em></div>'
+        +'</button>';
     });
 
-    body.innerHTML=html;
+    body.innerHTML='<div class="svcp-hd">'
+      +'<div class="svcp-hd-label">What We Do</div>'
+      +'<div class="svcp-hd-title">Services<em>+</em></div>'
+      +'</div>'
+      +'<div class="svcp-tiles">'+tiles+'</div>'
+      +'<div class="svcp-expanded" id="svcExpanded"></div>';
   }
 
   /* ---------- render on panel open ---------- */
