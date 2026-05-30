@@ -26,6 +26,7 @@
     '.svcp-card-arr{font-size:11px;color:rgba(255,42,20,.55);margin-top:7px;line-height:1}'+
     '.svcp-btn{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38);background:none;border:1px solid rgba(255,255,255,.08);padding:9px 16px;border-radius:6px;cursor:pointer;transition:color .12s,border-color .12s}'+
     '.svcp-btn:hover,.svcp-btn:active{color:#ff2a14;border-color:rgba(255,42,20,.38)}'+
+    '.svcp-loading{padding:40px 0;text-align:center;font-size:13px;color:rgba(255,255,255,.3);letter-spacing:.06em}'+
     '@media(max-width:768px){'+
       '.svcp-top{padding:0 16px}'+
       '#svcPgBody{padding:20px 16px 56px}'+
@@ -150,35 +151,67 @@
     {svc:'Creative Consultation+',subs:['Creative Brief','Concept Direction','Design Direction','Budget Planning','Scope Planning','Material Consulting','Production Consulting','Supplier Consulting','Campaign Consulting','Brand Consulting','Space Consulting','Product Consulting']}
   ];
 
+  /* ---------- read live cards from works grid ---------- */
+  function readGroups(){
+    var order=[],map={};
+    document.querySelectorAll('#sG .cat-slide-card[data-service]').forEach(function(card){
+      var svc=card.getAttribute('data-service')||'';
+      var sub=card.getAttribute('data-sub')||'';
+      if(!svc)return;
+      if(!map[svc]){map[svc]=[];order.push(svc);}
+      map[svc].push({id:card.id,sub:sub});
+    });
+    return{order:order,map:map};
+  }
+
   /* ---------- render services page ---------- */
+  var _renderTimer=null;
   function renderSvcPage(){
     var body=document.getElementById('svcPgBody');
     if(!body)return;
+
+    var g=readGroups();
+
+    /* ถ้า Firebase ยังโหลดอยู่ — แสดง loading แล้ว retry */
+    if(!g.order.length){
+      body.innerHTML='<div class="svcp-loading">Loading projects…</div>';
+      clearTimeout(_renderTimer);
+      _renderTimer=setTimeout(renderSvcPage,600);
+      return;
+    }
+    clearTimeout(_renderTimer);
+
     var html='<div class="svcp-hd">'
       +'<div class="svcp-hd-label">What We Do</div>'
       +'<div class="svcp-hd-title">Services<em>+</em></div>'
       +'</div>';
-    SVCS.forEach(function(s,i){
-      var name=clean(s.svc);
+
+    g.order.forEach(function(svc,i){
+      var items=g.map[svc];
+      var name=clean(svc);
       var num=(i+1<10?'0':'')+(i+1);
       var svcEnc=safe(name).replace(/'/g,'&#39;');
-      var cards=(s.subs||[]).map(function(sub){
-        var enc=safe(sub).replace(/'/g,'&#39;');
+
+      var cards=items.map(function(item){
+        var label=item.sub||name;
+        var enc=safe(item.sub).replace(/'/g,'&#39;');
         return '<button class="svcp-card" type="button" onclick="patchNavSub(\''+enc+'\',\''+svcEnc+'\')">'
-          +'<div class="svcp-card-name">'+safe(sub)+'</div>'
+          +'<div class="svcp-card-name">'+safe(label)+'</div>'
           +'<div class="svcp-card-arr">→</div>'
           +'</button>';
       }).join('');
+
       html+='<div class="svcp-section">'
         +'<div class="svcp-num">'+num+'</div>'
         +'<div class="svcp-name">'+safe(name)+'<em>+</em></div>'
-        +(descs[s.svc]?'<div class="svcp-desc">'+safe(descs[s.svc])+'</div>':'')
+        +(descs[svc]?'<div class="svcp-desc">'+safe(descs[svc])+'</div>':'')
         +'<div class="svcp-grid">'+cards+'</div>'
         +'<button class="svcp-btn" type="button" onclick="patchNavSub(\'\',\''+svcEnc+'\')">'
         +'View All '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
         +'</button>'
         +'</div>';
     });
+
     body.innerHTML=html;
   }
 
@@ -189,8 +222,25 @@
     setTimeout(renderSvcPage,80);
   };
 
+  /* re-render if works grid updates after panel already open */
+  var _obs=null;
+  try{
+    _obs=new MutationObserver(function(){
+      if(document.getElementById('hP')&&document.getElementById('hP').classList.contains('on')){
+        clearTimeout(_renderTimer);
+        _renderTimer=setTimeout(renderSvcPage,200);
+      }
+    });
+    var sg=document.getElementById('sG');
+    if(sg)_obs.observe(sg,{childList:true});
+    else document.addEventListener('DOMContentLoaded',function(){
+      var sg2=document.getElementById('sG');
+      if(sg2&&_obs)_obs.observe(sg2,{childList:true});
+    });
+  }catch(e){}
+
   function boot(){renderSvcPage();}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,300);});
-  else setTimeout(boot,300);
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,400);});
+  else setTimeout(boot,400);
 
 })();
