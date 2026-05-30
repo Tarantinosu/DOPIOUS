@@ -19,6 +19,12 @@
     '.svcp-name{font-size:clamp(18px,4vw,24px);font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:8px}'+
     '.svcp-name em{color:#ff2a14;font-style:normal}'+
     '.svcp-desc{font-size:12px;color:rgba(255,255,255,.36);line-height:1.65;margin-bottom:14px;max-width:500px}'+
+    '.svcp-section-toggle{width:100%;display:flex;align-items:center;gap:12px;background:none;border:none;border:0;color:#fff;cursor:pointer;padding:18px 0;text-align:left}'+
+    '.svcp-section-toggle:hover .svcp-name{color:rgba(255,255,255,.75)}'+
+    '.svcp-toggle-arr{margin-left:auto;font-size:20px;font-weight:300;color:rgba(255,255,255,.25);transition:transform .2s,color .2s;flex-shrink:0}'+
+    '.svcp-section.open .svcp-toggle-arr{transform:rotate(45deg);color:#ff2a14}'+
+    '.svcp-section-body{display:none;padding-bottom:18px}'+
+    '.svcp-section.open .svcp-section-body{display:block}'+
     '.svcp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:16px}'+
     '.svcp-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:13px 12px 11px;cursor:pointer;text-align:left;transition:background .12s,border-color .12s}'+
     '.svcp-card:hover,.svcp-card:active{background:rgba(255,42,20,.12);border-color:rgba(255,42,20,.38)}'+
@@ -156,16 +162,33 @@
     {svc:'Creative Consultation+',subs:['Creative Brief','Concept Direction','Design Direction','Budget Planning','Scope Planning','Material Consulting','Production Consulting','Supplier Consulting','Campaign Consulting','Brand Consulting','Space Consulting','Product Consulting']}
   ];
 
-  /* ---------- scroll panel to a service section ---------- */
+  /* ---------- toggle accordion section ---------- */
+  window.patchToggleSvc=function(svcName){
+    var body=document.getElementById('svcPgBody');
+    if(!body)return;
+    var sec=body.querySelector('[data-svc="'+svcName+'"]');
+    if(!sec)return;
+    var isOpen=sec.classList.contains('open');
+    body.querySelectorAll('.svcp-section.open').forEach(function(s){s.classList.remove('open');});
+    if(!isOpen)sec.classList.add('open');
+  };
+
+  /* ---------- scroll panel to a service section + open it ---------- */
   window.patchScrollToSvc=function(svcName){
     var panel=document.getElementById('hP');
     var body=document.getElementById('svcPgBody');
     if(!panel||!body)return;
+    /* open this section, close others */
+    body.querySelectorAll('.svcp-section.open').forEach(function(s){s.classList.remove('open');});
     var sec=body.querySelector('[data-svc="'+svcName+'"]');
-    if(!sec){body.scrollIntoView({behavior:'smooth'});return;}
-    var panelTop=panel.getBoundingClientRect().top;
-    var secTop=sec.getBoundingClientRect().top;
-    panel.scrollBy({top:secTop-panelTop-70,behavior:'smooth'});
+    if(sec)sec.classList.add('open');
+    /* scroll panel to the section */
+    setTimeout(function(){
+      var target=sec||body;
+      var panelTop=panel.getBoundingClientRect().top;
+      var targetTop=target.getBoundingClientRect().top;
+      panel.scrollBy({top:targetTop-panelTop-70,behavior:'smooth'});
+    },30);
   };
 
   /* ---------- read live cards from works grid ---------- */
@@ -218,14 +241,22 @@
           +'</button>';
       }).join('');
 
+      var svcEncQ=safe(svc).replace(/'/g,'&#39;');
       html+='<div class="svcp-section" data-svc="'+safe(svc)+'">'
-        +'<div class="svcp-num">'+num+'</div>'
-        +'<div class="svcp-name">'+safe(name)+'<em>+</em></div>'
-        +(descs[svc]?'<div class="svcp-desc">'+safe(descs[svc])+'</div>':'')
-        +'<div class="svcp-grid">'+cards+'</div>'
-        +'<button class="svcp-btn" type="button" onclick="patchNavSub(\'\',\''+svcEnc+'\')">'
-        +'View All '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
+        +'<button class="svcp-section-toggle" type="button" onclick="patchToggleSvc(\''+svcEncQ+'\')">'
+          +'<div>'
+            +'<div class="svcp-num">'+num+'</div>'
+            +'<div class="svcp-name">'+safe(name)+'<em>+</em></div>'
+          +'</div>'
+          +'<div class="svcp-toggle-arr">+</div>'
         +'</button>'
+        +'<div class="svcp-section-body">'
+          +(descs[svc]?'<div class="svcp-desc">'+safe(descs[svc])+'</div>':'')
+          +'<div class="svcp-grid">'+cards+'</div>'
+          +'<button class="svcp-btn" type="button" onclick="patchNavSub(\'\',\''+svcEnc+'\')">'
+          +'View All '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
+          +'</button>'
+        +'</div>'
         +'</div>';
     });
 
