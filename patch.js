@@ -19,17 +19,17 @@
     '.svcp-name{font-size:clamp(18px,4vw,24px);font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:8px}'+
     '.svcp-name em{color:#ff2a14;font-style:normal}'+
     '.svcp-desc{font-size:12px;color:rgba(255,255,255,.36);line-height:1.65;margin-bottom:14px;max-width:500px}'+
-    '.svcp-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}'+
-    '.svcp-chip{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.65);padding:7px 12px;border-radius:999px;cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}'+
-    '.svcp-chip:hover,.svcp-chip:active{background:rgba(255,42,20,.15);border-color:rgba(255,42,20,.45);color:#fff}'+
-    '.svcp-btn{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);background:none;border:1px solid rgba(255,255,255,.1);padding:9px 16px;border-radius:6px;cursor:pointer;transition:color .12s,border-color .12s}'+
+    '.svcp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;margin-bottom:16px}'+
+    '.svcp-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:13px 12px 11px;cursor:pointer;text-align:left;transition:background .12s,border-color .12s}'+
+    '.svcp-card:hover,.svcp-card:active{background:rgba(255,42,20,.12);border-color:rgba(255,42,20,.38)}'+
+    '.svcp-card-name{font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.72);line-height:1.35}'+
+    '.svcp-card-arr{font-size:11px;color:rgba(255,42,20,.55);margin-top:7px;line-height:1}'+
+    '.svcp-btn{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38);background:none;border:1px solid rgba(255,255,255,.08);padding:9px 16px;border-radius:6px;cursor:pointer;transition:color .12s,border-color .12s}'+
     '.svcp-btn:hover,.svcp-btn:active{color:#ff2a14;border-color:rgba(255,42,20,.38)}'+
     '@media(max-width:768px){'+
       '.svcp-top{padding:0 16px}'+
       '#svcPgBody{padding:20px 16px 56px}'+
-      '.svcp-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'+
-      '.svcp-chips::-webkit-scrollbar{display:none}'+
-      '.svcp-chip{flex-shrink:0}'+
+      '.svcp-grid{grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:7px}'+
     '}';
   document.head.appendChild(st);
 
@@ -162,18 +162,20 @@
       var name=clean(s.svc);
       var num=(i+1<10?'0':'')+(i+1);
       var svcEnc=safe(name).replace(/'/g,'&#39;');
-      var chips=(s.subs||[]).map(function(sub){
+      var cards=(s.subs||[]).map(function(sub){
         var enc=safe(sub).replace(/'/g,'&#39;');
-        return '<button class="svcp-chip" type="button" onclick="patchNavSub(\''+enc+'\',\''+svcEnc+'\')">'
-          +safe(sub)+'</button>';
+        return '<button class="svcp-card" type="button" onclick="patchNavSub(\''+enc+'\',\''+svcEnc+'\')">'
+          +'<div class="svcp-card-name">'+safe(sub)+'</div>'
+          +'<div class="svcp-card-arr">→</div>'
+          +'</button>';
       }).join('');
       html+='<div class="svcp-section">'
         +'<div class="svcp-num">'+num+'</div>'
         +'<div class="svcp-name">'+safe(name)+'<em>+</em></div>'
         +(descs[s.svc]?'<div class="svcp-desc">'+safe(descs[s.svc])+'</div>':'')
-        +'<div class="svcp-chips">'+chips+'</div>'
+        +'<div class="svcp-grid">'+cards+'</div>'
         +'<button class="svcp-btn" type="button" onclick="patchNavSub(\'\',\''+svcEnc+'\')">'
-        +'View '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
+        +'View All '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
         +'</button>'
         +'</div>';
     });
