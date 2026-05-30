@@ -123,48 +123,11 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 <div class="pg" id="pd"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cPD()">← Back</button></div><div id="pdi"></div></div>
 <div class="pg" id="wP"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cW()">← Back</button></div><div class="who-hero"><h2>WHO<br>WE ARE<span style="color:var(--r)">+</span></h2><p style="font-size:16px;color:rgba(255,255,255,.54);max-width:540px;line-height:1.65">Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.</p><div class="team-grid" id="tG"></div></div></div>
 <div class="pg" id="hP">
-  <div class="how-top minimal">
+  <div class="svcp-top">
     <a class="logo" href="#" onclick="return false">Dopious<em>+</em></a>
-    <button class="pbk how-back" onclick="cH()">← Back</button>
+    <button class="pbk" onclick="cH()">← Back</button>
   </div>
-  <section class="minimal-works">
-    <div class="minimal-title">
-      <small>Dopious+ workflow</small>
-      <h2>How Dopious<br>works.</h2>
-      <p>Choose one service, or connect services into a complete creative workflow.</p>
-    </div>
-    <div class="mind-map">
-      <div class="mind-bg"></div>
-      <button class="mind-center" type="button" onclick="showServiceSub('dopious')">
-        <strong class="center-logo">Dopious<em>+</em></strong>
-        <span>One-stop<br>service</span>
-      </button>
-      <button class="mind-node n1" type="button" onclick="showServiceSub('n1')"><b>Space Design<em>+</em></b><span>Retail / Commercial / Residential</span></button>
-      <button class="mind-node n2" type="button" onclick="showServiceSub('n2')"><b>Sculpture Design<em>+</em></b><span>Sculpture / Art Installation / Public Art</span></button>
-      <button class="mind-node n3" type="button" onclick="showServiceSub('n3')"><b>Visual Production<em>+</em></b><span>Storyboard / Motion Graphic / VDO</span></button>
-      <button class="mind-node n4" type="button" onclick="showServiceSub('n4')"><b>Graphic Design<em>+</em></b><span>Graphic / Layout / Packaging Graphic</span></button>
-      <button class="mind-node n5" type="button" onclick="showServiceSub('n5')"><b>Branding Design<em>+</em></b><span>Brand Strategy / Logo / Guideline</span></button>
-      <button class="mind-node n6" type="button" onclick="showServiceSub('n6')"><b>Key Visual Design<em>+</em></b><span>Key Visual / Campaign Visual / Ads</span></button>
-      <button class="mind-node n7" type="button" onclick="showServiceSub('n7')"><b>Build &amp; Install<em>+</em></b><span>Booth / Display / Installation</span></button>
-      <button class="mind-node n8" type="button" onclick="showServiceSub('n8')"><b>Production Sourcing<em>+</em></b><span>Supplier / Factory / Merchandise</span></button>
-      <button class="mind-node n9" type="button" onclick="showServiceSub('n9')"><b>Industrial Design<em>+</em></b><span>Product / CMF / Manufacturing</span></button>
-      <button class="mind-node n10" type="button" onclick="showServiceSub('n10')"><b>Corporate Design<em>+</em></b><span>Corporate Identity / Profile / Document</span></button>
-      <button class="mind-node n11" type="button" onclick="showServiceSub('n11')"><b>Digital Design<em>+</em></b><span>Website / UX-UI / Mobile Experience</span></button>
-      <button class="mind-node n12" type="button" onclick="showServiceSub('n12')"><b>Fashion Design<em>+</em></b><span>Fashion / Costume / Styling</span></button>
-      <button class="mind-node n13" type="button" onclick="showServiceSub('n13')"><b>Creative Consultation<em>+</em></b><span>Creative Brief / Direction / Planning</span></button>
-    </div>
-    <div class="service-sub-panel" id="serviceSubPanel">
-      <div class="sub-panel-head">
-        <div><small id="subKicker">Select a service</small><h3 id="subTitle">Choose one service area</h3></div>
-      </div>
-      <p id="subDesc">เลือก Head เพื่อดูรายการ Sub Head / Service Detail ของแต่ละหมวด</p>
-      <div class="sub-chip-grid" id="subChips"></div>
-      <div class="how-contact-actions">
-        <button type="button" onclick="oSt()">Start a Project</button>
-      </div>
-    </div>
-    <div class="minimal-footer-note"><strong>Deep inside, every project starts from one idea.</strong> Tell us what service you need, then start a project with us.</div>
-  </section>
+  <div id="svcPgBody"></div>
 </div>
 <div class="pg" id="cP"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cC()">← Back</button></div><div class="cont-hero"><h2>CONTACT<span style="color:var(--r)">+</span></h2><div class="cont-links"><a class="cont-a" href="https://line.me/R/ti/p/@dopious" target="_blank"><span class="ca-ic" style="background:#06c755">L</span><div><b>Line</b><span>@dopious</span></div></a><a class="cont-a" href="https://wa.me/66936916592" target="_blank"><span class="ca-ic" style="background:#25d366">W</span><div><b>WhatsApp</b><span>+66 93-691-6592</span></div></a><a class="cont-a" href="mailto:info.dopiousth@gmail.com"><span class="ca-ic" style="background:#ea4335">@</span><div><b>Email</b><span>info.dopiousth@gmail.com</span></div></a><a class="cont-a" href="tel:+66936916592"><span class="ca-ic" style="background:#333">☎</span><div><b>Phone</b><span>+66 93-691-6592</span></div></a></div></div></div>
 
@@ -172,7 +135,7 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 
 <!-- JS หลัก — defer โหลดหลัง HTML render -->
 <script src="app.js?v=how-subheads-visible-0527" defer></script>
-<script src="patch.js?v=0529u" defer></script>
+<script src="patch.js?v=0529v" defer></script>
 
 </body>
 </html>

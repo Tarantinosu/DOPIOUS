@@ -1,37 +1,46 @@
 /* =========================================================
-   patch.js — How It Works panel fix  v2 (sub-chip nav)
-   Load this AFTER app.js (already done in index.html).
-
-   BEFORE: default state showed "All Services & Sub Heads"
-           with a full grid of every service.
-
-   AFTER:  default state shows a clean "Select a service"
-           prompt with empty chips area.
-           Clicking a node shows ONLY that service's
-           sub heads in the panel.
-           Clicking a sub-head chip closes the panel and
-           scrolls to that service's section in #sG.
+   patch.js — Services page v3
+   Clean list of all 13 services + sub-head navigation
    ========================================================= */
 (function(){
+
+  /* ---------- inject styles ---------- */
+  var st=document.createElement('style');
+  st.textContent=
+    '.svcp-top{position:sticky;top:0;z-index:30;height:62px;display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(5,5,5,.96);border-bottom:1px solid rgba(255,255,255,.08)}'+
+    '#svcPgBody{padding:28px 24px 64px}'+
+    '.svcp-hd{margin-bottom:28px}'+
+    '.svcp-hd-label{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.28);margin-bottom:6px}'+
+    '.svcp-hd-title{font-size:clamp(26px,5vw,40px);font-weight:900;letter-spacing:-.055em;line-height:.95}'+
+    '.svcp-hd-title em{color:#ff2a14;font-style:normal}'+
+    '.svcp-section{padding:22px 0;border-bottom:1px solid rgba(255,255,255,.07)}'+
+    '.svcp-section:last-child{border-bottom:none}'+
+    '.svcp-num{font-size:10px;font-weight:900;letter-spacing:.14em;color:#ff2a14;margin-bottom:4px}'+
+    '.svcp-name{font-size:clamp(18px,4vw,24px);font-weight:900;letter-spacing:-.04em;line-height:1;margin-bottom:8px}'+
+    '.svcp-name em{color:#ff2a14;font-style:normal}'+
+    '.svcp-desc{font-size:12px;color:rgba(255,255,255,.36);line-height:1.65;margin-bottom:14px;max-width:500px}'+
+    '.svcp-chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:16px}'+
+    '.svcp-chip{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;background:rgba(255,255,255,.055);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.65);padding:7px 12px;border-radius:999px;cursor:pointer;transition:background .12s,color .12s,border-color .12s;white-space:nowrap}'+
+    '.svcp-chip:hover,.svcp-chip:active{background:rgba(255,42,20,.15);border-color:rgba(255,42,20,.45);color:#fff}'+
+    '.svcp-btn{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.42);background:none;border:1px solid rgba(255,255,255,.1);padding:9px 16px;border-radius:6px;cursor:pointer;transition:color .12s,border-color .12s}'+
+    '.svcp-btn:hover,.svcp-btn:active{color:#ff2a14;border-color:rgba(255,42,20,.38)}'+
+    '@media(max-width:768px){'+
+      '.svcp-top{padding:0 16px}'+
+      '#svcPgBody{padding:20px 16px 56px}'+
+      '.svcp-chips{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}'+
+      '.svcp-chips::-webkit-scrollbar{display:none}'+
+      '.svcp-chip{flex-shrink:0}'+
+    '}';
+  document.head.appendChild(st);
 
   /* ---------- helpers ---------- */
   function safe(v){
     v=String(v||'');
     try{if(typeof esc==='function')return esc(v);}catch(e){}
-    return v.replace(/[&<>"']/g,function(c){
-      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
-    });
+    return v.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});
   }
   function clean(v){return String(v||'').replace(/\+$/,'').trim();}
-  function plus(v){return safe(clean(v))+'<em>+</em>';}
 
-  /* ---------- clickable chip with nav ---------- */
-  function chip(v,svcName){
-    var attr='onclick="patchNavSub(\''+safe(v).replace(/'/g,'&#39;')+'\',\''+safe(clean(svcName)).replace(/'/g,'&#39;')+'\')"';
-    return '<span class="how-sub-chip explain-chip final-chip patch-chip-nav" '+attr+' role="button" tabindex="0">'+safe(v)+'</span>';
-  }
-
-  /* ---------- navigate ---------- */
   function clrLocks(){
     document.body.style.overflow='';
     document.body.style.height='';
@@ -39,6 +48,7 @@
     document.documentElement.style.height='';
   }
 
+  /* ---------- find card in works grid ---------- */
   function findCard(subN,svcN){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var pfx=svcN?svcN.substring(0,Math.min(8,svcN.length)):'';
@@ -54,17 +64,17 @@
     return hit;
   }
 
+  /* ---------- navigate to card ---------- */
   window.patchNavSub=function(subName,svcName){
     var norm=function(s){return String(s||'').toLowerCase().replace(/[^a-z0-9ก-๙]/g,'');};
     var subN=norm(subName);
     var svcN=norm(svcName);
     var raf=window.requestAnimationFrame||function(fn){setTimeout(fn,16);};
 
-    /* หาการ์ดก่อน */
     var targetId=findCard(subN,svcN);
     var el=targetId?document.getElementById(targetId):null;
 
-    /* iOS fix: override window._sy ก่อน cH() เพื่อให้ uk() scroll ไปหาการ์ดแทน _sy เดิม */
+    /* iOS: override _sy ก่อน cH() เพื่อให้ uk() scroll ไปหาการ์ด */
     if(el){
       try{
         var savedY=typeof window._sy==='number'?window._sy:(window.scrollY||window.pageYOffset||0);
@@ -73,11 +83,9 @@
       }catch(e){}
     }
 
-    /* ปิด panel ทันที */
     try{if(typeof cH==='function')cH();}catch(e){}
     clrLocks();
 
-    /* scroll ไปหาการ์ด หลัง panel animation (150ms) เสร็จ */
     function scrollNow(target){
       clrLocks();
       if(!target){
@@ -85,7 +93,6 @@
         if(s)s.scrollIntoView({behavior:'smooth'});
         return;
       }
-      /* double rAF — รอให้ browser flush scroll queue ก่อน */
       raf(function(){raf(function(){
         clrLocks();
         var curY=window.scrollY||window.pageYOffset||0;
@@ -95,12 +102,9 @@
       });});
     }
 
-    if(el){
-      setTimeout(function(){scrollNow(el);},220);
-      return;
-    }
+    if(el){setTimeout(function(){scrollNow(el);},220);return;}
 
-    /* ถ้าการ์ดยังไม่โหลด (Firebase ยังโหลดอยู่) — retry ทุก 500ms สูงสุด 4 ครั้ง */
+    /* retry ถ้า Firebase ยังโหลดอยู่ */
     var tries=0;
     var t=setInterval(function(){
       tries++;
@@ -113,24 +117,23 @@
     },500);
   };
 
-  /* ---------- service descriptions ---------- */
+  /* ---------- service data ---------- */
   var descs={
-    'Space Design+':'ออกแบบพื้นที่จริงให้แบรนด์ใช้งานได้จริง ตั้งแต่ retail, commercial, exhibition, event, kiosk, pop-up, VM / display ไปจนถึง art installation',
-    'Sculpture Design+':'ออกแบบงานประติมากรรมและ art object สำหรับพื้นที่จริง เช่น landmark, public art, character sculpture, decorative object และ spatial art',
-    'Visual Production+':'ผลิตภาพและคอนเทนต์ภาพเคลื่อนไหว เช่น storyboard, motion graphic, 2D/3D animation, visualization, video, photo, ads และ post-production',
-    'Graphic Design+':'ออกแบบกราฟิกที่ใช้กับแบรนด์และสื่อจริง เช่น layout, poster, social media, print, signage, presentation, packaging graphic, label, menu และ catalogue',
-    'Branding Design+':'วางระบบแบรนด์ให้ชัดเจน ตั้งแต่ strategy, story, logo, visual identity, guideline, campaign identity, naming, mood & tone และ brand communication',
-    'Key Visual Design+':'ออกแบบภาพหลักสำหรับแคมเปญและโฆษณา เช่น key visual, campaign visual, ads, promotion visual, launch campaign, seasonal campaign และ visual storytelling',
-    'Build & Install+':'ดูแลงานผลิตและติดตั้งจริง เช่น booth, display, event production, fabrication, on-site installation, site supervision, material execution และ quality control',
-    'Production Sourcing+':'ช่วยหาและประสานงานการผลิต เช่น product sourcing, supplier, factory follow-up, sample development, material sourcing, production control และ quality check',
-    'Industrial Design+':'ออกแบบผลิตภัณฑ์และงานที่เชื่อมกับการผลิต เช่น product, CMF, form, user experience, prototype, product visualization, packaging structure และ manufacturing',
-    'Corporate Design+':'ออกแบบภาพลักษณ์และเอกสารองค์กร เช่น corporate identity, brand system, company profile, presentation, stationery, office collateral และ business document',
-    'Digital Design+':'ออกแบบประสบการณ์ดิจิทัล เช่น website, UX-UI, landing page, interface, digital branding, mobile experience, user journey และ conversion',
-    'Fashion Design+':'ออกแบบแฟชั่น คอสตูม ยูนิฟอร์ม และ styling direction สำหรับแคมเปญ คาแรกเตอร์ โชว์พีซ หรือภาพลักษณ์ของแบรนด์',
-    'Creative Consultation+':'ให้คำปรึกษาด้าน creative brief, concept direction, design direction, budget, scope, material, production, supplier, campaign, brand, space และ product direction'
+    'Space Design+':'Retail, commercial, residential, exhibition, event, kiosk, pop-up, VM / display, art installation',
+    'Sculpture Design+':'Sculpture, art installation, public art, character sculpture, decorative object, landmark, spatial art',
+    'Visual Production+':'Motion graphic, 2D/3D animation, visualization, video, photo, storyboard, ads, post-production',
+    'Graphic Design+':'Layout, poster, social media, print, signage, packaging graphic, label, menu, brochure, catalogue',
+    'Branding Design+':'Brand strategy, story, logo, visual identity, guideline, campaign identity, naming, mood & tone',
+    'Key Visual Design+':'Key visual, campaign visual, ads, art direction, promotion visual, launch campaign, seasonal campaign',
+    'Build & Install+':'Booth, display, event production, fabrication, on-site installation, site supervision, quality control',
+    'Production Sourcing+':'Product sourcing, supplier, factory follow-up, sample development, material sourcing, quality check',
+    'Industrial Design+':'Product, CMF, form, user experience, prototype, product visualization, packaging structure, manufacturing',
+    'Corporate Design+':'Corporate identity, brand system, company profile, presentation, stationery, business document',
+    'Digital Design+':'Website, UX-UI, landing page, interface, digital branding, mobile experience, user journey',
+    'Fashion Design+':'Fashion, costume, uniform, styling direction, fashion concept, campaign styling, showpiece',
+    'Creative Consultation+':'Creative brief, concept direction, design direction, budget, scope, material, production, supplier consulting'
   };
 
-  /* ---------- service data (self-contained, no dependency on CATS) ---------- */
   var SVCS=[
     {svc:'Space Design+',subs:['Retail','Commercial','Residential','Office','Exhibition','Event','Kiosk','Pop-up Store','VM / Display','Window Display','Art Installation']},
     {svc:'Sculpture Design+',subs:['Sculpture','Art Installation','Public Art','Character Sculpture','Decorative Object','Landmark','3D Art Form','Spatial Art','Fabrication Concept']},
@@ -147,77 +150,45 @@
     {svc:'Creative Consultation+',subs:['Creative Brief','Concept Direction','Design Direction','Budget Planning','Scope Planning','Material Consulting','Production Consulting','Supplier Consulting','Campaign Consulting','Brand Consulting','Space Consulting','Product Consulting']}
   ];
 
-  /* ---------- get meta from node key (n1–n13) ---------- */
-  function metaFromKey(key){
-    if(!key||key==='dopious')return null;
-    var n=parseInt(String(key).replace(/\D/g,''),10)-1;
-    return(!isNaN(n)&&SVCS[n])?SVCS[n]:null;
-  }
-
-  /* ---------- render sub heads for a selected service ---------- */
-  function selectedHTML(meta){
-    var name=meta.svc||meta.cat||'';
-    var desc=descs[name]||('Sub-services available in '+clean(name)+'.');
-    var svcAttr=safe(clean(name)).replace(/'/g,'&#39;');
-    return '<div class="how-selected-explain final-selected">'
-      +'<div class="how-selected-copy">'
-        +'<b>WHAT '+safe(clean(name).toUpperCase())+' INCLUDES</b>'
-        +'<p>'+safe(desc)+'</p>'
-      +'</div>'
-      +'<div class="how-sub-list-title">Sub Head / Service Types <small style="color:rgba(255,255,255,.35);font-weight:400">— แตะ chip เพื่อดูผลงาน</small></div>'
-      +'<div class="how-sub-group-chips">'+(meta.subs||[]).map(function(s){return chip(s,name);}).join('')+'</div>'
-      +'<div style="margin-top:10px">'
-        +'<button type="button" class="patch-view-work-btn" onclick="patchNavSub(\'\',\''+svcAttr+'\')">'
-          +'View '+safe(clean(name))+' Work <span style="color:#ff2a14">→</span>'
+  /* ---------- render services page ---------- */
+  function renderSvcPage(){
+    var body=document.getElementById('svcPgBody');
+    if(!body)return;
+    var html='<div class="svcp-hd">'
+      +'<div class="svcp-hd-label">What We Do</div>'
+      +'<div class="svcp-hd-title">Services<em>+</em></div>'
+      +'</div>';
+    SVCS.forEach(function(s,i){
+      var name=clean(s.svc);
+      var num=(i+1<10?'0':'')+(i+1);
+      var svcEnc=safe(name).replace(/'/g,'&#39;');
+      var chips=(s.subs||[]).map(function(sub){
+        var enc=safe(sub).replace(/'/g,'&#39;');
+        return '<button class="svcp-chip" type="button" onclick="patchNavSub(\''+enc+'\',\''+svcEnc+'\')">'
+          +safe(sub)+'</button>';
+      }).join('');
+      html+='<div class="svcp-section">'
+        +'<div class="svcp-num">'+num+'</div>'
+        +'<div class="svcp-name">'+safe(name)+'<em>+</em></div>'
+        +(descs[s.svc]?'<div class="svcp-desc">'+safe(descs[s.svc])+'</div>':'')
+        +'<div class="svcp-chips">'+chips+'</div>'
+        +'<button class="svcp-btn" type="button" onclick="patchNavSub(\'\',\''+svcEnc+'\')">'
+        +'View '+safe(name)+' Work <span style="color:#ff2a14">→</span>'
         +'</button>'
-      +'</div>'
-    +'</div>';
+        +'</div>';
+    });
+    body.innerHTML=html;
   }
 
-  /* ---------- MAIN OVERRIDE ---------- */
-  window.showServiceSub=function(key){
-    var panel=document.getElementById('serviceSubPanel');if(!panel)return;
-    var meta=metaFromKey(key);
-    var kicker=document.getElementById('subKicker');
-    var title=document.getElementById('subTitle');
-    var desc=document.getElementById('subDesc');
-    var chips=document.getElementById('subChips');
-
-    /* clear active state on all nodes */
-    document.querySelectorAll('.mind-node').forEach(function(n){n.classList.remove('active');});
-    var node=document.querySelector('.mind-node.'+key);if(node)node.classList.add('active');
-
-    if(!meta){
-      /* ── Default / reset state ── */
-      if(kicker)kicker.textContent='DOPIOUS+ SERVICES';
-      if(title)title.innerHTML='Select a Service<em>+</em>';
-      if(desc)desc.textContent='Click any service around the circle to see what we offer in that category.';
-      if(chips)chips.innerHTML='';
-      return;
-    }
-
-    /* ── Service selected: แสดง sub-head + scroll ไปหา panel ── */
-    var name=meta.svc||meta.cat||'';
-    if(kicker)kicker.textContent='SERVICE HEAD';
-    if(title)title.innerHTML=plus(name);
-    if(desc)desc.textContent='Sub-services available in '+clean(name)+':';
-    if(chips)chips.innerHTML=selectedHTML(meta);
-    setTimeout(function(){
-      var p=document.getElementById('serviceSubPanel');
-      if(p)p.scrollIntoView({behavior:'smooth',block:'nearest'});
-    },80);
-  };
-
-  /* ---------- reset panel to clean default whenever How panel opens ---------- */
+  /* ---------- render on panel open ---------- */
   var _origOH=window.oH;
   window.oH=function(){
     if(typeof _origOH==='function')_origOH.apply(this,arguments);
-    setTimeout(function(){try{window.showServiceSub('dopious');}catch(e){}},120);
+    setTimeout(renderSvcPage,80);
   };
 
-  /* ---------- boot: apply default state immediately ---------- */
-  function boot(){try{window.showServiceSub('dopious');}catch(e){}}
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,400);});
-  else setTimeout(boot,400);
+  function boot(){renderSvcPage();}
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,300);});
+  else setTimeout(boot,300);
 
 })();
