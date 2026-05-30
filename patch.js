@@ -26,6 +26,11 @@
     '.svcp-card-arr{font-size:11px;color:rgba(255,42,20,.55);margin-top:7px;line-height:1}'+
     '.svcp-btn{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38);background:none;border:1px solid rgba(255,255,255,.08);padding:9px 16px;border-radius:6px;cursor:pointer;transition:color .12s,border-color .12s}'+
     '.svcp-btn:hover,.svcp-btn:active{color:#ff2a14;border-color:rgba(255,42,20,.38)}'+
+    '.svcp-mm{padding:40px 24px 0;text-align:center}'+
+    '.svcp-mm-label{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#ff2a14;margin-bottom:8px}'+
+    '.svcp-mm-title{font-size:clamp(28px,5vw,42px);font-weight:900;letter-spacing:-.055em;line-height:.95;margin:0 0 10px}'+
+    '.svcp-mm-title em{color:#ff2a14;font-style:normal}'+
+    '.svcp-mm-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.55;max-width:400px;margin:0 auto 28px}'+
     '.svcp-loading{padding:40px 0;text-align:center;font-size:13px;color:rgba(255,255,255,.3);letter-spacing:.06em}'+
     '@media(max-width:768px){'+
       '.svcp-top{padding:0 16px}'+
@@ -151,6 +156,18 @@
     {svc:'Creative Consultation+',subs:['Creative Brief','Concept Direction','Design Direction','Budget Planning','Scope Planning','Material Consulting','Production Consulting','Supplier Consulting','Campaign Consulting','Brand Consulting','Space Consulting','Product Consulting']}
   ];
 
+  /* ---------- scroll panel to a service section ---------- */
+  window.patchScrollToSvc=function(svcName){
+    var panel=document.getElementById('hP');
+    var body=document.getElementById('svcPgBody');
+    if(!panel||!body)return;
+    var sec=body.querySelector('[data-svc="'+svcName+'"]');
+    if(!sec){body.scrollIntoView({behavior:'smooth'});return;}
+    var panelTop=panel.getBoundingClientRect().top;
+    var secTop=sec.getBoundingClientRect().top;
+    panel.scrollBy({top:secTop-panelTop-70,behavior:'smooth'});
+  };
+
   /* ---------- read live cards from works grid ---------- */
   function readGroups(){
     var order=[],map={};
@@ -201,7 +218,7 @@
           +'</button>';
       }).join('');
 
-      html+='<div class="svcp-section">'
+      html+='<div class="svcp-section" data-svc="'+safe(svc)+'">'
         +'<div class="svcp-num">'+num+'</div>'
         +'<div class="svcp-name">'+safe(name)+'<em>+</em></div>'
         +(descs[svc]?'<div class="svcp-desc">'+safe(descs[svc])+'</div>':'')
