@@ -37,11 +37,13 @@
     '.svcp-card-arr{font-size:11px;color:rgba(255,42,20,.55);margin-top:7px;line-height:1}'+
     '.svcp-btn{font-size:10px;font-weight:900;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.38);background:none;border:1px solid rgba(255,255,255,.08);padding:9px 16px;border-radius:6px;cursor:pointer;transition:color .12s,border-color .12s}'+
     '.svcp-btn:hover,.svcp-btn:active{color:#ff2a14;border-color:rgba(255,42,20,.38)}'+
-    '.svcp-mm{padding:40px 24px 0;text-align:center}'+
-    '.svcp-mm-label{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#ff2a14;margin-bottom:8px}'+
-    '.svcp-mm-title{font-size:clamp(28px,5vw,42px);font-weight:900;letter-spacing:-.055em;line-height:.95;margin:0 0 10px}'+
-    '.svcp-mm-title em{color:#ff2a14;font-style:normal}'+
-    '.svcp-mm-sub{font-size:14px;color:rgba(255,255,255,.45);line-height:1.55;max-width:400px;margin:0 auto 28px}'+
+    '.svcp-intro{padding:40px 24px 0}'+
+    '.svcp-intro-tag{font-size:10px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;color:#ff2a14;margin-bottom:10px}'+
+    '.svcp-intro-h{font-size:clamp(30px,6vw,48px);font-weight:900;letter-spacing:-.06em;line-height:.95;margin:0 0 14px;color:#fff}'+
+    '.svcp-intro-h em{color:#ff2a14;font-style:normal}'+
+    '.svcp-intro-p{font-size:14px;color:rgba(255,255,255,.48);line-height:1.65;max-width:440px;margin:0 0 20px}'+
+    '.svcp-intro-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:0}'+
+    '.svcp-intro-pills span{font-size:10px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.12);border-radius:100px;padding:5px 12px}'+
     '.svcp-loading{padding:40px 0;text-align:center;font-size:13px;color:rgba(255,255,255,.3);letter-spacing:.06em}'+
     '@media(max-width:768px){'+
       '.svcp-top{padding:0 16px}'+
@@ -210,9 +212,6 @@
       panel.scrollBy({top:expTop-panelTop-70,behavior:'smooth'});
     },40);
   };
-
-  /* ---------- mind map node → open service ---------- */
-  window.patchScrollToSvc=function(svcName){patchOpenSvc(svcName);};
 
   /* ---------- read live cards from works grid ---------- */
   function readGroups(){
