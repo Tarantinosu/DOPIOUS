@@ -100,7 +100,19 @@ function initHero(){
 /* Google Drive thumbnail */
 function dTh(u,sz){const m=String(u||'').match(/[?&]id=([A-Za-z0-9_-]+)/)||String(u||'').match(/\/d\/([A-Za-z0-9_-]+)/);return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=s'+(sz||600):u;}
 function isDr(u){return /drive\.google\.com/i.test(String(u||''));}
-function iU(u,sz){return u?(isDr(u)?dTh(u,sz||600):u):'';}
+function iU(u,sz){
+  if(!u)return '';
+  if(isDr(u))return dTh(u,sz||600);
+  // Transform only versioned originals from our own Cloudinary account.
+  // Existing transformations, signatures and all other hosts remain intact.
+  const prefix='https://res.cloudinary.com/dogllrvmb/image/upload/';
+  const value=String(u);
+  if(value.startsWith(prefix)&&/^v[0-9]+\//.test(value.slice(prefix.length))){
+    const width=Math.min(2400,Math.max(20,Math.round(Number(sz)||600)));
+    return prefix+'f_auto,q_auto,c_limit,w_'+width+'/'+value.slice(prefix.length);
+  }
+  return u;
+}
 
 /* Lazy IntersectionObserver */
 const IO=('IntersectionObserver' in window)&&new IntersectionObserver(en=>{en.forEach(e=>{if(!e.isIntersecting)return;const img=e.target,s=img.dataset.src;if(!s)return;delete img.dataset.src;ldI(img,s);IO.unobserve(img);});},{rootMargin:'260px 0px'});
