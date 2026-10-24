@@ -4,7 +4,7 @@
   const cloud='dogllrvmb';
   const panel=document.createElement('section');
   panel.className='panel';
-  panel.innerHTML='<h2>Cloudinary Images</h2><p class="hint">Cloud: dogllrvmb — เลือกรูปเพื่ออัปโหลด แล้วตรวจรูปก่อนกด Save ตามปกติ รูปเดิมใน Drive จะยังอยู่</p><label>Unsigned upload preset<input id="cloudPreset" autocomplete="off" placeholder="ชื่อ upload preset"></label><p class="hint">ตั้งค่า preset ให้รับเฉพาะ JPG / PNG / WebP / AVIF ไม่เกิน 10 MB</p><div id="cloudUploadStatus" class="status" role="status" aria-live="polite"></div>';
+  panel.innerHTML='<h2>Cloudinary Images</h2><p class="hint">Cloud: dogllrvmb — เลือกรูปเพื่ออัปโหลด แล้วตรวจรูปก่อนกด Save ตามปกติ รูปเดิมใน Drive จะยังอยู่</p><label>Unsigned upload preset<input id="cloudPreset" value="o2hpg8xt" autocomplete="off" placeholder="ชื่อ upload preset"></label><p class="hint">ตั้งค่า preset ให้รับเฉพาะ JPG / PNG / WebP / AVIF ไม่เกิน 10 MB</p><div id="cloudUploadStatus" class="status" role="status" aria-live="polite"></div>';
   const page=document.querySelector('#admin .page');
   if(!page)return;
   page.insertBefore(panel,page.firstChild);
