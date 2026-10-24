@@ -106,10 +106,12 @@ function iU(u,sz){return u?(isDr(u)?dTh(u,sz||600):u):'';}
 const IO=('IntersectionObserver' in window)&&new IntersectionObserver(en=>{en.forEach(e=>{if(!e.isIntersecting)return;const img=e.target,s=img.dataset.src;if(!s)return;delete img.dataset.src;ldI(img,s);IO.unobserve(img);});},{rootMargin:'260px 0px'});
 function ldI(img,src){
   if(!src)return;
-  const sm=iU(src,500);const bg2=iU(src,1100);
-  const t=new Image();
-  t.onload=()=>{img.src=sm;const lq=img.closest('.sl,.di')?.querySelector('.lq');if(lq)setTimeout(()=>lq.style.opacity='0',50);if(sm!==bg2){const f=new Image();f.onload=()=>{img.src=bg2;};f.src=bg2;}};
-  t.onerror=()=>{img.src=src;};t.src=sm;
+  // Keep the requested thumbnail size; do not download two larger copies.
+  delete img.dataset.src;
+  const done=()=>{const lq=img.closest('.sl,.di')?.querySelector('.lq');if(lq)lq.style.opacity='0';};
+  img.addEventListener('load',done,{once:true});
+  img.src=src;
+  if(img.complete&&img.naturalWidth)done();
 }
 
 /* ESC */
@@ -1646,7 +1648,7 @@ function oAL(){ location.href='admin.html?admin=1'; }
       if(_videoFile(slide.video)) return '<div class="cat-slide-layer'+(active?' is-on':'')+'" data-layer="'+slide.li+'"><video muted loop playsinline preload="metadata" '+(active?'autoplay':'')+' src="'+esc(slide.video)+'" poster="'+esc(_poster(slide.video,slide.img))+'"></video></div>';
       return '<div class="cat-slide-layer'+(active?' is-on':'')+'" data-layer="'+slide.li+'"><div class="video-poster" style="background-image:url(\''+esc(_poster(slide.video,slide.img))+'\')"></div></div>';
     }
-    if(slide.img) return '<div class="cat-slide-layer'+(active?' is-on':'')+'" data-layer="'+slide.li+'"><img '+(active?'src':'data-src')+'="'+iU(slide.img,active?800:500)+'" alt="'+esc(slide.title)+'" loading="'+(active?'eager':'lazy')+'" decoding="async"></div>';
+    if(slide.img) return '<div class="cat-slide-layer'+(active?' is-on':'')+'" data-layer="'+slide.li+'"><img data-src="'+iU(slide.img,800)+'" alt="'+esc(slide.title)+'" loading="lazy" decoding="async"></div>';
     return '<div class="cat-slide-layer'+(active?' is-on':'')+'" data-layer="'+slide.li+'" style="background:'+slide.bg+'"></div>';
   }
   function _slideData(p,ai,service,sub,bg,li){
@@ -1680,11 +1682,38 @@ function oAL(){ location.href='admin.html?admin=1'; }
       html+='<article class="cat-slide-card" id="'+id+'" data-service="'+esc(gr.service)+'" data-sub="'+esc(gr.subHead)+'" data-slides=\''+safe+'\'>'+slides.map((s,i)=>_layer(s,i===0)).join('')+'<div class="cat-slide-top"><div class="cat-slide-name">'+esc(first.title||'')+'</div>'+controls+'</div><div class="cat-slide-label tax-card-label"><span class="card-head">'+_plus(gr.service)+'</span><span class="card-sub-one">'+esc(gr.subHead)+'</span></div><div class="svc-desc" '+(desc?'':'style="display:none"')+'><p>'+esc(desc)+'</p></div><button class="stp" aria-label="View" onclick="oCardProject(event,\''+id+'\')"></button></article>';
     });
     g.innerHTML=html||CATS.slice(0,8).map(c=>'<article class="cat-slide-card sk"><div class="cat-slide-layer is-on" style="background:'+c.bg+'"></div><div class="cat-slide-label tax-card-label"><span class="card-head">'+_plus(c.svc)+'</span></div></article>').join('');
-    g.querySelectorAll('img[data-src]').forEach(img=>IO&&IO.observe(img));
-    g.querySelectorAll('.cat-slide-card[id]').forEach(card=>{
+    // Observe cards, not every hidden slide. Only visible cards may autoplay.
+    if(window._workCardObserver)window._workCardObserver.disconnect();
+    function activate(card,visible){
+      card.dataset.visible=visible?'1':'0';
+      clearInterval(_tm2[card.id]);
+      delete _tm2[card.id];
+      const layer=card.querySelector('.cat-slide-layer.is-on');
+      if(layer){
+        const img=layer.querySelector('img[data-src]');
+        if(visible&&img)ldI(img,img.dataset.src);
+        const video=layer.querySelector('video');
+        if(video){if(visible&&!document.hidden)video.play().catch(()=>{});else video.pause();}
+      }
+      if(visible&&!document.hidden&&cardSlides(card).length>1)
+        _tm2[card.id]=setInterval(()=>setCardSlide(card,1),4200);
+    }
+    const cards=g.querySelectorAll('.cat-slide-card[id]');
+    const observer=('IntersectionObserver' in window)?new IntersectionObserver(entries=>{
+      entries.forEach(entry=>activate(entry.target,entry.isIntersecting));
+    }):null;
+    window._workCardObserver=observer;
+    window._refreshWorkCards=function(){
+      cards.forEach(card=>activate(card,card.dataset.visible==='1'));
+    };
+    cards.forEach(card=>{
       _ac[card.id]=0;
-      card.querySelectorAll('.cat-slide-btn').forEach(btn=>btn.addEventListener('click',e=>{e.stopPropagation();setCardSlide(card,parseInt(btn.dataset.dir||'1',10));clearInterval(_tm2[card.id]);const sl=cardSlides(card);if(sl.length>1)_tm2[card.id]=setInterval(()=>setCardSlide(card,1),4200);}));
-      const sl=cardSlides(card); if(sl.length>1)_tm2[card.id]=setInterval(()=>setCardSlide(card,1),4200);
+      card.querySelectorAll('.cat-slide-btn').forEach(btn=>btn.addEventListener('click',e=>{
+        e.stopPropagation();
+        setCardSlide(card,parseInt(btn.dataset.dir||'1',10));
+        activate(card,card.dataset.visible==='1');
+      }));
+      if(observer)observer.observe(card);else activate(card,true);
     });
     const el=document.getElementById('sCt'); if(el){const t=(_P||[]).length;el.textContent=t?(t+' Project'+(t>1?'s':'')+' — Live'):'Upload projects from Admin';}
   };
@@ -2329,3 +2358,8 @@ function oAL(){ location.href='admin.html?admin=1'; }
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(bootFinalHow,350);});
   else setTimeout(bootFinalHow,350);
 })();
+
+// Pause work previews while this tab is in the background.
+document.addEventListener('visibilitychange',function(){
+  if(typeof window._refreshWorkCards==='function')window._refreshWorkCards();
+});
