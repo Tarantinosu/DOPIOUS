@@ -58,6 +58,34 @@ window.DOPIOUS_HERO_SLIDES = [
   },
   {
     "services": [
+      "Space Design+"
+    ],
+    "ey": "Homes, Hotels & Architecture",
+    "ti": "Homes, hotels<br><em>& places to stay.</em>",
+    "st": "We design homes, hotels, accommodation and architectural concepts.",
+    "de": "Building concepts, exterior and interior spaces, layouts and 3D visualizations — shaped around the project’s use and setting.",
+    "tg": [
+      "Homes",
+      "Hotels",
+      "Accommodation",
+      "Architecture"
+    ],
+    "bg": false,
+    "th": {
+      "ey": "บ้าน โรงแรม ที่พัก และงานสถาปัตย์",
+      "ti": "เราออกแบบบ้าน<br><em>โรงแรมและที่พัก</em>",
+      "st": "เราออกแบบบ้าน โรงแรม ที่พัก และงานสถาปัตยกรรม",
+      "de": "วางแนวคิดอาคาร ออกแบบพื้นที่ภายนอกและภายใน ผังการใช้งาน และภาพสามมิติ ให้เข้ากับรูปแบบที่พักและบริบทของโปรเจกต์",
+      "tg": [
+        "บ้าน",
+        "โรงแรม",
+        "ที่พัก",
+        "สถาปัตยกรรม"
+      ]
+    }
+  },
+  {
+    "services": [
       "Branding Design+"
     ],
     "ey": "Branding & Identity",

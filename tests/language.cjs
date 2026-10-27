@@ -50,7 +50,7 @@ const assert=require('node:assert/strict');
  }
 
  await page.evaluate(()=>{clearInterval(_ht);sHS(SLS.length-1,true)});await page.waitForTimeout(50);
- assert.equal(await page.locator('#hD button').count(),14,'all service slides and one-stop closing slide');
+ assert.equal(await page.locator('#hD button').count(),15,'all service slides and one-stop closing slide');
  assert.match(await page.locator('#hTi').textContent(),/บริการออกแบบ/);
  assert.equal(await page.locator('#hTi').evaluate(e=>getComputedStyle(e).fontWeight),'300');
  assert.equal(await page.locator('.card-head').first().evaluate(e=>getComputedStyle(e).letterSpacing),'normal');
