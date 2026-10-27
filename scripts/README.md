@@ -16,7 +16,9 @@ that grid without rebuilding the curated selection. The static selection is
 editorial; update it in the manifest and rebuild when needed. A newly populated
 subcategory needs a manifest entry and rebuild to gain its own indexable URL.
 
-Navigation and sitemap are generated from the same manifest. Keep existing paths
+The service-page directory and sitemap are generated from the same manifest.
+Keep the homepage works section compact: do not add the SEO introduction or
+full service directory back above the portfolio. Keep existing paths
 stable. Rebuild twice to check repeatability; do not edit generated pages by hand.
 
 With the static server on port 8000, run `node tests/seo-pages.cjs` using Playwright

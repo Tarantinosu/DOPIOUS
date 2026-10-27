@@ -32,11 +32,6 @@ for parent in main_pages:
 directory = '<!-- SERVICE DIRECTORY START -->\n<div class="seo-category-links seo-service-directory">' + ''.join(groups) + '</div>\n<!-- SERVICE DIRECTORY END -->'
 index_path = ROOT / 'index.html'
 base = index_path.read_text()
-if '<!-- SERVICE DIRECTORY START -->' in base:
-    base = re.sub(r'<!-- SERVICE DIRECTORY START -->.*?<!-- SERVICE DIRECTORY END -->', lambda _: directory, base, flags=re.S)
-else:
-    base = re.sub(r'<div class="seo-category-links">.*?</div>', lambda _: directory, base, count=1, flags=re.S)
-index_path.write_text(base)
 
 for page in pages:
     url = ORIGIN + page['path']
@@ -69,6 +64,7 @@ for page in pages:
 {scope}{selected}{related_html}
 </main>'''
     output = output.replace('<header class="hero"', intro + '\n<header class="hero"')
+    output = output.replace('  <div id="sG"></div>', directory + '\n  <div id="sG"></div>')
     page_schema = {'@type': 'CollectionPage' if projects else 'WebPage', '@id': url + '#page', 'url': url, 'name': page['title'], 'description': page['description'], 'inLanguage': ['th', 'en'], 'isPartOf': {'@id': ORIGIN + '/#website'}, 'about': {'@id': url + '#service'}}
     if projects:
         page_schema['mainEntity'] = {'@type': 'ItemList', 'itemListElement': [{'@type': 'ListItem', 'position': i + 1, 'item': {'@type': 'CreativeWork', 'name': p['name'], 'image': p['image'], 'description': p['th']}} for i, p in enumerate(projects)]}
