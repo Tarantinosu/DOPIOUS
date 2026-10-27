@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th" data-booth-home>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>DOPIOUS+ | Creative Design & Production Agency Thailand</title>
-<meta name="description" content="DOPIOUS+ is a creative design and production agency specializing in Industrial Design, Interior Design, Visual Merchandising, Branding, 3D Visualization and Production Service in Thailand.">
+<title>รับออกแบบบูธ คีออส และร้านค้า | DOPIOUS+</title>
+<meta name="description" content="DOPIOUS+ รับออกแบบบูธแสดงสินค้า คีออส และร้านค้าในกรุงเทพฯ ตั้งแต่คอนเซ็ปต์ ภาพ 3D แบบก่อสร้าง ไปจนถึงผลิตและติดตั้ง ปรึกษาทีมออกแบบได้โดยตรง">
 <meta name="keywords" content="DOPIOUS, Dopious Design, Creative Agency Thailand, Industrial Design, Interior Design, Exhibition Design, Retail Design, 3D Visualization, Production Service, design agency bangkok">
-<meta property="og:title" content="DOPIOUS+ | Creative Design & Production Agency Thailand">
-<meta property="og:description" content="DOPIOUS+ is a creative design and production agency specializing in Industrial Design, Interior Design, Visual Merchandising, Branding, 3D Visualization and Production Service in Thailand.">
+<meta property="og:title" content="รับออกแบบบูธ คีออส และร้านค้า | DOPIOUS+">
+<meta property="og:description" content="DOPIOUS+ รับออกแบบบูธแสดงสินค้า คีออส และร้านค้าในกรุงเทพฯ ตั้งแต่คอนเซ็ปต์ ภาพ 3D แบบก่อสร้าง ไปจนถึงผลิตและติดตั้ง ปรึกษาทีมออกแบบได้โดยตรง">
 <meta property="og:image" content="https://www.dopiousdesign.com/og-image.png">
 <meta property="og:url" content="https://www.dopiousdesign.com/">
 <meta property="og:type" content="website">
@@ -49,6 +49,18 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
   document.readyState==='loading'?document.addEventListener('DOMContentLoaded',function(){setTimeout(l1,20);}):setTimeout(l1,20);
 })();
 </script>
+<link rel="alternate" hreflang="th" href="https://www.dopiousdesign.com/">
+<link rel="alternate" hreflang="en" href="https://www.dopiousdesign.com/en.html">
+<link rel="alternate" hreflang="x-default" href="https://www.dopiousdesign.com/">
+<style>
+.language-switch{display:flex;gap:4px;margin-left:12px}.language-switch a{display:grid;place-items:center;min-width:40px;min-height:44px;color:#fff;text-decoration:none;font:700 13px Arial;border:1px solid #555;border-radius:6px}
+html[lang="th"] .language-switch a[lang="th"],html[lang="en"] .language-switch a[lang="en"]{background:#ff2a14;border-color:#ff2a14}
+.language-switch a:focus-visible{outline:2px solid white;outline-offset:3px}
+html[lang="th"] body{font-family:"Noto Sans Thai","DM Sans",sans-serif}
+html[data-booth-home] #hTi{font-size:clamp(36px,6.5vw,96px);line-height:1.18;letter-spacing:-.025em}
+html[data-booth-home] #hIn{max-width:740px;line-height:1.7}
+@media(max-width:768px){.language-switch{margin-left:auto;margin-right:12px}html[data-booth-home] #hTi{font-size:clamp(32px,8vw,56px)}}
+</style>
 </head>
 <body>
 
@@ -57,32 +69,33 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 <nav>
   <a class="logo" href="#" onclick="scrollTo({top:0,behavior:'smooth'});return false">Dopious<em>+</em></a>
   <div class="nl">
-    <button onclick="gS()">Works</button>
-    <button onclick="oH()">Services</button>
-    <button onclick="oW()">Who We Are</button>
-    <button onclick="oC()">Contact</button>
-    <button class="nbs" onclick="oSt()">Start a Project</button>
+    <button onclick="gS()">ผลงาน</button>
+    <button onclick="oH()">บริการ</button>
+    <button onclick="oW()">เกี่ยวกับเรา</button>
+    <button onclick="oC()">ติดต่อเรา</button>
+    <button class="nbs" onclick="oSt()">ปรึกษางานออกแบบ</button>
   </div>
+  <div class="language-switch" aria-label="Language"><a href="/" lang="th" hreflang="th">TH</a><a href="/en.html" lang="en" hreflang="en">EN</a></div>
   <button class="mbg" onclick="tM()" aria-label="Menu"><span></span><span></span><span></span></button>
 </nav>
 
 <div class="mpn" id="mpn">
   <button class="mx" onclick="tM()">×</button>
-  <button onclick="gS();tM()">Works</button>
-  <button onclick="oH();tM()">Services</button>
-  <button onclick="oW();tM()">Who We Are</button>
-  <button onclick="oC();tM()">Contact</button>
-  <button onclick="oSt();tM()" style="color:var(--r)">Start a Project</button>
+  <button onclick="gS();tM()">ผลงาน</button>
+  <button onclick="oH();tM()">บริการ</button>
+  <button onclick="oW();tM()">เกี่ยวกับเรา</button>
+  <button onclick="oC();tM()">ติดต่อเรา</button>
+  <button onclick="oSt();tM()" style="color:var(--r)">ปรึกษางานออกแบบ</button>
 </div>
 
 <header class="hero" id="hero">
   <div class="hc" id="hc">
-    <div class="ey" id="hEy"></div>
-    <h1 id="hTi"></h1>
-    <div class="hi" id="hIn"></div>
+    <div class="ey" id="hEy">BOOTH · KIOSK · RETAIL DESIGN</div>
+    <h1 id="hTi">รับออกแบบบูธ<br><em>ให้แบรนด์คุณโดดเด่น</em></h1>
+    <div class="hi" id="hIn"><strong>ออกแบบบูธแสดงสินค้า คีออส และร้านค้า ในกรุงเทพฯ และประเทศไทย</strong><span>ตั้งแต่คอนเซ็ปต์ วางผัง ภาพ 3D และแบบก่อสร้าง ไปจนถึงผลิตและติดตั้ง</span></div>
     <div class="cta">
-      <button class="btn br" onclick="oSt()">Start a Project</button>
-      <a class="btn bg2" href="#svc">View Work</a>
+      <button class="btn br" onclick="oSt()">ปรึกษางานออกแบบ</button>
+      <a class="btn bg2" href="#svc">ดูผลงาน</a>
     </div>
     <div class="dots" id="hD"></div>
   </div>
@@ -91,7 +104,7 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 <div class="mq" id="mqEl"><div>BRAND STRATEGY <span>+</span> INDUSTRIAL DESIGN <span>+</span> SPACE DESIGN <span>+</span> KEY VISUAL <span>+</span> PACKAGING <span>+</span> MOTION GRAPHIC <span>+</span> PHOTO / VIDEO <span>+</span> SCULPTURE <span>+</span> WEBSITE UX-UI <span>+</span> BRAND STRATEGY <span>+</span> INDUSTRIAL DESIGN <span>+</span> SPACE DESIGN <span>+</span> KEY VISUAL <span>+</span> PACKAGING <span>+</span> MOTION GRAPHIC <span>+</span> PHOTO / VIDEO <span>+</span> SCULPTURE <span>+</span> WEBSITE UX-UI <span>+</span></div></div>
 
 <section id="svc">
-  <div class="shd"><div><div class="stg">What We Do</div><div class="sti">SERVICES</div></div><div class="sct" id="sCt">Loading...</div></div>
+  <div class="shd"><div><div class="stg">สิ่งที่เราทำ</div><div class="sti">บริการของเรา</div></div><div class="sct" id="sCt">กำลังโหลด…</div></div>
   <div id="sG"></div>
 </section>
 
@@ -102,10 +115,10 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
 </div>
 
 <div class="cs">
-  <h2>LET'S <strong>CREATE</strong></h2>
-  <p>Ready to build something great?<br>Start with a brief or just say hello.</p>
+  <h2>เริ่มต้น<strong>ร้านของคุณ</strong></h2>
+  <p>มีพื้นที่หรือไอเดียแล้ว?<br>ส่งบรีฟให้เราช่วยวางแผนงานออกแบบ</p>
   <div class="cr">
-    <div class="eb"><input type="email" placeholder="YOUR EMAIL ADDRESS"><button onclick="oSt()">→</button></div>
+    <div class="eb"><input type="email" placeholder="อีเมลของคุณ"><button onclick="oSt()">→</button></div>
     <div class="scs">
       <a class="sc2" href="https://line.me/R/ti/p/@dopious" target="_blank" rel="noopener">L</a>
       <a class="sc2" href="https://wa.me/66936916592" target="_blank" rel="noopener">W</a>
@@ -113,37 +126,38 @@ nav{position:fixed;top:0;left:0;right:0;height:62px;z-index:300;background:rgba(
     </div>
   </div>
   <div class="og">
-    <div class="of"><b>Office</b><br>Bangkok / Thailand</div>
-    <div class="of"><b>Phone</b><br>+66 93-691-6592</div>
-    <div class="of"><b>Email</b><br>info.dopiousth@gmail.com</div>
+    <div class="of"><b>สำนักงาน</b><br>Bangkok / Thailand</div>
+    <div class="of"><b>โทรศัพท์</b><br>+66 93-691-6592</div>
+    <div class="of"><b>อีเมล</b><br>info.dopiousth@gmail.com</div>
   </div>
 </div>
 <footer class="ft"><div>© 2026 <strong>Dopious<span style="color:var(--r)">+</span></strong> All rights reserved</div><button class="al" onclick="location.href='admin.html?admin=1'">admin</button></footer>
 
-<div class="pg" id="pd"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cPD()">← Back</button></div><div id="pdi"></div></div>
-<div class="pg" id="wP"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cW()">← Back</button></div><div class="who-hero"><h2>WHO<br>WE ARE<span style="color:var(--r)">+</span></h2><p style="font-size:16px;color:rgba(255,255,255,.54);max-width:540px;line-height:1.65">Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.</p><div class="team-grid" id="tG"></div></div></div>
+<div class="pg" id="pd"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cPD()">← กลับ</button></div><div id="pdi"></div></div>
+<div class="pg" id="wP"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cW()">← กลับ</button></div><div class="who-hero"><h2>เกี่ยวกับ<br>เรา<span style="color:var(--r)">+</span></h2><p style="font-size:16px;color:rgba(255,255,255,.54);max-width:540px;line-height:1.65">Tarn และ Mo รวมประสบการณ์ด้านงานออกแบบกว่า 20 ปี พร้อมช่วยเปลี่ยนไอเดียของคุณให้เป็นจริง ตั้งแต่พัฒนาคอนเซ็ปต์ ออกแบบ ไปจนถึงผลิตและติดตั้ง</p><div class="team-grid" id="tG"></div></div></div>
 <div class="pg" id="hP">
   <div class="svcp-top">
     <a class="logo" href="#" onclick="return false">Dopious<em>+</em></a>
-    <button class="pbk" onclick="cH()">← Back</button>
+    <button class="pbk" onclick="cH()">← กลับ</button>
   </div>
   <div class="svcp-intro">
-    <div class="svcp-intro-tag">One-stop Service</div>
-    <h2 class="svcp-intro-h">Everything<br>in one place<em>+</em></h2>
-    <p class="svcp-intro-p">Most agencies do one thing. We do everything — strategy, design, visuals, production, and installation — all connected in one workflow. You brief us once, we handle the rest start to finish.</p>
+    <div class="svcp-intro-tag">ออกแบบ ผลิต และติดตั้ง</div>
+    <h2 class="svcp-intro-h">ครบทุกขั้นตอน<br>ในที่เดียว<em>+</em></h2>
+    <p class="svcp-intro-p">เราดูแลงานตั้งแต่กลยุทธ์ คอนเซ็ปต์ ออกแบบ ภาพนำเสนอ ไปจนถึงผลิตและติดตั้ง เชื่อมทุกขั้นตอนให้เป็นงานเดียวกัน พร้อมช่วยวางขอบเขตให้เหมาะกับธุรกิจของคุณ</p>
     <div class="svcp-intro-pills">
-      <span>Strategy</span><span>Design</span><span>Visual</span><span>Production</span><span>Install</span>
+      <span>กลยุทธ์</span><span>ออกแบบ</span><span>ภาพนำเสนอ</span><span>ผลิต</span><span>ติดตั้ง</span>
     </div>
   </div>
   <div id="svcPgBody"></div>
 </div>
-<div class="pg" id="cP"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cC()">← Back</button></div><div class="cont-hero"><h2>CONTACT<span style="color:var(--r)">+</span></h2><div class="cont-links"><a class="cont-a" href="https://line.me/R/ti/p/@dopious" target="_blank"><span class="ca-ic" style="background:#06c755">L</span><div><b>Line</b><span>@dopious</span></div></a><a class="cont-a" href="https://wa.me/66936916592" target="_blank"><span class="ca-ic" style="background:#25d366">W</span><div><b>WhatsApp</b><span>+66 93-691-6592</span></div></a><a class="cont-a" href="mailto:info.dopiousth@gmail.com"><span class="ca-ic" style="background:#ea4335">@</span><div><b>Email</b><span>info.dopiousth@gmail.com</span></div></a><a class="cont-a" href="tel:+66936916592"><span class="ca-ic" style="background:#333">☎</span><div><b>Phone</b><span>+66 93-691-6592</span></div></a></div></div></div>
+<div class="pg" id="cP"><div class="pt"><a class="logo" href="#">Dopious<em>+</em></a><button class="pbk" onclick="cC()">← กลับ</button></div><div class="cont-hero"><h2>ติดต่อเรา<span style="color:var(--r)">+</span></h2><div class="cont-links"><a class="cont-a" href="https://line.me/R/ti/p/@dopious" target="_blank"><span class="ca-ic" style="background:#06c755">L</span><div><b>Line</b><span>@dopious</span></div></a><a class="cont-a" href="https://wa.me/66936916592" target="_blank"><span class="ca-ic" style="background:#25d366">W</span><div><b>WhatsApp</b><span>+66 93-691-6592</span></div></a><a class="cont-a" href="mailto:info.dopiousth@gmail.com"><span class="ca-ic" style="background:#ea4335">@</span><div><b>อีเมล</b><span>info.dopiousth@gmail.com</span></div></a><a class="cont-a" href="tel:+66936916592"><span class="ca-ic" style="background:#333">☎</span><div><b>โทรศัพท์</b><span>+66 93-691-6592</span></div></a></div></div></div>
 
-<div class="pop" id="sP" onclick="if(event.target===this)cSt()"><div class="pc"><button class="px2" onclick="cSt()">×</button><h3>Start a<br>Project<em>+</em></h3><div class="psb">Choose how to reach us</div><div class="ccg"><button class="ccb" onclick="window.open('https://line.me/R/ti/p/@dopious','_blank')"><span class="cci" style="background:#06c755">L</span><div class="ccc"><b>Line</b><span>@dopious</span></div></button><button class="ccb" onclick="window.open('https://wa.me/66936916592','_blank')"><span class="cci" style="background:#25d366">W</span><div class="ccc"><b>WhatsApp</b><span>+66 93-691-6592</span></div></button><button class="ccb" onclick="location.href='tel:+66936916592'"><span class="cci" style="background:#333">☎</span><div class="ccc"><b>Phone</b><span>+66 93-691-6592</span></div></button><button class="ccb" onclick="location.href='mailto:info.dopiousth@gmail.com'"><span class="cci" style="background:#ea4335">@</span><div class="ccc"><b>Email</b><span>info.dopiousth@gmail.com</span></div></button></div><div class="poi"><div><b>Dopious Partnership Ltd</b></div><div><b>+66 93-691-6592</b></div><div><b>info.dopiousth@gmail.com</b></div></div></div></div>
+<div class="pop" id="sP" onclick="if(event.target===this)cSt()"><div class="pc"><button class="px2" onclick="cSt()">×</button><h3>Start a<br>โครงการ<em>+</em></h3><div class="psb">เลือกช่องทางติดต่อ</div><div class="ccg"><button class="ccb" onclick="window.open('https://line.me/R/ti/p/@dopious','_blank')"><span class="cci" style="background:#06c755">L</span><div class="ccc"><b>Line</b><span>@dopious</span></div></button><button class="ccb" onclick="window.open('https://wa.me/66936916592','_blank')"><span class="cci" style="background:#25d366">W</span><div class="ccc"><b>WhatsApp</b><span>+66 93-691-6592</span></div></button><button class="ccb" onclick="location.href='tel:+66936916592'"><span class="cci" style="background:#333">☎</span><div class="ccc"><b>โทรศัพท์</b><span>+66 93-691-6592</span></div></button><button class="ccb" onclick="location.href='mailto:info.dopiousth@gmail.com'"><span class="cci" style="background:#ea4335">@</span><div class="ccc"><b>อีเมล</b><span>info.dopiousth@gmail.com</span></div></button></div><div class="poi"><div><b>Dopious Partnership Ltd</b></div><div><b>+66 93-691-6592</b></div><div><b>info.dopiousth@gmail.com</b></div></div></div></div>
 
 <!-- JS หลัก — defer โหลดหลัง HTML render -->
-<script src="app.js?v=how-subheads-visible-0527" defer></script>
+<script src="app.js?v=booth-th-en-20261027" defer></script>
 <script src="patch.js?v=0608a" defer></script>
 
+<script src="language.js?v=20261027" defer></script>
 </body>
 </html>
