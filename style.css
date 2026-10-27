@@ -557,3 +557,5 @@ body[data-seo-category] .hero,body[data-seo-category] .mq,body[data-seo-category
 @media(max-width:768px){.seo-landing{padding:88px 16px 0}.seo-work-grid{grid-template-columns:1fr}.seo-lead{font-size:14px}}
 
 body[data-seo-category] .cat-slide-card[hidden]{display:none!important}
+
+.seo-landing h1{text-wrap:balance}.seo-work a{color:inherit}
