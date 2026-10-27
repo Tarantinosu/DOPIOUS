@@ -1,11 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url>
-    <loc>https://www.dopiousdesign.com/</loc>
-    <lastmod>2026-10-27</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>1.0</priority>
-  </url>
-  <url><loc>https://www.dopiousdesign.com/space-design/retail/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://www.dopiousdesign.com/space-design/vm-display/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://www.dopiousdesign.com/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/space-design/retail/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/space-design/vm-display/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/space-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/sculpture-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/visual-production/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/graphic-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/branding-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/key-visual-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/build-install/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/production-sourcing/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/industrial-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/corporate-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/digital-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/fashion-design/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/creative-consultation/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/space-design/residential/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/sculpture-design/sculpture/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/sculpture-design/art-installation/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/visual-production/motion-graphic/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/visual-production/3d-visualization/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/industrial-design/product/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/industrial-design/packaging-structure/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/industrial-design/product-visualization/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
+  <url><loc>https://www.dopiousdesign.com/key-visual-design/key-visual/</loc><lastmod>2026-10-27</lastmod><changefreq>weekly</changefreq></url>
 </urlset>

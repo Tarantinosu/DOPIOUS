@@ -5,8 +5,8 @@
     "title": "รับออกแบบร้านและออกแบบภายในครบวงจร กรุงเทพฯ | DOPIOUS+",
     "heading": "รับออกแบบร้านและออกแบบภายในครบวงจร",
     "headingEn": "Retail & Interior Design in Bangkok",
-    "description": "DOPIOUS+ รับออกแบบร้านและออกแบบภายในครบวงจรในกรุงเทพฯ สำหรับร้านค้า พื้นที่รีเทล คีออสก์ และร้านค้าชั่วคราว ตั้งแต่วางแนวคิด ผังพื้นที่ วัสดุ แสง และภาพสามมิติ ไปจนถึงประสานงานผลิตและติดตั้ง",
-    "descriptionEn": "DOPIOUS+ designs retail stores, kiosks and pop-up spaces in Bangkok, connecting brand identity with space planning, materials, lighting, production coordination and installation.",
+    "description": "DOPIOUS+ รับออกแบบภายในร้านค้า ร้านอาหาร และคาเฟ่ในกรุงเทพฯ วางผังพื้นที่ลูกค้า เคาน์เตอร์ การจัดแสดงสินค้า วัสดุ และแสงให้สอดคล้องกับแบรนด์ พร้อมภาพสามมิติและประสานงานผลิตติดตั้งตามขอบเขตงาน",
+    "descriptionEn": "DOPIOUS+ designs retail, restaurant and café interiors in Bangkok, planning customer areas, counters, displays, materials and lighting around the brand, with 3D visualization and production coordination within the agreed scope.",
     "projects": [
       {
         "id": "proj_1779886965748",
@@ -40,6 +40,29 @@
         "th": "แนวคิดคีออสก์เซลฟ์ ร่วมกับดีเซมเบอร์ซันเดย์ ถ่ายทอดอัตลักษณ์แบรนด์สู่ผังร้านที่สวยงามและใช้งานได้จริง",
         "en": "A Self kiosk concept developed with December Sunday, translating brand identity into a functional retail layout."
       }
+    ],
+    "service": "Space Design+",
+    "topics": [
+      {
+        "th": "ออกแบบภายในร้านค้า",
+        "en": "Store Interiors"
+      },
+      {
+        "th": "ออกแบบร้านอาหารและคาเฟ่",
+        "en": "Restaurant & Café Design"
+      },
+      {
+        "th": "วางผังพื้นที่ลูกค้าและเคาน์เตอร์",
+        "en": "Customer Areas & Counter Layouts"
+      },
+      {
+        "th": "ออกแบบดิสเพลย์และการจัดแสดงสินค้า",
+        "en": "Product Displays & Merchandising"
+      },
+      {
+        "th": "วัสดุ แสง และภาพสามมิติ",
+        "en": "Materials, Lighting & 3D Visualization"
+      }
     ]
   },
   {
@@ -66,6 +89,821 @@
         "alt": "ออกแบบดิสเพลย์และจัดแสดงสินค้าในกรุงเทพฯ — PAWANG Candle Display “Sacred Monolith”",
         "th": "แท่นจัดแสดงเทียนภวังค์ ใช้ฐานหินและแท่นวงกลมหลายระดับเพื่อขับให้สินค้าเป็นจุดเด่นอย่างประณีต",
         "en": "A PAWANG candle display using a sculptural stone base and layered circular platforms to frame each product."
+      }
+    ],
+    "service": "Space Design+"
+  },
+  {
+    "path": "/space-design/",
+    "service": "Space Design+",
+    "category": null,
+    "title": "รับออกแบบภายใน ร้านอาหารและร้านค้า กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบภายใน ร้านอาหาร และร้านค้าในกรุงเทพฯ",
+    "headingEn": "Interior, Restaurant & Retail Design in Bangkok",
+    "description": "DOPIOUS+ รับออกแบบภายในในกรุงเทพฯ ออกแบบร้านอาหาร คาเฟ่ ร้านค้า และพื้นที่อยู่อาศัย วางผังการใช้งาน เลือกวัสดุ ออกแบบแสงและบรรยากาศ พร้อมภาพสามมิติและประสานงานผลิตติดตั้งตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ offers interior design in Bangkok for restaurants, cafés, stores and homes, including space planning, materials, lighting, 3D visualization and production coordination within the agreed project scope.",
+    "topics": [
+      {
+        "th": "ออกแบบภายในร้านอาหารและคาเฟ่",
+        "en": "Restaurant & Café Interiors"
+      },
+      {
+        "th": "ออกแบบภายในร้านค้าและพื้นที่รีเทล",
+        "en": "Retail & Store Interiors"
+      },
+      {
+        "th": "ออกแบบภายในบ้านและที่อยู่อาศัย",
+        "en": "Residential Interiors"
+      },
+      {
+        "th": "วางผังพื้นที่และการสัญจร",
+        "en": "Space Planning & Circulation"
+      },
+      {
+        "th": "ออกแบบวัสดุ แสง และบรรยากาศ",
+        "en": "Materials, Lighting & Atmosphere"
+      }
+    ],
+    "projects": [
+      {
+        "id": "proj_1779886965748",
+        "name": "KUN JIM DIOSIAM DESSERT SHOP",
+        "image": "https://i.ibb.co/B5xv5gj9/Chat-GPT-Image-May-26-2026-02-49-14-PM.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — KUN JIM DIOSIAM DESSERT SHOP",
+        "th": "บูธขนมคุณจิ๋ม ดิโอลด์สยาม ออกแบบเพื่อสร้างประสบการณ์ขนมไทยระดับพรีเมียมในพื้นที่ค้าปลีกขนาดกะทัดรัด ผสานความสง่างามร่วมสมัยกับเอกลักษณ์ไทยดั้งเดิม ให้บูธเป็นจุดหมายที่โดดเด่นและดึงดูดลูกค้าได้จากหลายทิศทาง",
+        "en": "The KUN JIM DIOSIAM Dessert Booth is designed to create a premium Thai dessert experience within a compact retail format. The design combines contemporary elegance with traditional Thai identity, transforming the booth into a visually distinctive destination that attracts customers from multiple directions."
+      },
+      {
+        "id": "proj_1779887201985",
+        "name": "Symphony of ' Misterio Tent '",
+        "image": "https://i.ibb.co/nN2WfzXy/SM-2.webp",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Symphony of ' Misterio Tent '",
+        "th": "เผยศิลปะแห่งการออกแบบ มิสเทริโอ เต็นท์",
+        "en": "Artistry Unveiled: The Mesmeric Design Symphony of 'Misterio Tent'"
+      },
+      {
+        "id": "proj_1779887222361",
+        "name": "Bangkok Boulevard – Neoclassic House Renovation & Decoration",
+        "image": "https://i.ibb.co/V0kbSq6C/634a188b-84cc-4507-8095-62e0eb9ceaa2.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Bangkok Boulevard – Neoclassic House Renovation & Decoration",
+        "th": "แนวคิดตกแต่งภายในผสานรายละเอียดนีโอคลาสสิกเข้ากับความสบายร่วมสมัย เลือกใช้ลายหินอ่อนสีขาว พื้นไม้โทนอุ่น องค์ประกอบสีดำ ผิวสัมผัสผ้านุ่ม และแสงหลายระดับอย่างประณีต เพื่อสร้างบ้านที่สง่างามและอบอุ่น แต่ละพื้นที่เชื่อมต่อกันด้วยวัสดุ สัดส่วน และบรรยากาศแสงที่สอดคล้องกัน พร้อมรักษาเอกลักษณ์ของแต่ละห้อง",
+        "en": "The interior concept combines neoclassical detailing with contemporary comfort. White marble textures, warm wood flooring, black accent elements, soft fabric textures, and layered lighting are carefully integrated to create a sophisticated yet welcoming home. Each area is designed to feel connected through consistent materials, proportions, and lighting mood, while still allowing every room to have its own character."
+      },
+      {
+        "id": "proj_1779887251612",
+        "name": "Mo’s Family Residence",
+        "image": "https://i.ibb.co/6RSkFRGb/Chat-GPT-Image-24-2569-22-04-51-3.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Mo’s Family Residence",
+        "th": "บ้านหลังนี้ออกแบบสำหรับคุณโมและครอบครัวที่มีลูกสามคน โดยคำนึงถึงความงาม การใช้งาน และการก่อสร้างที่เหมาะกับงบประมาณประมาณ 2 ล้านบาท ใช้สไตล์ร่วมสมัยที่อบอุ่น ผิวสัมผัสไม้ธรรมชาติ แสงกลางวันนุ่มนวล และสีเอิร์ธโทนสงบ เพื่อสร้างบ้านที่อบอุ่น อยู่ได้นาน และตอบโจทย์การใช้ชีวิตจริง",
+        "en": "This residential project was thoughtfully designed for “Mo” and a family with three children, balancing aesthetics, functionality, and budget-conscious construction within an approximate construction budget of 2 million THB. The design embraces a warm contemporary style with natural wood textures, soft daylight, and calm earthy tones to create a home that feels cozy, timeless, and highly livable."
+      },
+      {
+        "id": "proj_1779887256154",
+        "name": "Golden Year of New Birth Snake 2025",
+        "image": "https://i.ibb.co/G3JbzJ43/9999999999.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Golden Year of New Birth Snake 2025",
+        "th": "งานติดตั้งได้แรงบันดาลใจจากการเกิดใหม่ การเปลี่ยนแปลง และความรุ่งเรือง ถ่ายทอดปีมะเส็งผ่านภาษาประติมากรรมร่วมสมัย\nงูทองรูปทรงเรขาคณิตเป็นจุดเด่นขนาดใหญ่ ผสานความประณีตเชิงช่างกับความเรียบง่ายแห่งอนาคต สะท้อนการฟื้นคืน ปัญญา และการเริ่มต้นวัฏจักรใหม่",
+        "en": "Inspired by the symbolism of rebirth, transformation, and prosperity, the installation reinterprets the Year of the Snake through a contemporary sculptural language.\nThe geometric golden serpent emerges as a monumental centerpiece, blending artisanal elegance with futuristic minimalism — reflecting renewal, wisdom, and the beginning of a new cycle."
+      },
+      {
+        "id": "proj_1779887266994",
+        "name": "PAWANG Candle Display “Sacred Monolith”",
+        "image": "https://i.ibb.co/SHvB7tv/38af9695-81a6-473d-9552-cd44e89d29de-0.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — PAWANG Candle Display “Sacred Monolith”",
+        "th": "แนวคิดแท่นจัดแสดงสำหรับภวังค์ เปลี่ยนการนำเสนอสินค้าเป็นประสบการณ์พื้นที่เชิงประติมากรรม ได้แรงบันดาลใจจากหินแกะสลัก สถาปัตยกรรมศักดิ์สิทธิ์ และวัตถุในพิธีกรรม เพื่อยกระดับเชิงเทียนแต่ละชิ้นให้เป็นงานศิลปะสะสม",
+        "en": "Designed for PAWANG, this display concept transforms a product presentation into a sculptural spatial experience. Inspired by the timeless beauty of carved stone, sacred architecture, and ceremonial objects, the display was created to elevate each candle holder into a collectible art piece rather than a conventional retail product."
+      },
+      {
+        "id": "proj_1780759743959",
+        "name": "Nike Triple Launch Activation",
+        "image": "https://i.ibb.co/gM5LfdfJ/Chat-GPT-Image-Jun-6-2026-10-17-14-PM.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Nike Triple Launch Activation",
+        "th": "ดีเซมเบอร์ซันเดย์และโดเพียสร่วมออกแบบ ผลิต และก่อสร้างพื้นที่กิจกรรมค้าปลีกไนกี้ที่เซ็นทรัลเวิลด์ โดยโดเพียสดูแลกระบวนการครบวงจร เพื่อเปิดตัวรองเท้าวิ่งสมรรถนะสูงสามรุ่นใหม่",
+        "en": "December Sunday and Dopious collaborated on the comprehensive design, production, and construction of this Nike retail activation at CentralWorld, with Dopious managing the full end-to-end workflow to successfully debut three new performance running models."
+      },
+      {
+        "id": "proj_1780760721440",
+        "name": "Self Kiosk Design Concept",
+        "image": "https://i.ibb.co/WpDyPH7f/o9z4a6nckbef6woydkpa.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Self Kiosk Design Concept",
+        "th": "ขอบเขตงาน: ดีเซมเบอร์ซันเดย์และโดเพียสร่วมออกแบบพื้นที่และพัฒนาแนวคิดคีออสก์แบรนด์เซลฟ์ โดยถ่ายทอดอัตลักษณ์แบรนด์สู่พื้นที่ค้าปลีกที่สอดคล้องกัน พร้อมแนวทางออกแบบที่ครอบคลุมทั้งความงามและผังการใช้งาน",
+        "en": "Scope: Decembersunday and Dopious+ collaborated on the comprehensive spatial design and conceptual development for the Self brand kiosk, This partnership focused on translating the brand identity into a cohesive retail environment, delivering a complete design solution for the kiosk’s aesthetic and functional layout."
+      }
+    ]
+  },
+  {
+    "path": "/sculpture-design/",
+    "service": "Sculpture Design+",
+    "category": null,
+    "title": "รับออกแบบประติมากรรมและศิลปะจัดวาง กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบประติมากรรมและศิลปะจัดวางในกรุงเทพฯ",
+    "headingEn": "Sculpture & Art Installation Design in Bangkok",
+    "description": "DOPIOUS+ พัฒนาแนวคิด รูปทรง และแบบจำลองสามมิติสำหรับประติมากรรม คาแรกเตอร์ วัตถุตกแต่ง และศิลปะจัดวาง ให้สัมพันธ์กับพื้นที่และเรื่องราวที่ต้องการสื่อ ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Develop concepts, forms and 3D models for sculptures, characters, decorative objects and installations that connect spatial context with a clear story. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Sculpture",
+        "th": "ประติมากรรม"
+      },
+      {
+        "en": "Art Installation",
+        "th": "ศิลปะจัดวาง"
+      },
+      {
+        "en": "Public Art",
+        "th": "ศิลปะสาธารณะ"
+      },
+      {
+        "en": "Character Sculpture",
+        "th": "ประติมากรรมคาแรกเตอร์"
+      },
+      {
+        "en": "Decorative Object",
+        "th": "วัตถุตกแต่ง"
+      }
+    ],
+    "projects": [
+      {
+        "id": "proj_1779887230778",
+        "name": "Ganesha for Silpakorn University",
+        "image": "https://i.ibb.co/7dRmsM4N/Chat-GPT-Image-May-21-2026-05-38-15-PM-1.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Ganesha for Silpakorn University",
+        "th": "งานออกแบบพระพิฆเนศสามมิติสำหรับมหาวิทยาลัยศิลปากร ผสานศิลปะเข้ากับความศรัทธา ด้วยความทุ่มเทในรายละเอียดและพื้นผิวที่ประณีต เพื่อสร้างผลงานที่ทั้งงดงามและยกระดับจิตใจ ให้พื้นที่ดิจิทัลเป็นเสมือนสถานที่แห่งการสักการะ",
+        "en": "In the realm of digital design, our venture into Ganesha 3D modeling for Silpakorn University emerges as a fusion of art and spirituality. With an unwavering dedication to superlative details and meticulous texture work, we endeavored to transcend the digital medium, crafting a Ganesha that not only captivates the eye but elevates\nthe spirit, creating a virtual sanctuary that beckons people to prayer."
+      },
+      {
+        "id": "proj_1779887240618",
+        "name": "Phra Mae Lakshmi Structure",
+        "image": "https://i.ibb.co/prMwL9Kw/Chat-GPT-Image-May-21-2026-09-49-31-PM-1.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Phra Mae Lakshmi Structure",
+        "th": "แบบจำลองสามมิติพระแม่ลักษมี ผลงานหัตถศิลป์ดิจิทัลที่ให้ความสำคัญกับรายละเอียดอันประณีต เพื่อถ่ายทอดแก่นแท้แห่งความศักดิ์สิทธิ์ ชวนสัมผัสการเปลี่ยนพิกเซลให้เป็นรายละเอียด และแบบจำลองเสมือนให้เป็นงานศิลปะแห่งความศรัทธา",
+        "en": "In the realm of digital craftsmanship, we proudly present our 3D modeling masterpiece—the Phra Mae Lakshmi Structure. Imbued with superlative details, this\nvirtual marvel transcends the ordinary, capturing the divine essence of Phra Mae Lakshmi. Join us on a journey where pixels transform into intricacies, and the\nvirtual structure becomes a tapestry of sacred artistry."
+      },
+      {
+        "id": "proj_1779887260231",
+        "name": "Naka Charm",
+        "image": "https://i.ibb.co/jP9vRDLv/Chat-GPT-Image-May-25-2026-01-27-55-AM.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Naka Charm",
+        "th": "ลาพิส อามูเมนต์ นำเสนอเครื่องรางนาคา เครื่องประดับเชิงสัญลักษณ์ที่ได้แรงบันดาลใจจากพญานาค ผู้พิทักษ์แห่งการคุ้มครอง ความรุ่งเรือง ปัญญา และพลังศรัทธา ออกแบบเป็นเครื่องประดับข้อมือแบบคลิปที่ทันสมัย ผสานความหมายศักดิ์สิทธิ์กับความเรียบง่ายอันประณีต เปลี่ยนความเชื่อโบราณเป็นศิลปะสวมใส่ร่วมสมัย",
+        "en": "Lapis Amument presents the Naka Charm — a symbolic jewelry piece inspired by the legendary Naga, a guardian of protection, prosperity, wisdom, and spiritual strength. Designed as a modern clip-on wrist charm, the piece blends sacred symbolism with a refined minimalist aesthetic, transforming ancient belief into contemporary wearable art."
+      },
+      {
+        "id": "proj_1780766627573",
+        "name": "Budweiser chiller Design & 3D Modeling",
+        "image": "https://i.ibb.co/5gZwh3Zq/Chat-GPT-Image-Jun-9-2026-12-48-40-AM.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Budweiser chiller Design & 3D Modeling",
+        "th": "ดีเซมเบอร์ซันเดย์และโดเพียสร่วมออกแบบประติมากรรมและแบบจำลองสามมิติสำหรับแท่นจัดแสดงบัดไวเซอร์ในรูปแบบใหม่",
+        "en": "Decembersunday and Dopious+ collaborated on the sculptural design and 3D modeling of an innovative, branded Budweiser display."
+      }
+    ]
+  },
+  {
+    "path": "/visual-production/",
+    "service": "Visual Production+",
+    "category": null,
+    "title": "รับผลิตภาพสามมิติและโมชั่นกราฟิก กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับผลิตภาพสามมิติและโมชั่นกราฟิกในกรุงเทพฯ",
+    "headingEn": "3D Visualization & Motion Production in Bangkok",
+    "description": "DOPIOUS+ วางทิศทางภาพและสตอรีบอร์ดสำหรับภาพสินค้า แคมเปญ และสื่อเคลื่อนไหว พร้อมงานสามมิติ จัดองค์ประกอบภาพ เรนเดอร์ และเก็บรายละเอียดขั้นสุดท้าย ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Shape storyboards and visual direction for product imagery, campaigns and motion content, including 3D composition, rendering and final image refinement. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Storyboard",
+        "th": "สตอรีบอร์ด"
+      },
+      {
+        "en": "Motion Graphic",
+        "th": "กราฟิกเคลื่อนไหว"
+      },
+      {
+        "en": "3D Animation",
+        "th": "แอนิเมชันสามมิติ"
+      },
+      {
+        "en": "3D Visualization",
+        "th": "ภาพสามมิติ"
+      },
+      {
+        "en": "Photo Production",
+        "th": "ผลิตภาพถ่าย"
+      }
+    ],
+    "projects": [
+      {
+        "id": "proj_1779886860794",
+        "name": "Vivo V70 FE x POP MART ZSIGA",
+        "image": "https://i.ibb.co/Wq9b0gd/Chat-GPT-Image-May-21-2026-08-29-03-PM.png",
+        "alt": "รับผลิตภาพสามมิติและโมชั่นกราฟิก — Vivo V70 FE x POP MART ZSIGA",
+        "th": "แคมเปญภาพสำหรับ วีโว่ วี 70 เอฟอี × ป๊อปมาร์ท ซิก้า ผสานเรื่องราวคาแรกเตอร์แสนสนุกเข้ากับภาพสินค้าที่ประณีต ทีมโดเพียสดูแลทิศทางภาพตั้งแต่วางสตอรีบอร์ด จัดองค์ประกอบสามมิติ เรนเดอร์ ไปจนถึงเก็บรายละเอียดภาพขั้นสุดท้าย",
+        "en": "A visual campaign project created for Vivo V70 FE x POP MART ZSIGA, combining playful character storytelling with polished product-focused visuals. The DOPIOUS Team was responsible for developing the visual direction from storyboard planning to 3D composition, rendering, and final image refinement."
+      },
+      {
+        "id": "proj_1779887227025",
+        "name": "Bangkok Fashion Week Key Visual",
+        "image": "https://i.ibb.co/nMc5hs5W/Chat-GPT-Image-May-21-2026-06-35-25-PM.png",
+        "alt": "รับผลิตภาพสามมิติและโมชั่นกราฟิก — Bangkok Fashion Week Key Visual",
+        "th": "ภาพหลักสามมิติสำหรับบางกอกแฟชั่นวีค ผสานสุนทรียะแห่งอนาคตเข้ากับคาแรกเตอร์สามมิติที่มีเอกลักษณ์ สำรวจการใช้สื่อผสมที่เชื่อมเนื้อผ้าเข้ากับโลกดิจิทัล สะท้อนการบรรจบกันของแฟชั่น เทคโนโลยี และนวัตกรรมทางศิลปะ",
+        "en": "In the avant-garde realm of Bangkok Fashion Week, we present our pièce de résistance—the 3D modeling key visual that seamlessly blends futuristic aesthetics witha unique 3D character. An exploration in mixed media, where fabric intertwines with digital realms, this visual spectacle is a stunning testament to the convergenceof fashion, technology, and artistic innovation."
+      }
+    ]
+  },
+  {
+    "path": "/graphic-design/",
+    "service": "Graphic Design+",
+    "category": null,
+    "title": "รับออกแบบกราฟิกและบรรจุภัณฑ์ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบกราฟิกและบรรจุภัณฑ์ในกรุงเทพฯ",
+    "headingEn": "Graphic & Packaging Design in Bangkok",
+    "description": "DOPIOUS+ ออกแบบภาพประกอบ เลย์เอาต์ โปสเตอร์ สื่อออนไลน์ และกราฟิกบรรจุภัณฑ์ โดยจัดลำดับข้อมูลและระบบภาพให้สอดคล้องกับแบรนด์และการใช้งานสื่อจริง ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Design illustrations, layouts, posters, social content and packaging graphics with clear information hierarchy and a consistent brand visual system. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Illustration",
+        "th": "ภาพประกอบ"
+      },
+      {
+        "en": "Layout",
+        "th": "จัดวางองค์ประกอบ"
+      },
+      {
+        "en": "Poster",
+        "th": "โปสเตอร์"
+      },
+      {
+        "en": "Social Media",
+        "th": "สื่อสังคมออนไลน์"
+      },
+      {
+        "en": "Packaging Graphic",
+        "th": "กราฟิกบรรจุภัณฑ์"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/branding-design/",
+    "service": "Branding Design+",
+    "category": null,
+    "title": "รับออกแบบแบรนด์ โลโก้ และอัตลักษณ์ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบแบรนด์ โลโก้ และอัตลักษณ์ในกรุงเทพฯ",
+    "headingEn": "Brand Strategy & Identity Design in Bangkok",
+    "description": "DOPIOUS+ พัฒนากลยุทธ์และเรื่องราวแบรนด์ สู่ชื่อ โลโก้ อัตลักษณ์ภาพ และคู่มือใช้งาน เพื่อให้การสื่อสารในแต่ละช่องทางมีทิศทางที่สอดคล้องกัน ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Connect brand strategy and story to naming, logos, visual identity and practical guidelines for consistent communication across channels. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Brand Strategy",
+        "th": "กลยุทธ์แบรนด์"
+      },
+      {
+        "en": "Brand Story",
+        "th": "เรื่องราวแบรนด์"
+      },
+      {
+        "en": "Logo",
+        "th": "ตราสัญลักษณ์"
+      },
+      {
+        "en": "Visual Identity",
+        "th": "อัตลักษณ์ภาพ"
+      },
+      {
+        "en": "Brand Guideline",
+        "th": "คู่มือแบรนด์"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/key-visual-design/",
+    "service": "Key Visual Design+",
+    "category": null,
+    "title": "รับออกแบบคีย์วิชวลและภาพโฆษณา กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบคีย์วิชวลและภาพโฆษณาในกรุงเทพฯ",
+    "headingEn": "Key Visual & Campaign Design in Bangkok",
+    "description": "DOPIOUS+ ออกแบบภาพหลักและทิศทางศิลป์สำหรับแคมเปญ เปิดตัวสินค้า และสื่อส่งเสริมการขาย โดยวางองค์ประกอบ ภาพสินค้า และเรื่องราวให้สื่อสารประเด็นหลักได้ชัดเจน ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Create campaign key visuals and art direction for product launches and promotions, using composition, product imagery and storytelling to communicate the core message. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Key Visual",
+        "th": "ภาพหลักแคมเปญ"
+      },
+      {
+        "en": "Campaign Visual",
+        "th": "ภาพแคมเปญ"
+      },
+      {
+        "en": "Art Direction",
+        "th": "กำกับศิลป์"
+      },
+      {
+        "en": "Promotion Visual",
+        "th": "ภาพส่งเสริมการขาย"
+      },
+      {
+        "en": "Launch Campaign",
+        "th": "แคมเปญเปิดตัว"
+      }
+    ],
+    "projects": [
+      {
+        "id": "proj_1780937597794",
+        "name": "ZIGI KV",
+        "image": "https://i.ibb.co/fGLTYGyg/67b7ba6f-72e0-4348-90e4-05a7960d3201.png",
+        "alt": "รับออกแบบคีย์วิชวลและภาพโฆษณา — ZIGI KV",
+        "th": "ดีไซน์กะทัดรัด เดินทางได้ทั่วโลก\nภาพหลักนี้นำเสนอมีมา ซีกี ในฐานะรถเข็นขนาดกะทัดรัดที่พร้อมเดินทางทุกที่ เปรียบเทียบพื้นที่ใช้งานเล็กน้อยของรถเข็นกับแลนด์มาร์กระดับโลกขนาดใหญ่ เพื่อสื่อว่าไม่มีจุดหมายใดไกลเกินไป รันเวย์กลางภาพและเหล่านักสำรวจตัวน้อยแทนการเดินทางที่ราบรื่น แสดงว่าการสำรวจโลกกับลูกเป็นเรื่องง่าย เบา และไร้ขีดจำกัด",
+        "en": "Compact Design, Global Reach\nThis Key Visual highlights the Mima Zigi as the perfect go-anywhere, compact stroller. By contrasting the stroller’s minimal footprint with epic global landmarks, the artwork shows that no destination is too big. The central runway and playful explorers represent seamless, effortless travel—proving that with Zigi, exploring the world with your child is easy, light, and limitless."
+      }
+    ]
+  },
+  {
+    "path": "/build-install/",
+    "service": "Build & Install+",
+    "category": null,
+    "title": "รับผลิตและติดตั้งบูธและงานจัดแสดง กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับผลิตและติดตั้งบูธและงานจัดแสดงในกรุงเทพฯ",
+    "headingEn": "Build & Installation in Bangkok",
+    "description": "DOPIOUS+ เชื่อมแบบออกแบบกับการผลิตและติดตั้งจริงสำหรับบูธ ดิสเพลย์ และอีเวนต์ ครอบคลุมการประสานงานวัสดุ ผู้ผลิต หน้างาน และการตรวจสอบคุณภาพก่อนส่งมอบ ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Connect design with fabrication and installation for booths, displays and events, coordinating materials, suppliers, site work and quality checks before delivery. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Booth Production",
+        "th": "ผลิตบูธ"
+      },
+      {
+        "en": "Display Production",
+        "th": "ผลิตงานจัดแสดง"
+      },
+      {
+        "en": "Fabrication",
+        "th": "งานขึ้นรูปและผลิต"
+      },
+      {
+        "en": "On-site Installation",
+        "th": "ติดตั้งหน้างาน"
+      },
+      {
+        "en": "Quality Control",
+        "th": "ควบคุมคุณภาพ"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/production-sourcing/",
+    "service": "Production Sourcing+",
+    "category": null,
+    "title": "รับจัดหาผู้ผลิตและประสานงานการผลิต กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับจัดหาผู้ผลิตและประสานงานการผลิตในกรุงเทพฯ",
+    "headingEn": "Production Sourcing & Coordination in Bangkok",
+    "description": "DOPIOUS+ ช่วยกำหนดความต้องการและประสานงานผู้ผลิต วัสดุ ตัวอย่าง และการติดตามโรงงาน เพื่อให้รายละเอียดการออกแบบเชื่อมต่อกับขั้นตอนผลิตและตรวจสอบคุณภาพได้ ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Define production needs and coordinate suppliers, materials, samples and factory follow-up so design details stay connected to manufacturing and quality checks. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Product Sourcing",
+        "th": "จัดหาผลิตภัณฑ์"
+      },
+      {
+        "en": "Supplier Coordination",
+        "th": "ประสานงานผู้ผลิต"
+      },
+      {
+        "en": "Factory Follow-up",
+        "th": "ติดตามงานโรงงาน"
+      },
+      {
+        "en": "Sample Development",
+        "th": "พัฒนาตัวอย่าง"
+      },
+      {
+        "en": "Quality Check",
+        "th": "ตรวจสอบคุณภาพ"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/industrial-design/",
+    "service": "Industrial Design+",
+    "category": null,
+    "title": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบในกรุงเทพฯ",
+    "headingEn": "Industrial & Product Design in Bangkok",
+    "description": "DOPIOUS+ พัฒนาแนวคิดผลิตภัณฑ์ รูปทรง การใช้งาน สี วัสดุ และพื้นผิว พร้อมแบบจำลองสามมิติและต้นแบบ เพื่อศึกษาประสบการณ์ผู้ใช้และความเป็นไปได้ในการผลิต ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Develop product concepts, form, usability, color, materials and finishes through 3D models and prototypes that explore user experience and production feasibility. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Product Concept",
+        "th": "แนวคิดผลิตภัณฑ์"
+      },
+      {
+        "en": "CMF",
+        "th": "สี วัสดุ และพื้นผิว"
+      },
+      {
+        "en": "User Experience",
+        "th": "ประสบการณ์ผู้ใช้"
+      },
+      {
+        "en": "Prototype",
+        "th": "ต้นแบบ"
+      },
+      {
+        "en": "Product Visualization",
+        "th": "ภาพจำลองผลิตภัณฑ์"
+      }
+    ],
+    "projects": [
+      {
+        "id": "proj_1779887237225",
+        "name": "Xari Max",
+        "image": "https://i.ibb.co/zVtgdwrf/XM1.webp",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — Xari Max",
+        "th": "ซารี แม็กซ์: ยกระดับความสง่างามของรถเข็นเด็ก ด้วยงานออกแบบสำหรับเด็กโต",
+        "en": "Xari Max: Elevating Elegance in Child Mobility with a Design Tailored for Larger Kids"
+      },
+      {
+        "id": "proj_1779905202820",
+        "name": "SHU DAXIA FOOD CONTAINER",
+        "image": "https://i.ibb.co/4ZtPTNdV/Chat-GPT-Image-May-28-2026-01-53-01-AM.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — SHU DAXIA FOOD CONTAINER",
+        "th": "โปรเจกต์ออกแบบถาดจัดแสดงอาหารเฉพาะสำหรับสู่ต้าเสีย เพื่อยกระดับประสบการณ์เสิร์ฟหม้อไฟ ได้แรงบันดาลใจจากสถาปัตยกรรมจีนดั้งเดิมและเอกลักษณ์อันชัดเจนของแบรนด์ เปลี่ยนถาดเสิร์ฟที่ใช้งานได้จริงให้เป็นองค์ประกอบการนำเสนอที่น่าจดจำ",
+        "en": "SHU DAXIA is a custom food display tray design project created to elevate the restaurant’s hotpot serving experience. Inspired by traditional Chinese architecture and the strong visual identity of the brand, the product transforms a functional serving tray into a memorable presentation piece."
+      },
+      {
+        "id": "proj_1779906306546",
+        "name": "SHU DAXIA FOOD CONTAINER",
+        "image": "https://i.ibb.co/HLdHMmyt/703ccdb1-14f9-4ee9-acc4-8dcfb7f42b21.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — SHU DAXIA FOOD CONTAINER",
+        "th": "ภาพเรนเดอร์สินค้าสไตล์สตูดิโอหรูสำหรับสู่ต้าเสีย นำเสนอหม้อไฟหม่าล่าจีนสีดำทองบนพื้นหลังแดงเข้ม ด้วยแสงจากทิศทางเดียว ขับรายละเอียดมังกร ผิวโลหะระดับพรีเมียม และอัตลักษณ์อาหารจีนที่สง่างาม ผ่านภาษาภาพเรียบสะอาดในระดับสากล",
+        "en": "A luxury studio product rendering for SHU DAXIA Hot Pot, featuring a black-and-gold Chinese mala hot pot on a deep red background with one-directional lighting. The image highlights the ornate dragon details, premium metallic finish, and elegant Chinese dining identity in a clean international visual style."
+      },
+      {
+        "id": "proj_1780935955233",
+        "name": "VARORIOUS ARCADE COVER  DESIGN",
+        "image": "https://i.ibb.co/Wvz6zfy3/Chat-GPT-Image-Jun-9-2026-12-01-59-AM.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — VARORIOUS ARCADE COVER  DESIGN",
+        "th": "โดเพียสออกแบบเปลือกภายนอกสำหรับวาโลรัส เครื่องเกมยิงอาร์เคดแบบโต้ตอบ เน้นเอกลักษณ์แห่งอนาคตที่ชัดเจน เพื่อให้เครื่องดูเป็นส่วนหนึ่งของโลกในเกม มากกว่าการเป็นเพียงอุปกรณ์แสดงผล",
+        "en": "Dopious Design developed the exterior cover design for VALOROUS, an interactive arcade shooting game device. The design focuses on creating a strong futuristic identity that makes the machine feel like part of the game world, not only a display device."
+      },
+      {
+        "id": "proj_1780940698987",
+        "name": "Exoskeleton Assist System for Valorous",
+        "image": "https://i.ibb.co/6JNBY3B1/Chat-GPT-Image-Jun-9-2026-12-11-24-AM.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — Exoskeleton Assist System for Valorous",
+        "th": "แนวคิดโครงเสริมกำลังสำหรับวาโลรัส เกมที่พัฒนาโดยโมชันเอ็กซ์ และออกแบบแนวคิดโดยโดเพียส มุ่งสร้างระบบโครงเสริมกำลังในเกมที่ดูล้ำอนาคตและน่าเชื่อถือ อ้างอิงกระบวนการออกแบบผลิตภัณฑ์จริงและการเคลื่อนไหวเชิงกลที่สมจริง",
+        "en": "This exoskeleton concept is designed for **Valorous**, a game project developed by **MotionX**, with concept design by **Dopious Design**. The design focuses on creating an in-game exoskeleton system that feels both futuristic and believable, based on real product design thinking and realistic mechanical movement."
+      }
+    ]
+  },
+  {
+    "path": "/corporate-design/",
+    "service": "Corporate Design+",
+    "category": null,
+    "title": "รับออกแบบอัตลักษณ์และสื่อองค์กร กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบอัตลักษณ์และสื่อองค์กรในกรุงเทพฯ",
+    "headingEn": "Corporate Identity & Communication Design in Bangkok",
+    "description": "DOPIOUS+ จัดระบบภาพลักษณ์องค์กรและสื่อธุรกิจ ตั้งแต่ประวัติบริษัท งานนำเสนอ เครื่องเขียน ไปจนถึงเอกสารและกราฟิกสำนักงาน ให้ใช้งานสอดคล้องกับระบบแบรนด์ ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Create a coherent corporate visual system across company profiles, presentations, stationery, business documents and office graphics. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Corporate Identity",
+        "th": "อัตลักษณ์องค์กร"
+      },
+      {
+        "en": "Brand System",
+        "th": "ระบบแบรนด์"
+      },
+      {
+        "en": "Company Profile",
+        "th": "ประวัติองค์กร"
+      },
+      {
+        "en": "Presentation",
+        "th": "งานนำเสนอ"
+      },
+      {
+        "en": "Stationery",
+        "th": "ชุดเครื่องเขียนองค์กร"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/digital-design/",
+    "service": "Digital Design+",
+    "category": null,
+    "title": "รับออกแบบเว็บไซต์และประสบการณ์ผู้ใช้ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบเว็บไซต์และประสบการณ์ผู้ใช้ในกรุงเทพฯ",
+    "headingEn": "Website & UX/UI Design in Bangkok",
+    "description": "DOPIOUS+ วางโครงสร้างข้อมูล เส้นทางผู้ใช้ และหน้าจอเว็บไซต์หรือหน้าแคมเปญ ให้การสื่อสารบริการและผลงานมีลำดับชัดเจน พร้อมออกแบบประสบการณ์บนคอมพิวเตอร์และมือถือ ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Plan information architecture, user journeys and interfaces for websites and campaign pages, with clear service communication across desktop and mobile. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Website",
+        "th": "เว็บไซต์"
+      },
+      {
+        "en": "UX-UI",
+        "th": "ประสบการณ์และส่วนติดต่อผู้ใช้"
+      },
+      {
+        "en": "Landing Page",
+        "th": "หน้าแคมเปญ"
+      },
+      {
+        "en": "Interface",
+        "th": "ส่วนติดต่อผู้ใช้"
+      },
+      {
+        "en": "Mobile Experience",
+        "th": "ประสบการณ์บนมือถือ"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/fashion-design/",
+    "service": "Fashion Design+",
+    "category": null,
+    "title": "รับออกแบบแฟชั่น คอสตูม และยูนิฟอร์ม กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบแฟชั่น คอสตูม และยูนิฟอร์มในกรุงเทพฯ",
+    "headingEn": "Fashion, Costume & Uniform Design in Bangkok",
+    "description": "DOPIOUS+ พัฒนาแนวคิดเครื่องแต่งกาย ยูนิฟอร์ม และทิศทางสไตล์สำหรับแบรนด์ แคมเปญ และคาแรกเตอร์ โดยเชื่อมรูปทรง สิ่งทอ และอารมณ์งานให้สอดคล้องกับภาพลักษณ์ที่ต้องการ ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Develop fashion, costume, uniform and styling concepts for brands, campaigns and characters, connecting silhouette, textiles and mood to the intended identity. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Fashion",
+        "th": "แฟชั่น"
+      },
+      {
+        "en": "Costume",
+        "th": "เครื่องแต่งกาย"
+      },
+      {
+        "en": "Uniform",
+        "th": "ยูนิฟอร์ม"
+      },
+      {
+        "en": "Styling Direction",
+        "th": "กำหนดทิศทางสไตล์"
+      },
+      {
+        "en": "Fashion Concept",
+        "th": "แนวคิดแฟชั่น"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/creative-consultation/",
+    "service": "Creative Consultation+",
+    "category": null,
+    "title": "รับให้คำปรึกษางานออกแบบและครีเอทีฟ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับให้คำปรึกษางานออกแบบและครีเอทีฟในกรุงเทพฯ",
+    "headingEn": "Creative & Design Consultation in Bangkok",
+    "description": "DOPIOUS+ ช่วยพัฒนาบรีฟ ทิศทางแนวคิด ขอบเขตงาน และแผนงบประมาณ ตั้งแต่โจทย์แบรนด์ พื้นที่ และผลิตภัณฑ์ ไปจนถึงแนวทางวัสดุและการประสานงานผลิต ให้บริการในกรุงเทพฯ และพื้นที่อื่นตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Refine creative briefs, concept direction, scope and budget across brand, space and product projects, including material direction and production coordination. Based in Bangkok, with project scope discussed individually.",
+    "topics": [
+      {
+        "en": "Creative Brief",
+        "th": "บรีฟงานสร้างสรรค์"
+      },
+      {
+        "en": "Concept Direction",
+        "th": "กำหนดทิศทางแนวคิด"
+      },
+      {
+        "en": "Design Direction",
+        "th": "กำหนดทิศทางออกแบบ"
+      },
+      {
+        "en": "Budget Planning",
+        "th": "วางแผนงบประมาณ"
+      },
+      {
+        "en": "Scope Planning",
+        "th": "วางแผนขอบเขตงาน"
+      }
+    ],
+    "projects": []
+  },
+  {
+    "path": "/space-design/residential/",
+    "service": "Space Design+",
+    "category": "Residential",
+    "title": "รับออกแบบภายในบ้านและที่อยู่อาศัย กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบภายในบ้านและที่อยู่อาศัยในกรุงเทพฯ",
+    "headingEn": "Residential Interior Design in Bangkok",
+    "description": "DOPIOUS+ ออกแบบภายในบ้านให้เหมาะกับชีวิตประจำวัน ตั้งแต่ผังพื้นที่นั่งเล่น ห้องนอน ครัว และพื้นที่เก็บของ ไปจนถึงวัสดุ แสง และเฟอร์นิเจอร์บิลต์อิน ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Plan residential interiors around everyday life, including living spaces, bedrooms, kitchens, storage, materials, lighting and built-in furniture. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1779887222361",
+        "name": "Bangkok Boulevard – Neoclassic House Renovation & Decoration",
+        "image": "https://i.ibb.co/V0kbSq6C/634a188b-84cc-4507-8095-62e0eb9ceaa2.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Bangkok Boulevard – Neoclassic House Renovation & Decoration",
+        "th": "แนวคิดตกแต่งภายในผสานรายละเอียดนีโอคลาสสิกเข้ากับความสบายร่วมสมัย เลือกใช้ลายหินอ่อนสีขาว พื้นไม้โทนอุ่น องค์ประกอบสีดำ ผิวสัมผัสผ้านุ่ม และแสงหลายระดับอย่างประณีต เพื่อสร้างบ้านที่สง่างามและอบอุ่น แต่ละพื้นที่เชื่อมต่อกันด้วยวัสดุ สัดส่วน และบรรยากาศแสงที่สอดคล้องกัน พร้อมรักษาเอกลักษณ์ของแต่ละห้อง",
+        "en": "The interior concept combines neoclassical detailing with contemporary comfort. White marble textures, warm wood flooring, black accent elements, soft fabric textures, and layered lighting are carefully integrated to create a sophisticated yet welcoming home. Each area is designed to feel connected through consistent materials, proportions, and lighting mood, while still allowing every room to have its own character."
+      },
+      {
+        "id": "proj_1779887251612",
+        "name": "Mo’s Family Residence",
+        "image": "https://i.ibb.co/6RSkFRGb/Chat-GPT-Image-24-2569-22-04-51-3.png",
+        "alt": "รับออกแบบพื้นที่และออกแบบภายใน — Mo’s Family Residence",
+        "th": "บ้านหลังนี้ออกแบบสำหรับคุณโมและครอบครัวที่มีลูกสามคน โดยคำนึงถึงความงาม การใช้งาน และการก่อสร้างที่เหมาะกับงบประมาณประมาณ 2 ล้านบาท ใช้สไตล์ร่วมสมัยที่อบอุ่น ผิวสัมผัสไม้ธรรมชาติ แสงกลางวันนุ่มนวล และสีเอิร์ธโทนสงบ เพื่อสร้างบ้านที่อบอุ่น อยู่ได้นาน และตอบโจทย์การใช้ชีวิตจริง",
+        "en": "This residential project was thoughtfully designed for “Mo” and a family with three children, balancing aesthetics, functionality, and budget-conscious construction within an approximate construction budget of 2 million THB. The design embraces a warm contemporary style with natural wood textures, soft daylight, and calm earthy tones to create a home that feels cozy, timeless, and highly livable."
+      }
+    ]
+  },
+  {
+    "path": "/sculpture-design/sculpture/",
+    "service": "Sculpture Design+",
+    "category": "Sculpture",
+    "title": "รับออกแบบประติมากรรมและแบบจำลองสามมิติ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบประติมากรรมและแบบจำลองสามมิติในกรุงเทพฯ",
+    "headingEn": "Sculpture & 3D Modeling in Bangkok",
+    "description": "DOPIOUS+ พัฒนารูปทรงและรายละเอียดประติมากรรมจากแนวคิดสู่แบบจำลองสามมิติ ทั้งพุทธศิลป์ วัตถุเชิงสัญลักษณ์ และงานตกแต่ง โดยคำนึงถึงสัดส่วน พื้นผิว และความหมายของผลงาน ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Develop sculptural forms and details through 3D models, from sacred art and symbolic objects to decorative pieces, with attention to proportion, texture and meaning. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1779887230778",
+        "name": "Ganesha for Silpakorn University",
+        "image": "https://i.ibb.co/7dRmsM4N/Chat-GPT-Image-May-21-2026-05-38-15-PM-1.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Ganesha for Silpakorn University",
+        "th": "งานออกแบบพระพิฆเนศสามมิติสำหรับมหาวิทยาลัยศิลปากร ผสานศิลปะเข้ากับความศรัทธา ด้วยความทุ่มเทในรายละเอียดและพื้นผิวที่ประณีต เพื่อสร้างผลงานที่ทั้งงดงามและยกระดับจิตใจ ให้พื้นที่ดิจิทัลเป็นเสมือนสถานที่แห่งการสักการะ",
+        "en": "In the realm of digital design, our venture into Ganesha 3D modeling for Silpakorn University emerges as a fusion of art and spirituality. With an unwavering dedication to superlative details and meticulous texture work, we endeavored to transcend the digital medium, crafting a Ganesha that not only captivates the eye but elevates\nthe spirit, creating a virtual sanctuary that beckons people to prayer."
+      },
+      {
+        "id": "proj_1779887240618",
+        "name": "Phra Mae Lakshmi Structure",
+        "image": "https://i.ibb.co/prMwL9Kw/Chat-GPT-Image-May-21-2026-09-49-31-PM-1.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Phra Mae Lakshmi Structure",
+        "th": "แบบจำลองสามมิติพระแม่ลักษมี ผลงานหัตถศิลป์ดิจิทัลที่ให้ความสำคัญกับรายละเอียดอันประณีต เพื่อถ่ายทอดแก่นแท้แห่งความศักดิ์สิทธิ์ ชวนสัมผัสการเปลี่ยนพิกเซลให้เป็นรายละเอียด และแบบจำลองเสมือนให้เป็นงานศิลปะแห่งความศรัทธา",
+        "en": "In the realm of digital craftsmanship, we proudly present our 3D modeling masterpiece—the Phra Mae Lakshmi Structure. Imbued with superlative details, this\nvirtual marvel transcends the ordinary, capturing the divine essence of Phra Mae Lakshmi. Join us on a journey where pixels transform into intricacies, and the\nvirtual structure becomes a tapestry of sacred artistry."
+      },
+      {
+        "id": "proj_1779887260231",
+        "name": "Naka Charm",
+        "image": "https://i.ibb.co/jP9vRDLv/Chat-GPT-Image-May-25-2026-01-27-55-AM.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Naka Charm",
+        "th": "ลาพิส อามูเมนต์ นำเสนอเครื่องรางนาคา เครื่องประดับเชิงสัญลักษณ์ที่ได้แรงบันดาลใจจากพญานาค ผู้พิทักษ์แห่งการคุ้มครอง ความรุ่งเรือง ปัญญา และพลังศรัทธา ออกแบบเป็นเครื่องประดับข้อมือแบบคลิปที่ทันสมัย ผสานความหมายศักดิ์สิทธิ์กับความเรียบง่ายอันประณีต เปลี่ยนความเชื่อโบราณเป็นศิลปะสวมใส่ร่วมสมัย",
+        "en": "Lapis Amument presents the Naka Charm — a symbolic jewelry piece inspired by the legendary Naga, a guardian of protection, prosperity, wisdom, and spiritual strength. Designed as a modern clip-on wrist charm, the piece blends sacred symbolism with a refined minimalist aesthetic, transforming ancient belief into contemporary wearable art."
+      }
+    ]
+  },
+  {
+    "path": "/sculpture-design/art-installation/",
+    "service": "Sculpture Design+",
+    "category": "Art Installation",
+    "title": "รับออกแบบศิลปะจัดวางและประติมากรรมแบรนด์ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบศิลปะจัดวางและประติมากรรมแบรนด์ในกรุงเทพฯ",
+    "headingEn": "Brand Art Installation Design in Bangkok",
+    "description": "DOPIOUS+ ผสานรูปทรงประติมากรรมกับเรื่องราวแบรนด์และการใช้งานจริง พัฒนาแนวคิดและแบบสามมิติของงานจัดวางที่มีองค์ประกอบเชิงกลและพื้นที่ให้ผู้ชมมีส่วนร่วม ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Connect sculptural form, brand storytelling and practical use through concepts and 3D models for installations with mechanical elements and audience interaction. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1780766627573",
+        "name": "Budweiser chiller Design & 3D Modeling",
+        "image": "https://i.ibb.co/5gZwh3Zq/Chat-GPT-Image-Jun-9-2026-12-48-40-AM.png",
+        "alt": "รับออกแบบประติมากรรมและศิลปะจัดวาง — Budweiser chiller Design & 3D Modeling",
+        "th": "ดีเซมเบอร์ซันเดย์และโดเพียสร่วมออกแบบประติมากรรมและแบบจำลองสามมิติสำหรับแท่นจัดแสดงบัดไวเซอร์ในรูปแบบใหม่",
+        "en": "Decembersunday and Dopious+ collaborated on the sculptural design and 3D modeling of an innovative, branded Budweiser display."
+      }
+    ]
+  },
+  {
+    "path": "/visual-production/motion-graphic/",
+    "service": "Visual Production+",
+    "category": "Motion Graphic",
+    "title": "รับออกแบบโมชั่นกราฟิกและภาพแคมเปญ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบโมชั่นกราฟิกและภาพแคมเปญในกรุงเทพฯ",
+    "headingEn": "Motion Graphics & Campaign Visuals in Bangkok",
+    "description": "DOPIOUS+ พัฒนาสตอรีบอร์ด ลำดับภาพ และองค์ประกอบสามมิติสำหรับแคมเปญสินค้า ผสานคาแรกเตอร์กับภาพสินค้า พร้อมปรับแสง วัสดุ และรายละเอียดภาพให้สอดคล้องกับแนวคิดโฆษณา ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Develop storyboards, visual sequences and 3D compositions for product campaigns, combining character storytelling, product imagery, lighting and material refinement. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1779886860794",
+        "name": "Vivo V70 FE x POP MART ZSIGA",
+        "image": "https://i.ibb.co/Wq9b0gd/Chat-GPT-Image-May-21-2026-08-29-03-PM.png",
+        "alt": "รับผลิตภาพสามมิติและโมชั่นกราฟิก — Vivo V70 FE x POP MART ZSIGA",
+        "th": "แคมเปญภาพสำหรับ วีโว่ วี 70 เอฟอี × ป๊อปมาร์ท ซิก้า ผสานเรื่องราวคาแรกเตอร์แสนสนุกเข้ากับภาพสินค้าที่ประณีต ทีมโดเพียสดูแลทิศทางภาพตั้งแต่วางสตอรีบอร์ด จัดองค์ประกอบสามมิติ เรนเดอร์ ไปจนถึงเก็บรายละเอียดภาพขั้นสุดท้าย",
+        "en": "A visual campaign project created for Vivo V70 FE x POP MART ZSIGA, combining playful character storytelling with polished product-focused visuals. The DOPIOUS Team was responsible for developing the visual direction from storyboard planning to 3D composition, rendering, and final image refinement."
+      }
+    ]
+  },
+  {
+    "path": "/visual-production/3d-visualization/",
+    "service": "Visual Production+",
+    "category": "3D Visualization",
+    "title": "รับทำภาพสามมิติและเรนเดอร์สำหรับแบรนด์ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับทำภาพสามมิติและเรนเดอร์สำหรับแบรนด์ในกรุงเทพฯ",
+    "headingEn": "3D Visualization & Brand Rendering in Bangkok",
+    "description": "DOPIOUS+ สร้างแบบจำลองและภาพเรนเดอร์สำหรับงานแฟชั่นและการสื่อสารแบรนด์ ด้วยรูปทรง วัสดุ พื้นผิว และแสงที่ช่วยนำเสนอแนวคิดให้เห็นภาพก่อนการใช้งานจริง ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Create 3D models and rendered imagery for fashion and brand communication, using form, materials, textures and lighting to make a concept tangible. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1779887227025",
+        "name": "Bangkok Fashion Week Key Visual",
+        "image": "https://i.ibb.co/nMc5hs5W/Chat-GPT-Image-May-21-2026-06-35-25-PM.png",
+        "alt": "รับผลิตภาพสามมิติและโมชั่นกราฟิก — Bangkok Fashion Week Key Visual",
+        "th": "ภาพหลักสามมิติสำหรับบางกอกแฟชั่นวีค ผสานสุนทรียะแห่งอนาคตเข้ากับคาแรกเตอร์สามมิติที่มีเอกลักษณ์ สำรวจการใช้สื่อผสมที่เชื่อมเนื้อผ้าเข้ากับโลกดิจิทัล สะท้อนการบรรจบกันของแฟชั่น เทคโนโลยี และนวัตกรรมทางศิลปะ",
+        "en": "In the avant-garde realm of Bangkok Fashion Week, we present our pièce de résistance—the 3D modeling key visual that seamlessly blends futuristic aesthetics witha unique 3D character. An exploration in mixed media, where fabric intertwines with digital realms, this visual spectacle is a stunning testament to the convergenceof fashion, technology, and artistic innovation."
+      }
+    ]
+  },
+  {
+    "path": "/industrial-design/product/",
+    "service": "Industrial Design+",
+    "category": "Product",
+    "title": "รับออกแบบผลิตภัณฑ์และพัฒนารูปทรง กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบผลิตภัณฑ์และพัฒนารูปทรงในกรุงเทพฯ",
+    "headingEn": "Product Design & Development in Bangkok",
+    "description": "DOPIOUS+ พัฒนาแนวคิดและรูปทรงผลิตภัณฑ์โดยคำนึงถึงผู้ใช้งาน สัดส่วน และรายละเอียดการปรับใช้งาน พร้อมสื่อสารแนวทางผ่านแบบสามมิติก่อนต่อยอดสู่กระบวนการผลิต ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Develop product concepts and forms around users, proportions and adjustable features, communicating the design through 3D models before production development. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1779887237225",
+        "name": "Xari Max",
+        "image": "https://i.ibb.co/zVtgdwrf/XM1.webp",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — Xari Max",
+        "th": "ซารี แม็กซ์: ยกระดับความสง่างามของรถเข็นเด็ก ด้วยงานออกแบบสำหรับเด็กโต",
+        "en": "Xari Max: Elevating Elegance in Child Mobility with a Design Tailored for Larger Kids"
+      }
+    ]
+  },
+  {
+    "path": "/industrial-design/packaging-structure/",
+    "service": "Industrial Design+",
+    "category": "Packaging Structure",
+    "title": "รับออกแบบโครงสร้างบรรจุภัณฑ์และภาชนะสินค้า กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบโครงสร้างบรรจุภัณฑ์และภาชนะสินค้าในกรุงเทพฯ",
+    "headingEn": "Packaging Structure & Product Presentation in Bangkok",
+    "description": "DOPIOUS+ ออกแบบโครงสร้างภาชนะและการจัดนำเสนอสินค้าให้มีเอกลักษณ์ ตั้งแต่รูปทรงหลายระดับ วัสดุ และรายละเอียดตกแต่ง ไปจนถึงภาพสามมิติที่สื่อบรรยากาศแบรนด์ ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Design distinctive container structures and product presentations through layered forms, materials, decorative details and 3D imagery that communicates the brand. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1779905202820",
+        "name": "SHU DAXIA FOOD CONTAINER",
+        "image": "https://i.ibb.co/4ZtPTNdV/Chat-GPT-Image-May-28-2026-01-53-01-AM.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — SHU DAXIA FOOD CONTAINER",
+        "th": "โปรเจกต์ออกแบบถาดจัดแสดงอาหารเฉพาะสำหรับสู่ต้าเสีย เพื่อยกระดับประสบการณ์เสิร์ฟหม้อไฟ ได้แรงบันดาลใจจากสถาปัตยกรรมจีนดั้งเดิมและเอกลักษณ์อันชัดเจนของแบรนด์ เปลี่ยนถาดเสิร์ฟที่ใช้งานได้จริงให้เป็นองค์ประกอบการนำเสนอที่น่าจดจำ",
+        "en": "SHU DAXIA is a custom food display tray design project created to elevate the restaurant’s hotpot serving experience. Inspired by traditional Chinese architecture and the strong visual identity of the brand, the product transforms a functional serving tray into a memorable presentation piece."
+      },
+      {
+        "id": "proj_1779906306546",
+        "name": "SHU DAXIA FOOD CONTAINER",
+        "image": "https://i.ibb.co/HLdHMmyt/703ccdb1-14f9-4ee9-acc4-8dcfb7f42b21.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — SHU DAXIA FOOD CONTAINER",
+        "th": "ภาพเรนเดอร์สินค้าสไตล์สตูดิโอหรูสำหรับสู่ต้าเสีย นำเสนอหม้อไฟหม่าล่าจีนสีดำทองบนพื้นหลังแดงเข้ม ด้วยแสงจากทิศทางเดียว ขับรายละเอียดมังกร ผิวโลหะระดับพรีเมียม และอัตลักษณ์อาหารจีนที่สง่างาม ผ่านภาษาภาพเรียบสะอาดในระดับสากล",
+        "en": "A luxury studio product rendering for SHU DAXIA Hot Pot, featuring a black-and-gold Chinese mala hot pot on a deep red background with one-directional lighting. The image highlights the ornate dragon details, premium metallic finish, and elegant Chinese dining identity in a clean international visual style."
+      }
+    ]
+  },
+  {
+    "path": "/industrial-design/product-visualization/",
+    "service": "Industrial Design+",
+    "category": "Product Visualization",
+    "title": "รับออกแบบคอนเซ็ปต์และภาพจำลองผลิตภัณฑ์ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบคอนเซ็ปต์และภาพจำลองผลิตภัณฑ์ในกรุงเทพฯ",
+    "headingEn": "Product Concepts & Visualization in Bangkok",
+    "description": "DOPIOUS+ พัฒนาภาพจำลองผลิตภัณฑ์และคอนเซ็ปต์อุปกรณ์สำหรับเกม ตั้งแต่ตัวเครื่องอาร์เคดไปจนถึงโครงเสริมกำลัง โดยเชื่อมภาษารูปทรง วัสดุ แสง และตรรกะการเคลื่อนไหว ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Develop product visualizations and game equipment concepts, including arcade enclosures and exoskeletons, connecting form, materials, lighting and movement logic. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1780935955233",
+        "name": "VARORIOUS ARCADE COVER  DESIGN",
+        "image": "https://i.ibb.co/Wvz6zfy3/Chat-GPT-Image-Jun-9-2026-12-01-59-AM.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — VARORIOUS ARCADE COVER  DESIGN",
+        "th": "โดเพียสออกแบบเปลือกภายนอกสำหรับวาโลรัส เครื่องเกมยิงอาร์เคดแบบโต้ตอบ เน้นเอกลักษณ์แห่งอนาคตที่ชัดเจน เพื่อให้เครื่องดูเป็นส่วนหนึ่งของโลกในเกม มากกว่าการเป็นเพียงอุปกรณ์แสดงผล",
+        "en": "Dopious Design developed the exterior cover design for VALOROUS, an interactive arcade shooting game device. The design focuses on creating a strong futuristic identity that makes the machine feel like part of the game world, not only a display device."
+      },
+      {
+        "id": "proj_1780940698987",
+        "name": "Exoskeleton Assist System for Valorous",
+        "image": "https://i.ibb.co/6JNBY3B1/Chat-GPT-Image-Jun-9-2026-12-11-24-AM.png",
+        "alt": "รับออกแบบผลิตภัณฑ์และพัฒนาต้นแบบ — Exoskeleton Assist System for Valorous",
+        "th": "แนวคิดโครงเสริมกำลังสำหรับวาโลรัส เกมที่พัฒนาโดยโมชันเอ็กซ์ และออกแบบแนวคิดโดยโดเพียส มุ่งสร้างระบบโครงเสริมกำลังในเกมที่ดูล้ำอนาคตและน่าเชื่อถือ อ้างอิงกระบวนการออกแบบผลิตภัณฑ์จริงและการเคลื่อนไหวเชิงกลที่สมจริง",
+        "en": "This exoskeleton concept is designed for **Valorous**, a game project developed by **MotionX**, with concept design by **Dopious Design**. The design focuses on creating an in-game exoskeleton system that feels both futuristic and believable, based on real product design thinking and realistic mechanical movement."
+      }
+    ]
+  },
+  {
+    "path": "/key-visual-design/key-visual/",
+    "service": "Key Visual Design+",
+    "category": "Key Visual",
+    "title": "รับออกแบบคีย์วิชวลสินค้าและภาพหลักแคมเปญ กรุงเทพฯ | DOPIOUS+",
+    "heading": "รับออกแบบคีย์วิชวลสินค้าและภาพหลักแคมเปญในกรุงเทพฯ",
+    "headingEn": "Product Key Visual & Campaign Artwork in Bangkok",
+    "description": "DOPIOUS+ วางแนวคิดและองค์ประกอบภาพหลักให้เรื่องราวสินค้าเป็นจุดเด่น ผ่านฉากและบรรยากาศที่เชื่อมประโยชน์ของผลิตภัณฑ์กับจินตนาการและภาพลักษณ์แบรนด์ ให้บริการในกรุงเทพฯ ตามขอบเขตโปรเจกต์",
+    "descriptionEn": "DOPIOUS+ Plan campaign artwork around the product story, using settings and visual composition to connect product benefits with imagination and brand identity. Services in Bangkok, with scope discussed individually.",
+    "projects": [
+      {
+        "id": "proj_1780937597794",
+        "name": "ZIGI KV",
+        "image": "https://i.ibb.co/fGLTYGyg/67b7ba6f-72e0-4348-90e4-05a7960d3201.png",
+        "alt": "รับออกแบบคีย์วิชวลและภาพโฆษณา — ZIGI KV",
+        "th": "ดีไซน์กะทัดรัด เดินทางได้ทั่วโลก\nภาพหลักนี้นำเสนอมีมา ซีกี ในฐานะรถเข็นขนาดกะทัดรัดที่พร้อมเดินทางทุกที่ เปรียบเทียบพื้นที่ใช้งานเล็กน้อยของรถเข็นกับแลนด์มาร์กระดับโลกขนาดใหญ่ เพื่อสื่อว่าไม่มีจุดหมายใดไกลเกินไป รันเวย์กลางภาพและเหล่านักสำรวจตัวน้อยแทนการเดินทางที่ราบรื่น แสดงว่าการสำรวจโลกกับลูกเป็นเรื่องง่าย เบา และไร้ขีดจำกัด",
+        "en": "Compact Design, Global Reach\nThis Key Visual highlights the Mima Zigi as the perfect go-anywhere, compact stroller. By contrasting the stroller’s minimal footprint with epic global landmarks, the artwork shows that no destination is too big. The central runway and playful explorers represent seamless, effortless travel—proving that with Zigi, exploring the world with your child is easy, light, and limitless."
       }
     ]
   }

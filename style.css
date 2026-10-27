@@ -542,7 +542,7 @@ html[lang="en"] [data-content-language="th"],html[lang="th"] [data-content-langu
 
 .seo-category-links{display:flex;flex-wrap:wrap;gap:12px;margin:0 0 28px}
 .seo-category-links a,.seo-related a{color:#fff;border-bottom:1px solid #ff2a14;padding:10px 0;font-size:14px;line-height:1.6}
-body[data-seo-category] .hero,body[data-seo-category] .mq,body[data-seo-category] .cls,body[data-seo-category] #svc>.service-intro{display:none}
+body[data-seo-service] .hero,body[data-seo-service] .mq,body[data-seo-service] .cls,body[data-seo-service] #svc>.service-intro{display:none}
 .seo-landing{padding:120px max(36px,env(safe-area-inset-left)) 0;max-width:1400px;margin:auto}
 .seo-kicker{color:var(--r);font-size:12px;letter-spacing:.1em;margin-bottom:20px}
 .seo-landing h1{font:300 clamp(32px,5vw,64px)/1.25 'Prompt','DM Sans',sans-serif;letter-spacing:0;max-width:1000px}
@@ -556,6 +556,15 @@ body[data-seo-category] .hero,body[data-seo-category] .mq,body[data-seo-category
 .seo-work a:focus-visible,.seo-related a:focus-visible,.seo-category-links a:focus-visible{outline:2px solid var(--r);outline-offset:5px}
 @media(max-width:768px){.seo-landing{padding:88px 16px 0}.seo-work-grid{grid-template-columns:1fr}.seo-lead{font-size:14px}}
 
-body[data-seo-category] .cat-slide-card[hidden]{display:none!important}
+body[data-seo-service] .cat-slide-card[hidden]{display:none!important}
 
 .seo-landing h1{text-wrap:balance}.seo-work a{color:inherit}
+
+.seo-service-directory{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px}
+.seo-service-group{display:flex;flex-direction:column;gap:4px;min-width:0}
+.seo-service-directory .seo-service-head{font-weight:500;color:#fff}
+.seo-service-directory a{font-size:13px;line-height:1.6;color:var(--t2);border-bottom:0;overflow-wrap:anywhere}
+.seo-related{display:flex;flex-wrap:wrap;gap:12px 24px;margin:24px 0}
+.seo-scope{margin-top:36px}.seo-scope h2{font-size:24px;font-weight:300;margin-bottom:14px}
+.seo-scope ul{display:flex;flex-wrap:wrap;gap:10px;list-style:none}.seo-scope li{padding:8px 14px;border:1px solid var(--ln);border-radius:999px;font-weight:300;font-size:14px}
+@media(max-width:768px){.seo-service-directory{grid-template-columns:1fr;gap:16px}}
