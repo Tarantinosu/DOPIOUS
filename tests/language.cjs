@@ -7,6 +7,7 @@ const assert=require('node:assert/strict');
  const page=await browser.newPage(); const errors=[]; page.on('pageerror',e=>errors.push(e.message));
  await page.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.abort());
  await page.goto('http://127.0.0.1:8000/');
+ assert.equal(await page.locator('html').getAttribute('lang'),'th','new visitors see Thai');
  const thai=page.getByRole('button',{name:'ภาษาไทย',exact:true});
  assert.equal(await thai.count(),1,'Thai language control exists');
  assert(await page.locator('nav .nl button[onclick="oC()"] + .language-switcher').count(),'language controls follow Contact');
@@ -67,6 +68,8 @@ const assert=require('node:assert/strict');
  await page.getByRole('button',{name:'English',exact:true}).click();await page.waitForTimeout(100);
  assert.equal(await page.locator('#late-copy').innerText(),'Choose how to reach us');
  assert.equal(await page.locator('nav .nl button').first().textContent(),'Works');
+ await page.reload();await page.waitForTimeout(50);
+ assert.equal(await page.locator('html').getAttribute('lang'),'en','English preference survives reload');
  for(const width of [320,768,1024,1440]) {await page.setViewportSize({width,height:900}); const box=await thai.boundingBox();assert(box&&box.x>=0&&box.x+box.width<=width,'control fits '+width)}
  assert.deepEqual(errors,[]);console.log('PASS: 20 project cards and full detail pages, gallery captions, all 13 services and about page, unchanged logo and project titles, sixth hero slide, persistence, English restoration, responsive controls, no JS errors');
  }finally{await browser.close()}

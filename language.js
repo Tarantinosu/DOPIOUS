@@ -44,9 +44,9 @@
     'FASHION DESIGN+':'ออกแบบแฟชั่น+','CREATIVE CONSULTATION+':'ที่ปรึกษางานสร้างสรรค์+'
   };
   const originals = new WeakMap();
-  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,.dn,.db b,[data-authored-copy],#ap';
-  let language = 'en';
-  try { if (localStorage.getItem('dopious-language') === 'th') language = 'th'; } catch (_) {}
+  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,.dn,.db b,[data-authored-copy],[data-content-language],#ap';
+  let language = 'th';
+  try { const saved = localStorage.getItem('dopious-language'); if (saved === 'th' || saved === 'en') language = saved; } catch (_) {}
   const controls = document.createElement('div');
   controls.className = 'language-switcher';
   controls.setAttribute('role', 'group');

@@ -534,3 +534,8 @@ html[lang="th"] #pdi .ds{white-space:pre-line}
 html[lang="th"] .pg :is(h2,h3,.svcp-hd-title,.svcp-name,.svcp-exp-name){font-weight:300!important;letter-spacing:0;line-height:1.25}
 
 .pg .language-switcher{margin-left:auto;margin-right:16px}
+
+.service-intro{max-width:850px;margin:0 0 28px}
+.service-intro h2{font-size:clamp(20px,3vw,30px);font-weight:400;line-height:1.4;letter-spacing:0;margin-bottom:10px}
+.service-intro p{font-size:14px;line-height:1.7;color:var(--t2);font-weight:300}
+html[lang="en"] [data-content-language="th"],html[lang="th"] [data-content-language="en"]{display:none}
