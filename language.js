@@ -44,7 +44,7 @@
     'FASHION DESIGN+':'ออกแบบแฟชั่น+','CREATIVE CONSULTATION+':'ที่ปรึกษางานสร้างสรรค์+'
   };
   const originals = new WeakMap();
-  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,.dn,.db b,#ap';
+  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,.dn,.db b,[data-authored-copy],#ap';
   let language = 'en';
   try { if (localStorage.getItem('dopious-language') === 'th') language = 'th'; } catch (_) {}
   const controls = document.createElement('div');
@@ -91,6 +91,7 @@
   const translatedBlocks = new WeakMap();
   function translateDetailBlocks() {
     document.querySelectorAll('#pdi .ds').forEach(element => {
+      if (element.hasAttribute('data-authored-copy')) return;
       const saved = translatedBlocks.get(element);
       if (saved && element.firstChild === saved.translated) {
         if (language === 'en') {
@@ -139,6 +140,7 @@
     observer.disconnect();
     document.documentElement.lang = language;
     placeControls();
+    if (typeof window.renderProjectLanguage === 'function') window.renderProjectLanguage(language);
     translateDetailBlocks();
     controls.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.language === language)));
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);

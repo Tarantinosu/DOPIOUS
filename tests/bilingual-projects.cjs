@@ -1,0 +1,33 @@
+const {chromium}=require('playwright');const assert=require('node:assert/strict');
+(async()=>{const b=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||'/usr/bin/chromium',args:['--no-sandbox']});try{
+ const p=await b.newPage();p.setDefaultTimeout(5000);await p.route('**/*',r=>new URL(r.request().url()).hostname==='127.0.0.1'?r.continue():r.request().url().includes('firebasejs')?r.fulfill({body:'',contentType:'text/javascript'}):r.abort());
+ await p.goto('http://127.0.0.1:8000/admin.html');
+ assert.equal(await p.locator('#nameTh').count(),1,'Thai project input exists');
+ await p.evaluate(()=>{window.firebase={firestore:{FieldValue:{serverTimestamp:()=>null}}};document.getElementById('admin').classList.remove('hidden');document.getElementById('login').classList.add('hidden');fillService();newProject()});
+ for(const [id,value] of Object.entries({name:'A new studio',nameTh:'สตูดิโอใหม่',desc:'Fresh new description',descTh:'คำบรรยายใหม่',story:'A new story',storyTh:'เรื่องราวใหม่',cover:'https://example.com/cover.png',gallery:'https://example.com/a.png\nhttps://example.com/b.png'}))await p.locator('#'+id).fill(value);
+ await p.evaluate(()=>renderGalleryPreview());
+ await p.locator('[data-cap="1"]').fill('Second image');await p.locator('[data-cap-th="1"]').fill('ภาพที่สอง');
+ const saved=await p.evaluate(async()=>{
+   const writes=[];db={collection:()=>({doc:()=>({set:async data=>writes.push(data)})})};
+   window.loadAll=async()=>{};
+   await saveProject();return writes[0];
+ });assert.equal(saved.translations.th.name,'สตูดิโอใหม่');assert.deepEqual(saved.translations.th.galleryCaptions,['','ภาพที่สอง']);assert.deepEqual(saved.galleryCaptions,['','Second image']);
+ await p.evaluate(data=>{allProjects=[normProject(data,'test','new')];editProject('test')},saved);
+ assert.equal(await p.locator('#storyTh').inputValue(),'เรื่องราวใหม่');assert.equal(await p.locator('[data-cap-th="1"]').inputValue(),'ภาพที่สอง');
+ const updated=await p.evaluate(async()=>{const writes=[];db={collection:()=>({doc:()=>({set:async(data,options)=>writes.push({data,options})})})};await saveProject();return writes[0]});
+ assert.equal(updated.data.translations.th.story,'เรื่องราวใหม่');assert.equal(updated.options.merge,true);
+ await p.evaluate(()=>newProject());assert.equal(await p.locator('#nameTh').inputValue(),'');
+ await p.goto('http://127.0.0.1:8000/');await p.evaluate(data=>{_P=[data];rSvc()},saved);
+ await p.getByRole('button',{name:'ภาษาไทย',exact:true}).click();await p.waitForTimeout(50);
+ assert.equal(await p.locator('.cat-slide-name').first().textContent(),'สตูดิโอใหม่');assert.equal(await p.locator('.svc-desc p').first().textContent(),'คำบรรยายใหม่');
+ await p.evaluate(()=>oPD(0));await p.waitForTimeout(50);
+ assert.equal(await p.locator('#pdi .dn').textContent(),'สตูดิโอใหม่');assert.equal(await p.locator('#pdi .ds').textContent(),'คำบรรยายใหม่');assert.equal(await p.locator('#pdi .dsc p').textContent(),'เรื่องราวใหม่');assert.equal(await p.locator('.detail-img-caption').last().textContent(),'ภาพที่สอง');
+ await p.getByRole('button',{name:'English',exact:true}).click();await p.waitForTimeout(50);
+ assert.equal(await p.locator('#pdi .dn').textContent(),'A new studio');assert.equal(await p.locator('#pdi .ds').textContent(),'Fresh new description');assert.equal(await p.locator('.detail-img-caption').last().textContent(),'Second image');
+ assert.equal(saved.name,'A new studio','base identity stays English');
+ await p.evaluate(data=>{data.translations.th.name='';data.translations.th.desc='';_P=[data];oPD(0)},saved);
+ await p.getByRole('button',{name:'ภาษาไทย',exact:true}).click();await p.waitForTimeout(30);
+ assert.equal(await p.locator('#pdi .dn').textContent(),'A new studio','missing Thai title falls back to English');
+ assert.equal(await p.locator('#pdi .ds').textContent(),'Fresh new description','missing Thai description falls back to English');
+ console.log('PASS: bilingual admin payload and edit/reset, blank caption indexes, new project cards/details/captions in both languages without a dictionary');
+}finally{await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});
