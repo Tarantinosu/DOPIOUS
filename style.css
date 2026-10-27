@@ -504,3 +504,11 @@ nav .language-switcher button[aria-pressed="true"]{background:var(--r);color:#ff
 html[lang="th"] body{font-family:'Prompt','DM Sans',sans-serif}
 html[lang="th"] h1,html[lang="th"] h2,html[lang="th"] .sti{line-height:1.3;letter-spacing:0}
 @media(max-width:768px){nav>.language-switcher{margin-left:auto;margin-right:12px}}
+
+/* Thai uses lighter weights while the English typography keeps its hierarchy. */
+html[lang="th"] body{font-weight:300}
+html[lang="th"] :is(h1,h2,h3,h4,.sti,.svcp-intro-h){font-weight:500!important}
+html[lang="th"] :is(p,.hi,.of,.psb,.svcp-intro-p){font-weight:300}
+html[lang="th"] :is(button,.btn,.nl button,.nbs,.mpn button,.stg,.ey,.tg em,.card-sub-list em,.card-sub-one,.slb span,.slb em,.cat-slide-label span){font-weight:400!important}
+html[lang="th"] :is(strong,b,.cat-slide-label strong){font-weight:500!important}
+nav .language-switcher button[lang="th"]{font-weight:400}
