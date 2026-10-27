@@ -16,6 +16,27 @@ const assert=require('node:assert/strict');
  await thai.click(); await page.waitForTimeout(100);
  assert.deepEqual(await page.locator('nav .logo').evaluate(e=>[e.textContent,getComputedStyle(e).fontFamily,getComputedStyle(e).fontWeight]),identity,'logo is identical in both languages');
  assert.deepEqual(await page.locator('.cat-slide-name').first().evaluate(e=>[getComputedStyle(e).fontFamily,getComputedStyle(e).fontWeight]),titleStyle,'project name typography stays unchanged');
+ for(let i=0;i<require('./project-copy.json').length;i++){
+   await page.evaluate(index=>oPD(index),i);await page.waitForTimeout(20);
+   assert(!/[a-z]/i.test(await page.locator('#pdi .dc').textContent()),'Thai detail category '+i);
+   assert(!/[a-z]/i.test(await page.locator('#pdi .ds').textContent()),'Thai detail description '+i);
+   assert(!/[a-z]/i.test(await page.locator('#pdi .dsc p').textContent()),'Thai detail story '+i);
+   for(const text of await page.locator('#pdi .detail-img-caption').allTextContents())assert(!/[a-z]/i.test(text),'Thai gallery caption '+i);
+   assert(await page.locator('#pd .language-switcher').count(),'language controls available on detail page');
+ }
+ const originalDetail=require('./project-copy.json').at(-1).desc;
+ await page.getByRole('button',{name:'English',exact:true}).evaluate(e=>e.click());await page.waitForTimeout(20);
+ assert.equal(await page.locator('#pdi .ds').textContent(),originalDetail,'detail English restoration');
+ await thai.evaluate(e=>e.click());await page.waitForTimeout(20);
+ await page.evaluate(()=>cPD());
+ await page.evaluate(()=>oH());await page.waitForTimeout(150);
+ for(const service of await page.evaluate(()=>CATS.map(c=>c.svc))){
+   await page.evaluate(service=>patchOpenSvc(service),service);await page.waitForTimeout(20);
+   assert(!/[a-z]/i.test(await page.locator('#svcExpanded').textContent()),'Thai expanded service '+service);
+ }
+ await page.evaluate(()=>{cH();oW()});await page.waitForTimeout(30);
+ assert(!/[a-z]/i.test((await page.locator('#wP .who-hero p').allTextContents()).join(' ')),'Thai about page');
+ await page.evaluate(()=>cW());await page.waitForTimeout(30);
  const cards=page.locator('.cat-slide-card[id]');
  for(let i=0;i<await cards.count();i++){
    const card=cards.nth(i);const count=await card.evaluate(e=>JSON.parse(e.dataset.slides).length);
@@ -47,6 +68,6 @@ const assert=require('node:assert/strict');
  assert.equal(await page.locator('#late-copy').innerText(),'Choose how to reach us');
  assert.equal(await page.locator('nav .nl button').first().textContent(),'Works');
  for(const width of [320,768,1024,1440]) {await page.setViewportSize({width,height:900}); const box=await thai.boundingBox();assert(box&&box.x>=0&&box.x+box.width<=width,'control fits '+width)}
- assert.deepEqual(errors,[]);console.log('PASS: all 20 project slide descriptions and category labels, unchanged logo and project titles, sixth hero slide, persistence, English restoration, responsive controls, no JS errors');
+ assert.deepEqual(errors,[]);console.log('PASS: 20 project cards and full detail pages, gallery captions, all 13 services and about page, unchanged logo and project titles, sixth hero slide, persistence, English restoration, responsive controls, no JS errors');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

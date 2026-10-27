@@ -44,7 +44,7 @@
     'FASHION DESIGN+':'ออกแบบแฟชั่น+','CREATIVE CONSULTATION+':'ที่ปรึกษางานสร้างสรรค์+'
   };
   const originals = new WeakMap();
-  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,#ap';
+  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,.dn,.db b,#ap';
   let language = 'en';
   try { if (localStorage.getItem('dopious-language') === 'th') language = 'th'; } catch (_) {}
   const controls = document.createElement('div');
@@ -67,7 +67,9 @@
   const mobileMenuButton = navigation.querySelector('.mbg');
   const compact = window.matchMedia('(max-width: 768px)');
   function placeControls() {
-    if (compact.matches) navigation.insertBefore(controls, mobileMenuButton);
+    const pageHeader = document.querySelector('.pg.on .pt,.pg.on .svcp-top');
+    if (pageHeader) pageHeader.insertBefore(controls, pageHeader.querySelector('.pbk'));
+    else if (compact.matches) navigation.insertBefore(controls, mobileMenuButton);
     else desktopMenu.insertBefore(controls, desktopMenu.querySelector('.nbs'));
   }
   placeControls();
@@ -85,18 +87,59 @@
     'Key Visual':'ภาพหลัก','General':'ทั่วไป','Packaging Structure':'โครงสร้างบรรจุภัณฑ์'
   }).map(([key,value]) => [normalize(key), value]));
   const cardCopy = new Map(Object.entries(window.DOPIOUS_CARD_TH || {}).map(([key,value]) => [normalize(key), value]));
+  const detailCopy = new Map(Object.entries(window.DOPIOUS_DETAIL_TH || {}).map(([key,value]) => [normalize(key), value]));
+  const translatedBlocks = new WeakMap();
+  function translateDetailBlocks() {
+    document.querySelectorAll('#pdi .ds').forEach(element => {
+      const saved = translatedBlocks.get(element);
+      if (saved && element.firstChild === saved.translated) {
+        if (language === 'en') {
+          element.replaceChildren(...saved.nodes);
+          translatedBlocks.delete(element);
+        }
+        return;
+      }
+      if (language !== 'th') return;
+      const nodes = Array.from(element.childNodes);
+      const links = nodes.filter(n => n.nodeType === 1 && n.matches('a'));
+      const source = nodes.filter(n => !links.includes(n)).map(n => n.nodeName === 'BR' ? '\n' : n.textContent).join('');
+      const copy = detailCopy.get(normalize(source)) || cardCopy.get(normalize(source));
+      if (!copy) return;
+      const translated = document.createTextNode(copy);
+      translatedBlocks.set(element, {nodes, translated});
+      element.replaceChildren(translated, ...links);
+    });
+  }
   function translate(value, parent) {
     if (language !== 'th') return value;
     const key = normalize(value);
     let translated;
     if (parent.closest('.svc-desc')) translated = cardCopy.get(key);
-    if (!translated && parent.closest('.cat-slide-card')) translated = cardTerms.get(key);
+    if (!translated) translated = cardTerms.get(key) || detailCopy.get(key);
     translated = translated || uiCopy.get(key);
+    if (!translated && /^View All (.+) Work\s*$/.test(value)) {
+      const service = value.match(/^View All (.+) Work/)[1];
+      translated = 'ดูผลงาน' + (uiCopy.get(normalize(service)) || service) + 'ทั้งหมด ';
+    }
+    if (!translated && / \/ | — /.test(value)) {
+      const parts = text => {
+        const key = normalize(text);
+        const direct = uiCopy.get(key) || cardTerms.get(key) || detailCopy.get(key);
+        if (direct) return direct;
+        const separator = text.includes(' — ') ? ' — ' : text.includes(' / ') ? ' / ' : null;
+        if (!separator) return text;
+        const split = text.indexOf(separator);
+        return parts(text.slice(0, split)) + separator + parts(text.slice(split + separator.length));
+      };
+      translated = parts(value);
+    }
     return translated ? value.replace(value.trim(), translated) : value;
   }
   function render() {
     observer.disconnect();
     document.documentElement.lang = language;
+    placeControls();
+    translateDetailBlocks();
     controls.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.language === language)));
     const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
     let node;
@@ -114,7 +157,7 @@
       input.dataset.originalPlaceholder = source;
       input.placeholder = language === 'th' && source === 'YOUR EMAIL ADDRESS' ? 'อีเมลของคุณ' : source;
     });
-    observer.observe(document.body, {childList:true, subtree:true, characterData:true});
+    observer.observe(document.body, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:['class']});
   }
   const observer = new MutationObserver(render);
   render();
