@@ -51,6 +51,7 @@ const SLS=[
   {ey:'Passion',ti:'Build what<br><em>you believe in.</em>',st:'We translate your passion into a brand people can understand.',de:'Identity, key visual, space, product story, and content work together.',tg:['Identity','Key Visual','Space','Media'],bg:false},
   {ey:'Flexible Budget',ti:'Start small<br><em>or go full scale.</em>',st:'Budget-based customization available.',de:'Begin with consultation, then scale to design, prototype, production, and launch.',tg:['Consult','Design','Prototype','Launch'],bg:true},
   {ey:'From Dream to Reality',ti:'Concept<br><em>to production.</em>',st:'We help move ideas into real outputs.',de:'3D visualization, content, supplier coordination, and production follow-up.',tg:['3D Visual','Content','Supplier','Follow-up'],bg:false},
+  {ey:'Spaces you imagine',ti:'Design spaces<br><em>the way you dream.</em>',st:'Thoughtful spaces, built around your life and your brand.',de:'From homes and retail spaces to exhibitions, we bring your vision to life.',tg:['Home','Retail','Exhibition','Interior'],bg:false},
 ];
 
 /* Scroll lock */

@@ -1,7 +1,11 @@
-/* Public website UI translations. CMS project names and custom copy stay as authored. */
+/* Public UI and slide translations. Project names and brand identity remain unchanged. */
 (function () {
   'use strict';
   const th = {
+    'Spaces you imagine':'พื้นที่ในฝันของคุณ','Design spaces':'ออกแบบพื้นที่','the way you dream.':'ในแบบที่คุณฝัน',
+    'Thoughtful spaces, built around your life and your brand.':'ออกแบบอย่างเข้าใจ ให้เข้ากับชีวิตและแบรนด์ของคุณ',
+    'From homes and retail spaces to exhibitions, we bring your vision to life.':'จากบ้านและร้านค้า ไปจนถึงพื้นที่จัดแสดง เราช่วยทำให้ภาพในใจเป็นจริง',
+    'Home':'บ้าน','Retail':'ร้านค้า','Exhibition':'นิทรรศการ','Interior':'ตกแต่งภายใน',
     'Works':'ผลงาน','Services':'บริการ','Who We Are':'เกี่ยวกับเรา','Contact':'ติดต่อเรา',
     'Start a Project':'เริ่มโปรเจกต์','View Work':'ชมผลงาน','What We Do':'สิ่งที่เราทำ','SERVICES':'บริการ',
     'One-stop Service':'บริการครบวงจร','Creative work':'งานสร้างสรรค์','from start to finish.':'ตั้งแต่ต้นจนจบ',
@@ -40,7 +44,7 @@
     'FASHION DESIGN+':'ออกแบบแฟชั่น+','CREATIVE CONSULTATION+':'ที่ปรึกษางานสร้างสรรค์+'
   };
   const originals = new WeakMap();
-  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,#ap';
+  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,#ap';
   let language = 'en';
   try { if (localStorage.getItem('dopious-language') === 'th') language = 'th'; } catch (_) {}
   const controls = document.createElement('div');
@@ -68,9 +72,27 @@
   }
   placeControls();
   compact.addEventListener('change', placeControls);
-  function translate(value) {
-    const key = value.trim();
-    return language === 'th' && th[key] ? value.replace(key, th[key]) : value;
+  const normalize = value => value.replace(/\s+/g, ' ').trim().toLowerCase();
+  const uiCopy = new Map(Object.entries(th).flatMap(([key, value]) => [
+    [normalize(key), value], [normalize(key.replace(/\+$/, '')), value.replace(/\+$/, '')]
+  ]));
+  const cardTerms = new Map(Object.entries({
+    'Retail':'พื้นที่ค้าปลีก','Commercial':'พื้นที่เชิงพาณิชย์','Residential':'ที่อยู่อาศัย',
+    'Office':'สำนักงาน','Exhibition':'นิทรรศการ','Event':'อีเวนต์','Kiosk':'คีออสก์',
+    'Pop-up Store':'ร้านค้าชั่วคราว','VM / Display':'จัดแสดงสินค้า','Window Display':'ตู้โชว์หน้าร้าน',
+    'Art Installation':'ศิลปะจัดวาง','Sculpture':'ประติมากรรม','Motion Graphic':'กราฟิกเคลื่อนไหว',
+    '3D Visualization':'ภาพสามมิติ','Product':'ผลิตภัณฑ์','Product Visualization':'ภาพจำลองผลิตภัณฑ์',
+    'Key Visual':'ภาพหลัก','General':'ทั่วไป','Packaging Structure':'โครงสร้างบรรจุภัณฑ์'
+  }).map(([key,value]) => [normalize(key), value]));
+  const cardCopy = new Map(Object.entries(window.DOPIOUS_CARD_TH || {}).map(([key,value]) => [normalize(key), value]));
+  function translate(value, parent) {
+    if (language !== 'th') return value;
+    const key = normalize(value);
+    let translated;
+    if (parent.closest('.svc-desc')) translated = cardCopy.get(key);
+    if (!translated && parent.closest('.cat-slide-card')) translated = cardTerms.get(key);
+    translated = translated || uiCopy.get(key);
+    return translated ? value.replace(value.trim(), translated) : value;
   }
   function render() {
     observer.disconnect();
@@ -83,7 +105,7 @@
       const previous = originals.get(node);
       // Respect updates from the carousel or CMS instead of restoring stale copy.
       const source = previous && node.nodeValue === previous.rendered ? previous.source : node.nodeValue;
-      const rendered = translate(source);
+      const rendered = translate(source, node.parentElement);
       if (node.nodeValue !== rendered) node.nodeValue = rendered;
       originals.set(node, {source, rendered});
     }

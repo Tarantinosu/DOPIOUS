@@ -512,3 +512,17 @@ html[lang="th"] :is(p,.hi,.of,.psb,.svcp-intro-p){font-weight:300}
 html[lang="th"] :is(button,.btn,.nl button,.nbs,.mpn button,.stg,.ey,.tg em,.card-sub-list em,.card-sub-one,.slb span,.slb em,.cat-slide-label span){font-weight:400!important}
 html[lang="th"] :is(strong,b,.cat-slide-label strong){font-weight:500!important}
 nav .language-switcher button[lang="th"]{font-weight:400}
+
+/* Keep the wordmark and English project names identical in either language. */
+html[lang] .logo,html[lang] .cat-slide-name{font-family:'DM Sans','Prompt',Arial,sans-serif}
+/* Lighter, tighter Thai slide copy; the English card styling is unchanged. */
+html[lang="th"] .cat-slide-card :is(.card-head,.card-sub-one,.card-sub-list em,.svc-desc p){font-weight:300!important;letter-spacing:0!important}
+html[lang="th"] .cat-slide-card .card-head{line-height:1.2!important}
+html[lang="th"] .cat-slide-card .svc-desc p{line-height:1.5!important}
+
+/* Compact Thai hero rhythm without changing the English layout. */
+html[lang="th"] .hero h1{font-weight:300!important;line-height:1.12;letter-spacing:0}
+html[lang="th"] .hero h1 em{font-weight:300;margin-top:0;line-height:1.12}
+html[lang="th"] .hero :is(.ey,.tg em,.btn,.hi strong){letter-spacing:0;font-weight:300!important}
+html[lang="th"] .hero .hi{line-height:1.5}
+html[lang="th"] .hero .hi strong{margin-bottom:3px}
