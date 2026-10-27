@@ -1,0 +1,99 @@
+/* Public website UI translations. CMS project names and custom copy stay as authored. */
+(function () {
+  'use strict';
+  const th = {
+    'Works':'ผลงาน','Services':'บริการ','Who We Are':'เกี่ยวกับเรา','Contact':'ติดต่อเรา',
+    'Start a Project':'เริ่มโปรเจกต์','View Work':'ชมผลงาน','What We Do':'สิ่งที่เราทำ','SERVICES':'บริการ',
+    'One-stop Service':'บริการครบวงจร','Creative work':'งานสร้างสรรค์','from start to finish.':'ตั้งแต่ต้นจนจบ',
+    'Strategy, design, visuals, and production in one workflow.':'กลยุทธ์ ออกแบบ สื่อภาพ และผลิต ในกระบวนการเดียว',
+    'Choose the services you need, or connect everything into one complete project.':'เลือกบริการที่ต้องการ หรือรวมทุกบริการเป็นโปรเจกต์ครบวงจร',
+    'Start with a rough idea. We shape it into a clear design plan.':'เริ่มจากไอเดียคร่าว ๆ เราช่วยพัฒนาให้เป็นแผนออกแบบที่ชัดเจน',
+    'For brands, products, spaces, campaigns, and visual experiences.':'สำหรับแบรนด์ ผลิตภัณฑ์ พื้นที่ แคมเปญ และประสบการณ์ทางภาพ',
+    'Passion':'ความมุ่งมั่น','Build what':'สร้างสิ่งที่','you believe in.':'คุณเชื่อมั่น',
+    'We translate your passion into a brand people can understand.':'เราเปลี่ยนความมุ่งมั่นของคุณให้เป็นแบรนด์ที่ผู้คนเข้าใจ',
+    'Identity, key visual, space, product story, and content work together.':'เชื่อมอัตลักษณ์ ภาพหลัก พื้นที่ เรื่องราวผลิตภัณฑ์ และคอนเทนต์เข้าด้วยกัน',
+    'Flexible Budget':'ยืดหยุ่นตามงบประมาณ','Start small':'เริ่มจากงานเล็ก','or go full scale.':'หรือสร้างสรรค์เต็มรูปแบบ',
+    'Budget-based customization available.':'ปรับขอบเขตงานให้เหมาะกับงบประมาณได้',
+    'Begin with consultation, then scale to design, prototype, production, and launch.':'เริ่มจากปรึกษา ต่อยอดสู่ออกแบบ ทำต้นแบบ ผลิต และเปิดตัว',
+    'Brief':'บรีฟงาน','Mood':'อารมณ์งาน','Plan':'วางแผน','Identity':'อัตลักษณ์','Key Visual':'ภาพหลัก','Space':'พื้นที่','Media':'สื่อ','3D Visual':'ภาพสามมิติ',
+    'Dream':'ความฝัน','Turn ideas':'เปลี่ยนไอเดีย','into direction.':'ให้เป็นทิศทางที่ชัดเจน',
+    'Design':'ออกแบบ','Strategy':'กลยุทธ์','Visual':'สื่อภาพ','Production':'ผลิต','Install':'ติดตั้ง',
+    'Build':'สร้าง','From Dream to Reality':'จากความฝันสู่ความจริง','Concept':'แนวคิด','to production.':'สู่การผลิต',
+    'We help move ideas into real outputs.':'เราช่วยเปลี่ยนไอเดียให้เป็นผลงานจริง',
+    '3D visualization, content, supplier coordination, and production follow-up.':'ภาพสามมิติ คอนเทนต์ ประสานงานผู้ผลิต และติดตามการผลิต',
+    'Consult':'ปรึกษา','Prototype':'ต้นแบบ','Launch':'เปิดตัว','Content':'คอนเทนต์','Supplier':'ผู้ผลิต','Follow-up':'ติดตามงาน',
+    'LET\'S':'มาร่วม','CREATE':'สร้างสรรค์','Ready to build something great?':'พร้อมสร้างสิ่งดี ๆ ด้วยกันไหม?',
+    'Start with a brief or just say hello.':'เริ่มจากบรีฟงาน หรือทักมาคุยกันได้เลย',
+    'Office':'สำนักงาน','Bangkok / Thailand':'กรุงเทพฯ / ประเทศไทย','Phone':'โทรศัพท์','Email':'อีเมล',
+    'All rights reserved':'สงวนลิขสิทธิ์','← Back':'← กลับ','CONTACT':'ติดต่อเรา',
+    'WHO':'เกี่ยวกับ','WE ARE':'เรา','Everything':'ทุกบริการ','in one place':'ครบในที่เดียว',
+    'Most agencies do one thing. We do everything — strategy, design, visuals, production, and installation — all connected in one workflow. You brief us once, we handle the rest start to finish.':'เราดูแลครบตั้งแต่กลยุทธ์ ออกแบบ สื่อภาพ ผลิต และติดตั้ง เชื่อมต่อทุกขั้นตอนในกระบวนการเดียว เพียงบรีฟครั้งเดียว เราดูแลต่อให้ตั้งแต่ต้นจนจบ',
+    'Tarn and Mo, with 20 years of combined experience, know that every idea can become real. Many struggle to go from vision to final product, but we guide you every step. Our team turns your vision into a complete reality, start to finish.':'ตาลและโม ด้วยประสบการณ์รวมกว่า 20 ปี เชื่อว่าทุกไอเดียเกิดขึ้นจริงได้ เราพร้อมพาคุณก้าวจากภาพในใจสู่ผลงานจริง ดูแลทุกขั้นตอนตั้งแต่ต้นจนจบ',
+    'Start a':'เริ่มต้น','Project':'โปรเจกต์','Choose how to reach us':'เลือกช่องทางติดต่อเรา',
+    'Team profiles coming soon.':'พบกับทีมงานของเราเร็ว ๆ นี้','Loading...':'กำลังโหลด...','Error loading':'โหลดข้อมูลไม่สำเร็จ',
+    'Upload projects from Admin':'เพิ่มผลงานผ่านหน้าแอดมิน','Client':'ลูกค้า','CLIENTS':'ลูกค้า','Credit':'เครดิต','Year':'ปี',
+    'Project Detail':'รายละเอียดโปรเจกต์','Scope of Work':'ขอบเขตงาน','View Projects':'ดูโปรเจกต์','View All':'ดูทั้งหมด',
+    'SPACE DESIGN+':'ออกแบบพื้นที่+','SCULPTURE DESIGN+':'ออกแบบประติมากรรม+','VISUAL PRODUCTION+':'ผลิตสื่อภาพ+',
+    'GRAPHIC DESIGN+':'ออกแบบกราฟิก+','BRANDING DESIGN+':'ออกแบบแบรนด์+','KEY VISUAL DESIGN+':'ออกแบบภาพหลัก+',
+    'BUILD & INSTALL+':'ก่อสร้างและติดตั้ง+','PRODUCTION SOURCING+':'จัดหาผู้ผลิต+',
+    'INDUSTRIAL DESIGN+':'ออกแบบผลิตภัณฑ์+','CORPORATE DESIGN+':'ออกแบบองค์กร+','DIGITAL DESIGN+':'ออกแบบดิจิทัล+',
+    'FASHION DESIGN+':'ออกแบบแฟชั่น+','CREATIVE CONSULTATION+':'ที่ปรึกษางานสร้างสรรค์+'
+  };
+  const originals = new WeakMap();
+  const excluded = 'script,style,textarea,[contenteditable],.language-switcher,#ap';
+  let language = 'en';
+  try { if (localStorage.getItem('dopious-language') === 'th') language = 'th'; } catch (_) {}
+  const controls = document.createElement('div');
+  controls.className = 'language-switcher';
+  controls.setAttribute('role', 'group');
+  controls.setAttribute('aria-label', 'Language / ภาษา');
+  for (const [code, label, name] of [['th','ไทย','ภาษาไทย'],['en','EN','English']]) {
+    const button = document.createElement('button');
+    button.type = 'button'; button.lang = code; button.textContent = label;
+    button.setAttribute('aria-label', name); button.dataset.language = code;
+    button.addEventListener('click', () => {
+      language = code;
+      try { localStorage.setItem('dopious-language', code); } catch (_) {}
+      render();
+    });
+    controls.append(button);
+  }
+  const navigation = document.querySelector('nav');
+  const desktopMenu = navigation.querySelector('.nl');
+  const mobileMenuButton = navigation.querySelector('.mbg');
+  const compact = window.matchMedia('(max-width: 768px)');
+  function placeControls() {
+    if (compact.matches) navigation.insertBefore(controls, mobileMenuButton);
+    else desktopMenu.insertBefore(controls, desktopMenu.querySelector('.nbs'));
+  }
+  placeControls();
+  compact.addEventListener('change', placeControls);
+  function translate(value) {
+    const key = value.trim();
+    return language === 'th' && th[key] ? value.replace(key, th[key]) : value;
+  }
+  function render() {
+    observer.disconnect();
+    document.documentElement.lang = language;
+    controls.querySelectorAll('button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.language === language)));
+    const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.parentElement.closest(excluded)) continue;
+      const previous = originals.get(node);
+      // Respect updates from the carousel or CMS instead of restoring stale copy.
+      const source = previous && node.nodeValue === previous.rendered ? previous.source : node.nodeValue;
+      const rendered = translate(source);
+      if (node.nodeValue !== rendered) node.nodeValue = rendered;
+      originals.set(node, {source, rendered});
+    }
+    document.querySelectorAll('input[placeholder]').forEach(input => {
+      const source = input.dataset.originalPlaceholder || input.placeholder;
+      input.dataset.originalPlaceholder = source;
+      input.placeholder = language === 'th' && source === 'YOUR EMAIL ADDRESS' ? 'อีเมลของคุณ' : source;
+    });
+    observer.observe(document.body, {childList:true, subtree:true, characterData:true});
+  }
+  const observer = new MutationObserver(render);
+  render();
+})();
