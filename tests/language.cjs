@@ -50,12 +50,12 @@ const assert=require('node:assert/strict');
  }
 
  await page.evaluate(()=>{clearInterval(_ht);sHS(SLS.length-1,true)});await page.waitForTimeout(50);
- assert.equal(await page.locator('#hD span').count(),6,'six hero slides');
- assert.match(await page.locator('#hTi').textContent(),/ออกแบบพื้นที่/);
+ assert.equal(await page.locator('#hD button').count(),14,'all service slides and one-stop closing slide');
+ assert.match(await page.locator('#hTi').textContent(),/บริการออกแบบ/);
  assert.equal(await page.locator('#hTi').evaluate(e=>getComputedStyle(e).fontWeight),'300');
  assert.equal(await page.locator('.card-head').first().evaluate(e=>getComputedStyle(e).letterSpacing),'normal');
  await page.getByRole('button',{name:'English',exact:true}).click();await page.waitForTimeout(50);
- assert.match(await page.locator('#hTi').textContent(),/Design spaces/);
+ assert.match(await page.locator('#hTi').textContent(),/One-stop/);
  assert.match(await cards.first().locator('.svc-desc').textContent(),/[a-z]/i,'original English description restored');
  await thai.click();await page.waitForTimeout(50);
  assert.equal(await page.locator('html').getAttribute('lang'),'th');
@@ -71,6 +71,6 @@ const assert=require('node:assert/strict');
  await page.reload();await page.waitForTimeout(50);
  assert.equal(await page.locator('html').getAttribute('lang'),'en','English preference survives reload');
  for(const width of [320,768,1024,1440]) {await page.setViewportSize({width,height:900}); const box=await thai.boundingBox();assert(box&&box.x>=0&&box.x+box.width<=width,'control fits '+width)}
- assert.deepEqual(errors,[]);console.log('PASS: 20 project cards and full detail pages, gallery captions, all 13 services and about page, unchanged logo and project titles, sixth hero slide, persistence, English restoration, responsive controls, no JS errors');
+ assert.deepEqual(errors,[]);console.log('PASS: 20 project cards and full detail pages, gallery captions, all 13 services and about page, unchanged logo and project titles, service hero slides, persistence, English restoration, responsive controls, no JS errors');
  }finally{await browser.close()}
 })().catch(e=>{console.error(e);process.exitCode=1});

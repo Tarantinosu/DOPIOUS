@@ -43,7 +43,7 @@ for page in pages:
         output = re.sub(r'(<meta ' + attr + r' content=")[^"]*', lambda m: m[1] + esc(value), output)
     output = re.sub(r'(<link rel="canonical" href=")[^"]*', lambda m: m[1] + url, output)
     output = output.replace('<body>', f'<body data-seo-service="{esc(page["service"])}" data-seo-category="{esc(page.get("category") or "")}">')
-    output = re.sub(r'((?:src|href)=")((?:app|patch|language|project-languages|project-copy-th|detail-copy-th|seo-pages)\.js|style\.css|favicon\.png)', r'\1/\2', output)
+    output = re.sub(r'((?:src|href)=")((?:app|patch|language|hero-slides|project-languages|project-copy-th|detail-copy-th|seo-pages)\.js|style\.css|favicon\.png)', r'\1/\2', output)
     output = output.replace("location.href='admin.html", "location.href='/admin.html")
     output = re.sub(r'<a class="logo" href="#" onclick="[^"]*"', '<a class="logo" href="/"', output, count=1)
 

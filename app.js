@@ -45,14 +45,7 @@ const CAT_ALIAS={
 
 
 /* Hero slides */
-const SLS=[
-  {ey:'One-stop Service',ti:'Creative work<br><em>from start to finish.</em>',st:'Strategy, design, visuals, and production in one workflow.',de:'Choose the services you need, or connect everything into one complete project.',tg:['Strategy','Design','Visual','Production'],bg:false},
-  {ey:'Dream',ti:'Turn ideas<br><em>into direction.</em>',st:'Start with a rough idea. We shape it into a clear design plan.',de:'For brands, products, spaces, campaigns, and visual experiences.',tg:['Brief','Concept','Mood','Plan'],bg:false},
-  {ey:'Passion',ti:'Build what<br><em>you believe in.</em>',st:'We translate your passion into a brand people can understand.',de:'Identity, key visual, space, product story, and content work together.',tg:['Identity','Key Visual','Space','Media'],bg:false},
-  {ey:'Flexible Budget',ti:'Start small<br><em>or go full scale.</em>',st:'Budget-based customization available.',de:'Begin with consultation, then scale to design, prototype, production, and launch.',tg:['Consult','Design','Prototype','Launch'],bg:true},
-  {ey:'From Dream to Reality',ti:'Concept<br><em>to production.</em>',st:'We help move ideas into real outputs.',de:'3D visualization, content, supplier coordination, and production follow-up.',tg:['3D Visual','Content','Supplier','Follow-up'],bg:false},
-  {ey:'Spaces you imagine',ti:'Design spaces<br><em>the way you dream.</em>',st:'Thoughtful spaces, built around your life and your brand.',de:'From homes and retail spaces to exhibitions, we bring your vision to life.',tg:['Home','Retail','Exhibition','Interior'],bg:false},
-];
+const SLS=window.DOPIOUS_HERO_SLIDES.map(({th,...slide})=>slide);
 
 /* Scroll lock */
 var _sy=0;
@@ -86,14 +79,14 @@ function sHS(i,ins){
     document.getElementById('hEy').textContent=s.ey;
     document.getElementById('hTi').innerHTML=s.ti;
     document.getElementById('hIn').innerHTML='<strong>'+s.st+'</strong><span>'+s.de+'</span><div class="tg">'+s.tg.map(t=>'<em>'+t+'</em>').join('')+'</div>';
-    document.querySelectorAll('#hD span').forEach((d,j)=>d.classList.toggle('on',j===i));
+    document.querySelectorAll('#hD button').forEach((d,j)=>{d.classList.toggle('on',j===i);d.setAttribute('aria-current',j===i?'true':'false');});
     hc&&hc.classList.remove('fd');
   };
   if(ins){go();return;}hc&&hc.classList.add('fd');setTimeout(go,100);
 }
 function initHero(){
   const d=document.getElementById('hD');
-  SLS.forEach((_,i)=>{const s=document.createElement('span');s.onclick=()=>{clearInterval(_ht);sHS(i,true);_ht=setInterval(()=>sHS((_hi+1)%SLS.length),5200);};d.appendChild(s);});
+  SLS.forEach((slide,i)=>{const button=document.createElement('button');button.type='button';button.setAttribute('aria-label',(i+1)+'. '+slide.ey+' / '+(window.DOPIOUS_HERO_SLIDES[i]?.th.ey||slide.ey));button.onclick=()=>{clearInterval(_ht);sHS(i,true);_ht=setInterval(()=>sHS((_hi+1)%SLS.length),5200);};d.appendChild(button);});
   sHS(0,true);
   _ht=setInterval(()=>sHS((_hi+1)%SLS.length),5200);
 }

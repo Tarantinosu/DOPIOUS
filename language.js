@@ -43,6 +43,13 @@
     'INDUSTRIAL DESIGN+':'ออกแบบผลิตภัณฑ์+','CORPORATE DESIGN+':'ออกแบบองค์กร+','DIGITAL DESIGN+':'ออกแบบดิจิทัล+',
     'FASHION DESIGN+':'ออกแบบแฟชั่น+','CREATIVE CONSULTATION+':'ที่ปรึกษางานสร้างสรรค์+'
   };
+  // Keep hero copy in one bilingual source while preserving the shared carousel.
+  (window.DOPIOUS_HERO_SLIDES || []).forEach(slide => {
+    ['ey','st','de'].forEach(field => { th[slide[field]] = slide.th[field]; });
+    const pieces = value => value.split(/<[^>]+>/).filter(Boolean);
+    pieces(slide.ti).forEach((text, index) => { th[text] = pieces(slide.th.ti)[index]; });
+    slide.tg.forEach((text,index) => { th[text] = slide.th.tg[index]; });
+  });
   const originals = new WeakMap();
   const excluded = 'script,style,textarea,[contenteditable],.language-switcher,.logo,.cat-slide-name,.dn,.db b,[data-authored-copy],[data-content-language],#ap';
   let language = 'th';
